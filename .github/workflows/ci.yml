@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, staging, development]
+  push:
+    branches: [main, staging, development]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build, unit tests and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: android
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ZekkeLLC/mobile-base
+          ref: ${{ vars.MOBILE_BASE_REF || 'main' }}
+          path: mobile-base
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install the NDK the core pins
+        run: |
+          ndk_version="$(sed -n 's/^android-ndk = "\(.*\)"$/\1/p' mobile-base/gradle/libs.versions.toml)"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$ndk_version"
+
+      - name: Build both variants, test and lint
+        working-directory: android
+        run: ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest testDebugUnitTest lintDebug

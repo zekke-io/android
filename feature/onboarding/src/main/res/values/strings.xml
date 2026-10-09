@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="start_title">Zekke</string>
+    <string name="start_tagline">Your encrypted vault, drive and passwords.</string>
+    <string name="start_version">Version %1$s</string>
+</resources>
