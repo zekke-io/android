@@ -19,7 +19,14 @@ Read [README.md](README.md) and [tasks.md](tasks.md) before changing anything he
 - **A visual change to `ui` re-records its screenshots** (`./gradlew :ui:recordRoborazziDebug`) and the contrast pairs in `PaletteContrastTest` cover any new colour.
 - **The copy follows the brand book's voice**: sentence case, verbs on buttons, *this phone*, one message for a wrong PIN, no emoji.
 
+## Working on a task
+
+**Load the `android-feature-work` skill** (`.claude/skills/android-feature-work/SKILL.md`) before
+implementing, reviewing or closing any task here: the web app's outcomes and copy, the lifecycle
+holds, the focus rules, the tests a task needs and how to verify it end to end.
+
 ## Conventions
 
 - No comments in code; each module's `README.md` holds its documentation.
-- No git commands.
+- Git: read diffs freely; commit messages are a short description of what changed, without a
+  co-author line or mention of internal docs and tasks; never push without asking.

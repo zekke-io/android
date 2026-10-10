@@ -130,9 +130,64 @@ and an `android` row in the API's `client_releases` (A8.4).
   the emulator: the saved PDF's text layer holds no word of the phrase, its QR code decodes to the
   phrase, a cancelled print keeps the vault shut, and every account opened in the web app with its
   phrase.
+- [x] **A1.3 Adding this phone with the phrase.** One field per word, an in-app BIP39 suggestion row,
+  the checksum before the PIN step, the account PIN on a Paranoid account (one message for every
+  refusal), `TooManyDevices` listing the devices to choose from.
+  **Done 2026-10-10**: `EnrolmentScreens.kt` and the enrolment half of `OnboardingViewModel`, over the
+  core's `enrolThisDevice` and its new `mnemonicWordSuggestions`; `ui` gained `CheckboxRow` and the
+  keyboard options of `PrivateField`. The process is held while the phone is added; no account for
+  the phrase has its own message; after two refused account PINs the screen suggests waiting. 13
+  ViewModel and 4 Robolectric tests, the keyboard's *Next* among them. On the emulator against the
+  local API, typing with the keyboard: a Standard account at its 20-device limit, the phone added by
+  removing one device it chose (gone on the server afterwards), and a Paranoid account with 24 words
+  refusing a wrong account PIN twice, then adding the phone with the right one.
+- [ ] **A1.4 maps `DeviceVaultUnavailableException`** to "unlock the phone first".
+  - [ ] **A8.2 checks `keyLocation`** is the trusted environment or StrongBox on a real phone.
+
+- [x] **A0.6 The session's lifecycle.** The app observes the core's session state; a lock clears
+  every screen's state and navigates to the unlock screen. Locking on leaving the foreground
+  (`ProcessLifecycleOwner`), on the screen turning off, after the idle timeout; the exception for a
+  system picker the app launched, with a maximum; ending the process after a lock unless an upload
+  runs. *Done when* Robolectric tests cover each trigger and the picker exception.
+  **Done 2026-10-09**: `SessionGuard` and `AppRoot` in `app`; 9 Robolectric tests for the triggers
+  (leaving the foreground, the screen-off broadcast, the idle lock in and out of the foreground,
+  user activity), the picker exception and its maximum, and a transfer keeping the process; one
+  for a lock clearing every ViewModel and remembered value. On the emulator, Home ends the process
+  and the app reopens in a new one.
+  - [ ] **A5.2 calls `pickerWillOpen()`** before every picker and `transferStarted()` /
+    `transferFinished()` around every upload.
+
+## A1 — Onboarding and unlock
+
+- [x] **A1.1 Creating an account.** Start, the mode (Standard or Paranoid, the one-way sentence
+  before the PIN), the PIN (twice for Paranoid, the account PIN becoming this phone's), creating,
+  then the recovery kit. *Done when* an account created on the emulator against the local API opens
+  in the web app with its phrase.
+  **Done 2026-10-10**: `feature:onboarding` and `CoreOnboardingServices` in `app`; 11 ViewModel
+  tests and 4 Robolectric screen tests. On the emulator against the local API, a Paranoid account
+  with 24 words was created through the screens (a weak PIN refused first), its phrase read from the
+  screen, *Lock* and a relaunch opened on the locked screen, and the web app's own `lib/account`
+  entered the account with that phrase and PIN, found the same username and Paranoid mode, and
+  deleted it. A1.2 turned the recovery step into the kit step.
+- [x] **A1.2 The recovery kit.** The web app's page from the core's content, the phrase as vector
+  outlines and the QR code holding the bare phrase, printed through the print framework or saved
+  through the system picker; the vault stays shut until it was saved or printed once. The phrase can
+  be revealed, never copied.
+  **Done 2026-10-10**: the content is the core's new `recoverykit` package (ported from the web
+  app, its glyph outlines checked against the web app's); the page is drawn with `PdfDocument`, the
+  QR code by zxing's encoder; *Save as PDF* through the system picker and *Print* through the print
+  framework. **What a lock does on the kit step was decided here**: the onboarding holds the
+  process and the phrase from creating until the kit is saved, so leaving the app or the idle lock
+  no longer loses the phrase; if the process ends anyway, the app says so once on its next start. On
+  the emulator: the saved PDF's text layer holds no word of the phrase, its QR code decodes to the
+  phrase, a cancelled print keeps the vault shut, and every account opened in the web app with its
+  phrase.
 - [ ] **A1.3 Adding this phone with the phrase.** One field per word, an in-app BIP39 suggestion row,
   the checksum before the PIN step, the account PIN on a Paranoid account (one message for every
   refusal), `TooManyDevices` listing the devices to choose from.
+  **Implemented 2026-10-10; onboarding tests passed on API 37 (20 unit/Robolectric, 3 instrumented).** The core-backed flow checks the BIP39
+  checksum before PIN entry, keeps the phrase in zeroable arrays, uses one refusal message, and lets
+  the user select devices to remove when the account is full. The instrumented tests cover recovery-kit rendering; A1.3 phrase enrolment has no dedicated test yet.
 - [ ] **A1.4 Unlock.** Six boxes submitted on the sixth digit; every outcome worded as the web app
   words it (wrong PIN with attempts left, registration gone, offline, rate limited); the chain
   verified after unlocking and a problem shown, not hidden; `rewrapStale` after unlocking.

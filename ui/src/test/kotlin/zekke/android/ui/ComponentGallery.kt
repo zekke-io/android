@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import zekke.android.ui.components.AppTile
 import zekke.android.ui.components.Block
+import zekke.android.ui.components.CheckboxRow
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.EmptyState
 import zekke.android.ui.components.FloatingAddButton
@@ -56,6 +57,10 @@ fun ComponentGallery() {
             onSelect = {},
             label = "Protection mode",
         )
+        Column {
+            CheckboxRow("Added 3 Oct 2026", checked = true, onCheckedChange = {}, detail = "Device ending …d911b424", detailIsValue = true)
+            CheckboxRow("Added 9 Oct 2026", checked = false, onCheckedChange = {}, detail = "Device ending …7a3c01fe", detailIsValue = true)
+        }
         Notice("A username is permanent. Choose one you are happy to share with your contacts.")
         Notice("Password saved.", tone = NoticeTone.Success, onDismiss = {})
         Notice("Your plan ends in 6 days.", tone = NoticeTone.Warning, onDismiss = {})

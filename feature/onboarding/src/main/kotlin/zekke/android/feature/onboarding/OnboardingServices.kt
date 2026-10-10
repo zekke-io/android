@@ -14,7 +14,31 @@ sealed interface CreationFailure {
 
 class AccountCreationException(val failure: CreationFailure) : Exception()
 
+data class EnrolmentDevice(val id: String, val scopes: String, val createdAt: String)
+
+sealed interface DeviceEnrolmentFailure {
+    data object NoAccount : DeviceEnrolmentFailure
+
+    data object Refused : DeviceEnrolmentFailure
+
+    data object Offline : DeviceEnrolmentFailure
+
+    data class RateLimited(val retryAfterSeconds: Long?) : DeviceEnrolmentFailure
+
+    data class TooManyDevices(val devices: List<EnrolmentDevice>) : DeviceEnrolmentFailure
+
+    data object Failed : DeviceEnrolmentFailure
+}
+
+class DeviceEnrolmentException(val failure: DeviceEnrolmentFailure) : Exception()
+
 interface OnboardingServices {
+    fun phraseSuggestions(prefix: CharArray): List<String>
+
+    fun isValidPhrase(words: List<CharArray>): Boolean
+
+    suspend fun enrolDevice(words: List<CharArray>, pin: CharArray, removeDeviceIds: List<String>)
+
     fun newPhrase(wordCount: Int): List<CharArray>
 
     suspend fun createAccount(words: List<CharArray>, pin: CharArray, paranoid: Boolean): CreatedAccount

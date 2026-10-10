@@ -1,5 +1,7 @@
 package zekke.android.feature.onboarding
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,8 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,9 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -54,18 +54,21 @@ import zekke.core.pin.PinRejection
 @Composable
 fun OnboardingFlow(state: OnboardingState, viewModel: OnboardingViewModel, version: String) {
     when (state.step) {
-        OnboardingStep.Start -> StartStep(version, viewModel::startCreating)
-        OnboardingStep.Done -> if (state.kitLost) LostToLockStep(viewModel::acknowledgeLoss) else StartStep(version, viewModel::startCreating)
+        OnboardingStep.Start -> StartStep(version, viewModel::startCreating, viewModel::startEnrolling)
+        OnboardingStep.Done -> if (state.kitLost) LostToLockStep(viewModel::acknowledgeLoss) else StartStep(version, viewModel::startCreating, viewModel::startEnrolling)
         OnboardingStep.Phrase -> PhraseStep(state.wordCount, viewModel::chooseWordCount, viewModel::confirmPhrase, viewModel::back)
         OnboardingStep.Mode -> ModeStep(state.paranoid, viewModel::chooseMode, viewModel::confirmMode, viewModel::back)
         OnboardingStep.Pin -> PinStep(state, viewModel)
         OnboardingStep.Creating -> CreatingStep()
         OnboardingStep.Recovery -> RecoveryStep(state, viewModel)
+        OnboardingStep.EnterRecoveryPhrase -> RecoveryPhraseEntryStep(state, viewModel)
+        OnboardingStep.EnrolPin -> EnrolPinStep(state, viewModel)
+        OnboardingStep.Enrolling -> AddingThisPhoneStep()
     }
 }
 
 @Composable
-private fun Page(title: String?, body: String?, footer: @Composable ColumnScope.() -> Unit = {}, content: @Composable ColumnScope.() -> Unit) {
+internal fun Page(title: String?, body: String?, footer: @Composable ColumnScope.() -> Unit = {}, content: @Composable ColumnScope.() -> Unit) {
     val palette = Zekke.palette
     Column(
         Modifier.fillMaxSize().background(palette.ground).safeDrawingPadding().imePadding(),
@@ -91,13 +94,14 @@ private fun Page(title: String?, body: String?, footer: @Composable ColumnScope.
 }
 
 @Composable
-private fun StartStep(version: String, onCreate: () -> Unit) {
+private fun StartStep(version: String, onCreate: () -> Unit, onEnrol: () -> Unit) {
     val palette = Zekke.palette
     Page(
         title = null,
         body = null,
         footer = {
             ZekkeButton(stringResource(R.string.start_create), onCreate, Modifier.fillMaxWidth(), ButtonVariant.Accent)
+            ZekkeButton(stringResource(R.string.start_enrol), onEnrol, Modifier.fillMaxWidth(), ButtonVariant.Ghost)
             Text(
                 stringResource(R.string.start_version, version),
                 style = MaterialTheme.typography.bodySmall,
@@ -130,10 +134,10 @@ private fun LostToLockStep(onContinue: () -> Unit) {
 }
 
 @Composable
-private fun BackAndContinue(continueLabel: String, onContinue: () -> Unit, onBack: () -> Unit, enabled: Boolean = true) {
+internal fun BackAndContinue(continueLabel: String, onContinue: () -> Unit, onBack: () -> Unit, enabled: Boolean = true, continueVariant: ButtonVariant = ButtonVariant.Primary) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         ZekkeButton(stringResource(R.string.back), onBack, Modifier.weight(1f), ButtonVariant.Secondary, enabled)
-        ZekkeButton(continueLabel, onContinue, Modifier.weight(2f), ButtonVariant.Primary, enabled)
+        ZekkeButton(continueLabel, onContinue, Modifier.weight(2f), continueVariant, enabled)
     }
 }
 

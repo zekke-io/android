@@ -69,11 +69,12 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | --- | --- |
 | `PrivateTextInput { … }` | Every text field inside it asks the keyboard **not to learn** (`IME_FLAG_NO_PERSONALIZED_LEARNING`); `privateKeyboard()` turns off suggestions, autocorrect and capitalisation. Every field that can hold a secret, a phrase word, a password or a note is inside one |
 | `SecretField` | Masked until *Show*, masked again on *Hide*; a password keyboard while masked. The field is rebuilt when the mode changes, because Compose kept the password semantics of the masked field otherwise |
-| `PrivateField` | A plain field with the same protections, for text that is private but not masked |
+| `PrivateField` | A plain field with the same protections, for text that is private but not masked. Takes the keyboard type, the IME action and its handler, so a form moves focus to its own next field |
 | `PinField` | Six boxes, digits only, masked; `onComplete` fires once, on the sixth digit |
 | `CopyButton` | Copies through `SensitiveClipboard` and says *Copied — clears in 30 s* |
 | `ZekkeButton` | The web app's variants: primary, secondary, ghost, danger, and accent (the action gradient, onboarding only) |
 | `StatusBadge` | Neutral, brand, success, warning and danger pills, always on one line |
+| `CheckboxRow` | One option to tick as a whole 48 dp row, a `Role.Checkbox` target with a title and an optional detail (mono for a value) |
 | `SegmentedControl` | Two or three exclusive options in a pill track, the chosen one in `brand`; each segment is a radio button for TalkBack |
 | `ZekkeIconButton` | An icon in a 48 dp target, plain, framed or danger. Its short `hint` shows on long-press; its `label` (default the hint) is what TalkBack reads, so a row passes *Delete Bank PIN*, not *Delete* |
 | `ZekkeIconToggleButton` | The same, with a checked state (`brandTint` fill, `brandText` glyph): *Show values* / *Hide values*. TalkBack hears the state from the toggle's own semantics |

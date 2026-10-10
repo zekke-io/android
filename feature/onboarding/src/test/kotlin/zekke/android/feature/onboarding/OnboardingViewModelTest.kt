@@ -77,7 +77,7 @@ class OnboardingViewModelTest {
         viewModel.confirmPhrase()
         viewModel.back()
         viewModel.confirmPhrase()
-        assertTrue(services.issuedPhrases.first().all { word -> word.all { it == ' ' } })
+        assertTrue(services.issuedPhrases.first().all { word -> word.all { it == '\u0000' } })
         assertEquals(2, services.issuedPhrases.size)
     }
 
@@ -147,7 +147,7 @@ class OnboardingViewModelTest {
         assertEquals(OnboardingStep.Done, state.step)
         assertFalse(state.inProgress)
         assertNull(viewModel.kitContent())
-        assertTrue(services.issuedPhrases.single().all { word -> word.all { it == ' ' } })
+        assertTrue(services.issuedPhrases.single().all { word -> word.all { it == '\u0000' } })
     }
 
     @Test
@@ -219,7 +219,7 @@ class OnboardingViewModelTest {
         reachPin()
         services.lock()
         assertEquals(OnboardingState(), state)
-        assertTrue(services.issuedPhrases.single().all { word -> word.all { it == ' ' } })
+        assertTrue(services.issuedPhrases.single().all { word -> word.all { it == '\u0000' } })
     }
 
     @Test

@@ -1,5 +1,6 @@
 package zekke.android.ui.components
 
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -58,6 +60,9 @@ fun PrivateField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     singleLine: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Default,
+    onImeAction: () -> Unit = {},
 ) {
     PrivateTextInput {
         OutlinedTextField(
@@ -66,7 +71,8 @@ fun PrivateField(
             label = { Text(label) },
             enabled = enabled,
             singleLine = singleLine,
-            keyboardOptions = privateKeyboard(),
+            keyboardOptions = privateKeyboard(keyboardType).copy(imeAction = imeAction),
+            keyboardActions = KeyboardActions(onAny = { onImeAction() }),
             modifier = modifier,
         )
     }

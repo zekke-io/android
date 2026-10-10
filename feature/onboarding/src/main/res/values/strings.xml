@@ -67,4 +67,28 @@
 
     <string name="back">Back</string>
     <string name="continue_label">Continue</string>
+    <string name="start_enrol">I have a recovery phrase</string>
+
+    <string name="enrol_phrase_title">Add this phone</string>
+    <string name="enrol_phrase_body">Your recovery phrase adds this phone as one of your devices. This phone does not keep your recovery phrase: you type it again to add a device, to bring this phone back if it forgets your account, and to remove a device you lost.</string>
+    <string name="enrol_word_index">Word %1$d</string>
+    <string name="enrol_suggestions">Suggestions</string>
+    <string name="enrol_phrase_checksum">This recovery phrase could not be verified. Check each word and try again.</string>
+    <string name="enrol_pin_title">Choose a PIN for this phone</string>
+    <string name="enrol_pin_body">Choose this phone\'s PIN. If your account uses Paranoid mode, type your account PIN: it is checked, and becomes this phone\'s PIN too. It never leaves this phone.</string>
+    <string name="enrol_pin_label">PIN for this phone</string>
+    <string name="enrol_no_account">No account uses this recovery phrase yet. Check it, or create a new account with it.</string>
+    <string name="enrol_refused_wait">If you are not sure of your account PIN, wait before trying again: the server allows only a limited number of tries.</string>
+    <string name="enrol_refused">Your account PIN was not accepted. Check it and try again.</string>
+    <string name="enrol_offline">Zekke could not be reached. Check your connection and try again.</string>
+    <string name="enrol_failed">This phone could not be added. Try again.</string>
+    <string name="enrol_device_limit">Your account already has the maximum number of devices. Select at least one to remove. Removing a device signs it out and rotates its encryption keys; it can rejoin only with the recovery phrase and, in Paranoid mode, the account PIN.</string>
+    <string name="enrol_devices_unavailable">Your device list could not be loaded. Go back and try adding this phone again.</string>
+    <string name="enrol_device_added">Added %1$s</string>
+    <string name="enrol_device_details">Device ending …%1$s</string>
+    <string name="enrol_add">Add this phone</string>
+    <string name="enrol_remove_and_add">Remove selected devices and add this phone</string>
+    <string name="enrolling_title">Adding this phone</string>
+    <string name="enrolling_body">Verifying your phrase and setting up this phone. This takes a moment.</string>
+
 </resources>

@@ -15,5 +15,6 @@ ViewModel holds plaintext only for what is on screen. Every string is a resource
 | `sharing` | Connections, the Shared space, sending, linking the extension | A6 |
 | `settings` | Devices, the account, the plan, notifications, security, about | A3.4, A7 |
 
-Today only `onboarding` has code: creating an account ([its README](onboarding/README.md)). The
-others are empty modules, wired into the app, waiting for their tasks.
+`onboarding` holds creating an account and adding this phone with its recovery phrase
+([its README](onboarding/README.md)). The other modules are empty, wired into the app, waiting for
+their tasks.
