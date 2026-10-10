@@ -15,9 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -26,6 +34,11 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import zekke.android.feature.onboarding.kit.RECOVERY_KIT_MIME_TYPE
+import zekke.android.feature.onboarding.kit.printRecoveryKit
+import zekke.android.feature.onboarding.kit.recoveryKitDocumentName
+import zekke.android.feature.onboarding.kit.saveRecoveryKit
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.Notice
@@ -42,12 +55,12 @@ import zekke.core.pin.PinRejection
 fun OnboardingFlow(state: OnboardingState, viewModel: OnboardingViewModel, version: String) {
     when (state.step) {
         OnboardingStep.Start -> StartStep(version, viewModel::startCreating)
-        OnboardingStep.Done -> if (state.lostToLock) LostToLockStep(viewModel::acknowledgeLoss) else StartStep(version, viewModel::startCreating)
+        OnboardingStep.Done -> if (state.kitLost) LostToLockStep(viewModel::acknowledgeLoss) else StartStep(version, viewModel::startCreating)
         OnboardingStep.Phrase -> PhraseStep(state.wordCount, viewModel::chooseWordCount, viewModel::confirmPhrase, viewModel::back)
         OnboardingStep.Mode -> ModeStep(state.paranoid, viewModel::chooseMode, viewModel::confirmMode, viewModel::back)
         OnboardingStep.Pin -> PinStep(state, viewModel)
         OnboardingStep.Creating -> CreatingStep()
-        OnboardingStep.Recovery -> RecoveryStep(state, viewModel::revealPhrase, viewModel::finish)
+        OnboardingStep.Recovery -> RecoveryStep(state, viewModel)
     }
 }
 
@@ -234,20 +247,76 @@ private fun CreatingStep() {
 }
 
 @Composable
-private fun RecoveryStep(state: OnboardingState, onReveal: () -> Unit, onContinue: () -> Unit) {
+private fun RecoveryStep(state: OnboardingState, viewModel: OnboardingViewModel) {
     val palette = Zekke.palette
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var busy by remember { mutableStateOf(false) }
+    val saver = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(RECOVERY_KIT_MIME_TYPE)) { destination ->
+        viewModel.systemScreenReturned()
+        val content = viewModel.kitContent()
+        if (destination == null || content == null) {
+            busy = false
+            return@rememberLauncherForActivityResult
+        }
+        scope.launch {
+            if (saveRecoveryKit(context, content, destination)) viewModel.kitDelivered() else viewModel.kitFailed()
+            busy = false
+        }
+    }
+    val username = state.username
     val revealed = state.revealedPhrase
     Page(
         title = stringResource(R.string.recovery_title),
-        body = state.username?.let { stringResource(R.string.recovery_username, it) },
+        body = stringResource(R.string.recovery_subtitle),
         footer = {
-            ZekkeButton(stringResource(R.string.recovery_continue), onContinue, Modifier.fillMaxWidth(), enabled = revealed != null)
+            ZekkeButton(stringResource(R.string.recovery_continue), viewModel::finish, Modifier.fillMaxWidth(), enabled = state.kitSaved)
         },
     ) {
+        if (username != null) {
+            Text(stringResource(R.string.recovery_username, username), style = MaterialTheme.typography.bodyLarge, color = palette.ink)
+        }
         if (state.paranoidFailed) Notice(stringResource(R.string.recovery_paranoid_failed), tone = NoticeTone.Warning)
         Notice(stringResource(R.string.recovery_warning), tone = NoticeTone.Warning)
+        if (username == null) {
+            Notice(stringResource(R.string.kit_needs_username), tone = NoticeTone.Danger)
+            ZekkeButton(stringResource(R.string.kit_try_again), viewModel::lookUpUsername, Modifier.fillMaxWidth(), ButtonVariant.Secondary, !state.lookingUpUsername)
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                ZekkeButton(
+                    stringResource(R.string.kit_save),
+                    {
+                        val content = viewModel.kitContent() ?: return@ZekkeButton
+                        busy = true
+                        viewModel.systemScreenWillOpen()
+                        saver.launch(recoveryKitDocumentName(content))
+                    },
+                    Modifier.weight(1f),
+                    if (state.kitSaved) ButtonVariant.Secondary else ButtonVariant.Primary,
+                    !busy,
+                )
+                ZekkeButton(
+                    stringResource(R.string.kit_print),
+                    {
+                        val content = viewModel.kitContent() ?: return@ZekkeButton
+                        busy = true
+                        viewModel.systemScreenWillOpen()
+                        printRecoveryKit(context, content) { printed ->
+                            viewModel.systemScreenReturned()
+                            if (printed) viewModel.kitDelivered()
+                            busy = false
+                        }
+                    },
+                    Modifier.weight(1f),
+                    ButtonVariant.Secondary,
+                    !busy,
+                )
+            }
+        }
+        if (state.kitSaved) Notice(stringResource(R.string.kit_saved), tone = NoticeTone.Success)
+        if (state.kitFailed) Notice(stringResource(R.string.kit_failed), tone = NoticeTone.Danger)
         if (revealed == null) {
-            ZekkeButton(stringResource(R.string.recovery_reveal), onReveal, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
+            ZekkeButton(stringResource(R.string.recovery_reveal), viewModel::revealPhrase, Modifier.fillMaxWidth(), ButtonVariant.Ghost)
         } else {
             Column(
                 Modifier.fillMaxWidth()

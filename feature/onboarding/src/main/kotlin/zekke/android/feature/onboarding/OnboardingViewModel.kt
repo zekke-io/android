@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import zekke.core.pin.PinRejection
 import zekke.core.pin.PinValidation
 import zekke.core.pin.validatePin
+import zekke.core.recoverykit.RecoveryKitContent
 
 enum class OnboardingStep { Start, Phrase, Mode, Pin, Creating, Recovery, Done }
 
@@ -29,16 +30,23 @@ data class OnboardingState(
     val pinProblem: PinProblem? = null,
     val failure: CreationFailure? = null,
     val username: String? = null,
+    val lookingUpUsername: Boolean = false,
+    val createdAtEpochMillis: Long = 0,
     val paranoidFailed: Boolean = false,
     val revealedPhrase: List<String>? = null,
-    val lostToLock: Boolean = false,
+    val kitSaved: Boolean = false,
+    val kitFailed: Boolean = false,
+    val kitLost: Boolean = false,
 ) {
     val inProgress: Boolean get() = step != OnboardingStep.Start && step != OnboardingStep.Done
 }
 
 class OnboardingViewModel(private val services: OnboardingServices) : ViewModel() {
-    private val mutableState = MutableStateFlow(OnboardingState())
+    private val mutableState = MutableStateFlow(
+        if (services.kitWasLost()) OnboardingState(step = OnboardingStep.Done, kitLost = true) else OnboardingState(),
+    )
     private var words: List<CharArray>? = null
+    private var releaseProcess: (() -> Unit)? = null
     private val stopListening = services.onLocked(::lockedOut)
 
     val state: StateFlow<OnboardingState> = mutableState.asStateFlow()
@@ -80,16 +88,17 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
         }
         val phrase = words ?: return
         mutableState.update { it.copy(step = OnboardingStep.Creating, pinProblem = null, failure = null) }
+        if (releaseProcess == null) releaseProcess = services.holdProcess()
         viewModelScope.launch {
             try {
                 val created = services.createAccount(phrase.map { it.copyOf() }, pin, current.paranoid)
                 mutableState.update {
-                    if (it.step != OnboardingStep.Creating) return@update it
                     it.copy(
                         step = OnboardingStep.Recovery,
                         pin = "",
                         confirmation = "",
                         username = created.username,
+                        createdAtEpochMillis = created.createdAtEpochMillis,
                         paranoid = created.paranoid,
                         paranoidFailed = created.paranoidFailed,
                     )
@@ -97,6 +106,7 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: AccountCreationException) {
+                releaseHeldProcess()
                 mutableState.update { it.copy(step = OnboardingStep.Pin, failure = error.failure, confirmation = "") }
             } finally {
                 pin.fill('\u0000')
@@ -113,24 +123,57 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
         }
     }
 
+    fun lookUpUsername() {
+        if (mutableState.value.lookingUpUsername) return
+        mutableState.update { it.copy(lookingUpUsername = true) }
+        viewModelScope.launch {
+            val username = services.username()
+            mutableState.update { it.copy(username = it.username ?: username, lookingUpUsername = false) }
+        }
+    }
+
     fun revealPhrase() {
         val phrase = words ?: return
         mutableState.update { it.copy(revealedPhrase = phrase.map { word -> String(word) }) }
     }
 
+    fun kitContent(): RecoveryKitContent? {
+        val current = mutableState.value
+        val phrase = words ?: return null
+        val username = current.username ?: return null
+        if (current.step != OnboardingStep.Recovery) return null
+        return services.kitContent(username, phrase, current.createdAtEpochMillis)
+    }
+
+    fun systemScreenWillOpen() = services.systemScreenWillOpen()
+
+    fun systemScreenReturned() = services.systemScreenReturned()
+
+    fun kitDelivered() {
+        if (mutableState.value.step != OnboardingStep.Recovery) return
+        services.kitSettled()
+        mutableState.update { it.copy(kitSaved = true, kitFailed = false) }
+    }
+
+    fun kitFailed() = mutableState.update { it.copy(kitFailed = true) }
+
     fun finish() {
+        if (!mutableState.value.kitSaved) return
         forgetWords()
+        releaseHeldProcess()
         mutableState.update { OnboardingState(step = OnboardingStep.Done) }
     }
 
-    fun acknowledgeLoss() = mutableState.update { it.copy(lostToLock = false) }
+    fun acknowledgeLoss() {
+        services.kitSettled()
+        mutableState.update { it.copy(kitLost = false) }
+    }
 
     private fun lockedOut() {
-        val accountExists = mutableState.value.step == OnboardingStep.Creating || mutableState.value.step == OnboardingStep.Recovery
+        val step = mutableState.value.step
+        if (step == OnboardingStep.Creating || step == OnboardingStep.Recovery) return
         forgetWords()
-        mutableState.update {
-            if (accountExists) OnboardingState(step = OnboardingStep.Done, lostToLock = true) else OnboardingState()
-        }
+        mutableState.update { OnboardingState() }
     }
 
     private fun forgetWords() {
@@ -138,9 +181,15 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
         words = null
     }
 
+    private fun releaseHeldProcess() {
+        releaseProcess?.invoke()
+        releaseProcess = null
+    }
+
     override fun onCleared() {
         stopListening()
         services.forgetDraft()
         forgetWords()
+        releaseHeldProcess()
     }
 }

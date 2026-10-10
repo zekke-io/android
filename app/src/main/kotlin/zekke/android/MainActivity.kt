@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
             val onboardingState by onboarding.state.collectAsStateWithLifecycle()
             val hasRecord = remember(onboardingState.step, state) { vault.hasRecord() }
             ZekkeTheme {
-                if (!hasRecord || onboardingState.inProgress || onboardingState.lostToLock) {
+                if (!hasRecord || onboardingState.inProgress || onboardingState.kitLost) {
                     OnboardingFlow(onboardingState, onboarding, identity.version)
                 } else {
                     AppRoot(

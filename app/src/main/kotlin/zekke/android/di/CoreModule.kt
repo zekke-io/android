@@ -10,6 +10,7 @@ import zekke.android.session.KillThisProcess
 import zekke.android.session.SessionControl
 import zekke.android.session.SessionGuard
 import zekke.android.session.SessionViewModels
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import zekke.android.BuildConfig
@@ -38,7 +39,7 @@ val coreModule = module {
     single<SessionControl> { KeystoreSessionControl(get()) }
     single { SessionViewModels() }
     single { SessionGuard(get(), get(MAIN_SCOPE), KillThisProcess).also { guard -> guard.onLocked(get<SessionViewModels>()::clear) } }
-    factory<OnboardingServices> { CoreOnboardingServices(get(), get()) }
+    factory<OnboardingServices> { CoreOnboardingServices(androidContext(), get(), get(), get()) }
     single<ObjectStore> { HttpObjectStore() }
     factory { ItemContext(get(), get()) }
     factory { (userAddress: String) -> Replica(get<LocalDatabases>().replicaDriver(), userAddress) }

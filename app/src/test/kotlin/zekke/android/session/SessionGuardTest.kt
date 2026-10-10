@@ -120,6 +120,28 @@ class SessionGuardTest {
     }
 
     @Test
+    fun aHeldProcessLocksButSurvivesTheBackgroundUntilReleased() {
+        foreground()
+        val release = guard.holdProcess()
+        background()
+        assertEquals(1, session.locks)
+        assertEquals(0, terminations)
+        release()
+        assertEquals(1, terminations)
+        release()
+        assertEquals(1, terminations)
+        assertEquals(0, guard.processHolds)
+    }
+
+    @Test
+    fun releasingAHoldInTheForegroundKeepsTheProcess() {
+        foreground()
+        val release = guard.holdProcess()
+        release()
+        assertEquals(0, terminations)
+    }
+
+    @Test
     fun anIdleLockInTheForegroundKeepsTheProcessAndClearsTheScreens() {
         var cleared = 0
         guard.onLocked { cleared++ }

@@ -98,9 +98,12 @@ and after a lock lost the phrase; otherwise `AppRoot`. Until A1.4 and A3, the lo
 holding screen saying unlocking is not in this build, and the unlocked one a holding screen with
 *Lock*.
 
-**Creating an account keeps the process alive.** `CoreOnboardingServices` counts the sign-up as a
-transfer, so leaving the app mid-sign-up does not end the process half-way through; if the app is in
-the background when it finishes, it locks at once.
+**Creating an account holds the process.** `SessionGuard.holdProcess()` returns a release; while
+any hold is taken, a lock in the background does not end the process, and the last release ends it
+if the session is locked and the app is in the background by then. The onboarding holds it from the
+moment it starts creating the account until the recovery kit is saved, so neither the sign-up nor
+the phrase is lost to leaving the app ([feature/onboarding](feature/onboarding/README.md#a-lock-while-onboarding)).
+If the app is in the background when the sign-up finishes, it locks at once.
 
 ## Variants
 

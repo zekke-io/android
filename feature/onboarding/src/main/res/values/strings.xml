@@ -5,7 +5,7 @@
     <string name="start_version">Version %1$s</string>
     <string name="start_create">Create an account</string>
     <string name="lost_title">Your account was created</string>
-    <string name="lost_body">This phone locked before your recovery phrase was saved, and the phrase cannot be shown again. Your account exists, and this phone is now the only way into it: if this phone forgets your account, the account is lost.</string>
+    <string name="lost_body">Zekke closed before your recovery kit was saved, and your recovery phrase cannot be shown again. Your account exists, and this phone is now the only way into it: if this phone forgets your account, the account is lost.</string>
 
     <string name="phrase_title">Your recovery phrase</string>
     <string name="phrase_body">Your recovery phrase is the account. Nothing on our servers can replace it. We will generate one for you, and it will be the only way back into your account and the only way to add a device.</string>
@@ -49,13 +49,20 @@
     </plurals>
     <string name="failure_generic">Your account could not be created. Try again.</string>
 
-    <string name="recovery_title">Save your recovery phrase</string>
+    <string name="recovery_title">Save your recovery kit</string>
+    <string name="recovery_subtitle">A one-page PDF with your username, your recovery phrase and a QR code another phone can scan to sign in.</string>
     <string name="recovery_username">Your username is %1$s. It is permanent.</string>
-    <string name="recovery_warning">Write it down and keep it offline. Anyone who has your recovery phrase has your vault, and nobody can restore it for you if you lose it. This phone does not keep your recovery phrase: you type it again to add a device, to bring this phone back if it forgets your account, and to remove a device you lost.</string>
+    <string name="recovery_warning">Print it or keep it on storage that stays offline. Anyone who has your recovery phrase has your vault, and nobody can restore it for you if you lose it. This phone does not keep your recovery phrase: you type it again to add a device, to bring this phone back if it forgets your account, and to remove a device you lost.</string>
+    <string name="kit_save">Save as PDF</string>
+    <string name="kit_print">Print</string>
+    <string name="kit_saved">Your recovery kit is saved. You can save or print it again.</string>
+    <string name="kit_failed">Your recovery kit could not be created. Try again.</string>
+    <string name="kit_needs_username">Your username could not be loaded, and the kit needs it.</string>
+    <string name="kit_try_again">Try again</string>
     <string name="recovery_reveal">Show my phrase</string>
-    <string name="recovery_not_copyable">Your phrase cannot be copied, on purpose. A clipboard is shared with other apps and is often synced to your other devices, so your recovery phrase should never pass through one. Write it down instead.</string>
+    <string name="recovery_not_copyable">Your phrase cannot be copied, on purpose. A clipboard is shared with other apps and is often synced to your other devices, so your recovery phrase should never pass through one. Write it down or keep the recovery kit instead.</string>
     <string name="recovery_paranoid_failed">Your account was created in Standard mode: turning on Paranoid mode did not finish. You can turn it on later in Settings.</string>
-    <string name="recovery_continue">I have written it down</string>
+    <string name="recovery_continue">Continue to my vault</string>
     <string name="recovery_word">%1$d. %2$s</string>
 
     <string name="back">Back</string>

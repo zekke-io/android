@@ -71,7 +71,7 @@ class OnboardingScreensTest {
     }
 
     @Test
-    fun theRecoveryStepHoldsContinueUntilThePhraseIsShown() {
+    fun theKitStepHoldsContinueUntilTheKitIsSaved() {
         compose.runOnIdle {
             viewModel.startCreating()
             viewModel.confirmPhrase()
@@ -79,15 +79,20 @@ class OnboardingScreensTest {
             viewModel.pinChanged("482913")
             viewModel.confirmationChanged("482913")
             viewModel.submitPin()
-            services.outcome.complete(CreatedAccount("quiet-otter-42", paranoid = false, paranoidFailed = false))
+            services.outcome.complete(CreatedAccount("quiet-otter-42", paranoid = false, paranoidFailed = false, createdAtEpochMillis = 7))
         }
         compose.onNodeWithText("Your username is quiet-otter-42. It is permanent.").assertExists()
-        compose.onNodeWithText("I have written it down").assertIsNotEnabled()
+        compose.onNodeWithText("Continue to my vault").assertIsNotEnabled()
+        compose.onNodeWithText("Save as PDF").assertIsEnabled()
+        compose.onNodeWithText("Print").assertIsEnabled()
         compose.onNodeWithText("1. word0").assertDoesNotExist()
         compose.onNodeWithText("Show my phrase").performClick()
         compose.onNodeWithText("1. word0").assertExists()
         compose.onNodeWithText("12. word11").assertExists()
-        compose.onNodeWithText("I have written it down").assertIsEnabled()
+        compose.onNodeWithText("Continue to my vault").assertIsNotEnabled()
+        compose.runOnIdle { viewModel.kitDelivered() }
+        compose.onNodeWithText("Your recovery kit is saved. You can save or print it again.").assertExists()
+        compose.onNodeWithText("Continue to my vault").assertIsEnabled()
     }
 
     @Test

@@ -116,15 +116,20 @@ and an `android` row in the API's `client_releases` (A8.4).
   with 24 words was created through the screens (a weak PIN refused first), its phrase read from the
   screen, *Lock* and a relaunch opened on the locked screen, and the web app's own `lib/account`
   entered the account with that phrase and PIN, found the same username and Paranoid mode, and
-  deleted it. The recovery step shows the phrase on screen until A1.2 builds the kit.
-  - [ ] **A1.2 decides what a lock on the recovery step does.** Today a lock (idle, or leaving the
-    app, which ends the process) once the account exists loses the phrase for good: the account
-    stays usable on this phone only. Either show the phrase before creating the account, or hold
-    the phrase through a lock until it was saved.
-- [ ] **A1.2 The recovery kit.** The web app's page from the core's content, the phrase as vector
+  deleted it. A1.2 turned the recovery step into the kit step.
+- [x] **A1.2 The recovery kit.** The web app's page from the core's content, the phrase as vector
   outlines and the QR code holding the bare phrase, printed through the print framework or saved
   through the system picker; the vault stays shut until it was saved or printed once. The phrase can
   be revealed, never copied.
+  **Done 2026-10-10**: the content is the core's new `recoverykit` package (ported from the web
+  app, its glyph outlines checked against the web app's); the page is drawn with `PdfDocument`, the
+  QR code by zxing's encoder; *Save as PDF* through the system picker and *Print* through the print
+  framework. **What a lock does on the kit step was decided here**: the onboarding holds the
+  process and the phrase from creating until the kit is saved, so leaving the app or the idle lock
+  no longer loses the phrase; if the process ends anyway, the app says so once on its next start. On
+  the emulator: the saved PDF's text layer holds no word of the phrase, its QR code decodes to the
+  phrase, a cancelled print keeps the vault shut, and every account opened in the web app with its
+  phrase.
 - [ ] **A1.3 Adding this phone with the phrase.** One field per word, an in-app BIP39 suggestion row,
   the checksum before the PIN step, the account PIN on a Paranoid account (one message for every
   refusal), `TooManyDevices` listing the devices to choose from.

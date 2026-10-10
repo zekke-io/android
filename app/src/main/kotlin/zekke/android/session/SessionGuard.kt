@@ -22,6 +22,7 @@ class SessionGuard(
     private var pickerDeadline: Long? = null
     private var pendingLock: Job? = null
     private var transfers = 0
+    private var holds = 0
     private val lockListeners = mutableListOf<() -> Unit>()
 
     val isInForeground: Boolean get() = foreground
@@ -29,6 +30,8 @@ class SessionGuard(
     val isPickerOpen: Boolean get() = pickerDeadline?.let { now() < it } ?: false
 
     val runningTransfers: Int get() = transfers
+
+    val processHolds: Int get() = holds
 
     init {
         scope.launch {
@@ -98,12 +101,24 @@ class SessionGuard(
         if (session.state.value != SessionState.UNLOCKED) endIfIdle()
     }
 
+    fun holdProcess(): () -> Unit {
+        holds++
+        var released = false
+        return {
+            if (!released) {
+                released = true
+                holds--
+                if (session.state.value != SessionState.UNLOCKED) endIfIdle()
+            }
+        }
+    }
+
     private fun lockAndEnd() {
         session.lock()
         endIfIdle()
     }
 
     private fun endIfIdle() {
-        if (!foreground && transfers == 0) terminator.terminate()
+        if (!foreground && transfers == 0 && holds == 0) terminator.terminate()
     }
 }
