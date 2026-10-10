@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unlock_title">Unlock</string>
+    <string name="unlock_subtitle">Enter this phone’s PIN.</string>
+    <string name="unlock_pin_label">PIN</string>
+    <string name="unlock_submit">Unlock</string>
+    <string name="unlock_submitting">Unlocking…</string>
+    <string name="unlock_start_over">I forgot this phone’s PIN</string>
+    <string name="unlock_start_over_confirm">This phone will forget your account and leave your devices. Your vault is untouched, and your recovery phrase adds this phone again, with a new PIN.</string>
+    <string name="unlock_forget_submit">Forget this phone</string>
+    <string name="unlock_forgetting">Forgetting…</string>
+    <string name="unlock_stay">Keep trying the PIN</string>
+    <string name="unlock_add_phrase">I have a recovery phrase</string>
+    <string name="unlock_forgotten">This phone has forgotten your account: too many wrong PINs were tried, or it was removed from one of your other devices. Your vault is untouched. Enter your recovery phrase to add this phone again.</string>
+    <string name="unlock_removed">This phone is no longer a device of your account: it was removed, or the account was deleted. Enter your recovery phrase to add it again.</string>
+    <string name="unlock_last_attempt">Wrong PIN. One attempt left. After one more wrong PIN, this phone forgets your account, and you will need your recovery phrase to add it again.</string>
+    <plurals name="unlock_attempts_remaining">
+        <item quantity="one">Wrong PIN. %d attempt left. When none are left, this phone forgets your account, and you will need your recovery phrase to add it again.</item>
+        <item quantity="other">Wrong PIN. %d attempts left. When none are left, this phone forgets your account, and you will need your recovery phrase to add it again.</item>
+    </plurals>
+    <string name="unlock_offline">Unlocking needs the server, and it cannot be reached right now. Check your connection and try again. This is not a PIN error, and no attempt was used.</string>
+    <string name="unlock_rate_limited">Too many requests have come from this network, so the server is pausing them. This is not a problem with your account or your PIN. Try again %1$s.</string>
+    <string name="unlock_phone_locked">Unlock the phone first, then enter your Zekke PIN.</string>
+    <string name="unlock_interrupted">The phone locked before unlocking finished. Enter your PIN again.</string>
+    <string name="unlock_failed">Something went wrong. Please try again.</string>
+    <string name="unlock_chain_problem">The history of your devices that the server returned does not verify from your recovery phrase’s key. Someone may have tampered with it. Do not trust the list below, and add no device until this is resolved.</string>
+    <string name="unlock_rewrap_offline">Your account is open, but the phone could not reach the server to finish updating items that use older keys. They will be tried again after another unlock.</string>
+    <string name="unlock_rewrap_failed">Your account is open, but some items could not be updated after a key change. They will be tried again after another unlock.</string>
+    <string name="unlock_wait_moment">in a moment</string>
+    <string name="unlock_wait_minute">in about a minute</string>
+    <plurals name="unlock_wait_seconds">
+        <item quantity="one">in %d second</item>
+        <item quantity="other">in %d seconds</item>
+    </plurals>
+    <plurals name="unlock_wait_minutes">
+        <item quantity="one">in about a minute</item>
+        <item quantity="other">in about %d minutes</item>
+    </plurals>
+</resources>

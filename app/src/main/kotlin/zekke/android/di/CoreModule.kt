@@ -4,6 +4,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import zekke.android.onboarding.CoreOnboardingServices
+import zekke.android.unlock.CoreUnlockServices
+import zekke.android.feature.unlock.UnlockServices
 import zekke.android.feature.onboarding.OnboardingServices
 import zekke.android.session.KeystoreSessionControl
 import zekke.android.session.KillThisProcess
@@ -40,6 +42,7 @@ val coreModule = module {
     single { SessionViewModels() }
     single { SessionGuard(get(), get(MAIN_SCOPE), KillThisProcess).also { guard -> guard.onLocked(get<SessionViewModels>()::clear) } }
     factory<OnboardingServices> { CoreOnboardingServices(androidContext(), get(), get(), get()) }
+    factory<UnlockServices> { CoreUnlockServices(get(), get()) }
     single<ObjectStore> { HttpObjectStore() }
     factory { ItemContext(get(), get()) }
     factory { (userAddress: String) -> Replica(get<LocalDatabases>().replicaDriver(), userAddress) }

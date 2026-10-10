@@ -23,6 +23,7 @@ class SessionGuard(
     private var pendingLock: Job? = null
     private var transfers = 0
     private var holds = 0
+    @Volatile private var currentLockVersion = 0L
     private val lockListeners = mutableListOf<() -> Unit>()
 
     val isInForeground: Boolean get() = foreground
@@ -33,11 +34,14 @@ class SessionGuard(
 
     val processHolds: Int get() = holds
 
+    val lockVersion: Long get() = currentLockVersion
+
     init {
         scope.launch {
             var previous = session.state.value
             session.state.collect { state ->
                 if (previous == SessionState.UNLOCKED && state != SessionState.UNLOCKED) {
+                    currentLockVersion++
                     lockListeners.forEach { it() }
                     endIfIdle()
                 }
@@ -114,6 +118,7 @@ class SessionGuard(
     }
 
     private fun lockAndEnd() {
+        currentLockVersion++
         session.lock()
         endIfIdle()
     }

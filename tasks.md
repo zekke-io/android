@@ -89,7 +89,7 @@ and an `android` row in the API's `client_releases` (A8.4).
   secure lock screen, so the requirement applies only when there is one; and a read while the phone
   is locked must not be taken for a foreign record, so it raises `DeviceVaultUnavailableException`
   and keeps the file. Both are tested, with a real lock and unlock on the emulator.
-  - [ ] **A1.4 maps `DeviceVaultUnavailableException`** to "unlock the phone first".
+  - [x] **A1.4 maps `DeviceVaultUnavailableException`** to "unlock the phone first" on the PIN screen.
   - [ ] **A8.2 checks `keyLocation`** is the trusted environment or StrongBox on a real phone.
 
 - [x] **A0.6 The session's lifecycle.** The app observes the core's session state; a lock clears
@@ -141,7 +141,7 @@ and an `android` row in the API's `client_releases` (A8.4).
   local API, typing with the keyboard: a Standard account at its 20-device limit, the phone added by
   removing one device it chose (gone on the server afterwards), and a Paranoid account with 24 words
   refusing a wrong account PIN twice, then adding the phone with the right one.
-- [ ] **A1.4 maps `DeviceVaultUnavailableException`** to "unlock the phone first".
+- [x] **A1.4 maps `DeviceVaultUnavailableException`** to "unlock the phone first".
   - [ ] **A8.2 checks `keyLocation`** is the trusted environment or StrongBox on a real phone.
 
 - [x] **A0.6 The session's lifecycle.** The app observes the core's session state; a lock clears
@@ -188,9 +188,14 @@ and an `android` row in the API's `client_releases` (A8.4).
   **Implemented 2026-10-10; onboarding tests passed on API 37 (20 unit/Robolectric, 3 instrumented).** The core-backed flow checks the BIP39
   checksum before PIN entry, keeps the phrase in zeroable arrays, uses one refusal message, and lets
   the user select devices to remove when the account is full. The instrumented tests cover recovery-kit rendering; A1.3 phrase enrolment has no dedicated test yet.
-- [ ] **A1.4 Unlock.** Six boxes submitted on the sixth digit; every outcome worded as the web app
+- [x] **A1.4 Unlock.** Six boxes submitted on the sixth digit; every outcome worded as the web app
   words it (wrong PIN with attempts left, registration gone, offline, rate limited); the chain
   verified after unlocking and a problem shown, not hidden; `rewrapStale` after unlocking.
+  **Done 2026-10-10**: Core outcomes map to the locked screen, stale device-keyring wraps are retried
+  after unlock, and chain or rewrap problems remain visible in the unlocked shell. All 16 module
+  unit/Robolectric tests and the unlock Compose test on the API 37 AVD pass. Core interop and the
+  web app account-library E2E both unlocked a temporary account against the local API; the temporary
+  account was deleted.
 - [ ] **A1.5 Removing this phone and the client policy.** Log out (no rotation); the
   `UPGRADE_REQUIRED` screen and the update notice from `GET /clients/android/policy`.
 

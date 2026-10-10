@@ -14,10 +14,12 @@ import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import zekke.android.feature.onboarding.OnboardingFlow
 import zekke.android.feature.onboarding.OnboardingViewModel
+import zekke.android.feature.unlock.UnlockFlow
+import zekke.android.feature.unlock.UnlockSessionNotices
+import zekke.android.feature.unlock.UnlockViewModel
 import zekke.android.platform.KeystoreDeviceVault
 import zekke.android.session.AppRoot
 import zekke.android.session.HomeHoldingScreen
-import zekke.android.session.LockedHoldingScreen
 import zekke.android.session.SessionControl
 import zekke.android.session.SessionGuard
 import zekke.android.session.SessionViewModels
@@ -41,17 +43,32 @@ class MainActivity : ComponentActivity() {
             val epoch by viewModels.epoch.collectAsStateWithLifecycle()
             val onboarding = viewModel { OnboardingViewModel(this@MainActivity.get()) }
             val onboardingState by onboarding.state.collectAsStateWithLifecycle()
-            val hasRecord = remember(onboardingState.step, state) { vault.hasRecord() }
+            val unlock = viewModel { UnlockViewModel(this@MainActivity.get()) }
+            val unlockState by unlock.state.collectAsStateWithLifecycle()
+            val hasRecord = remember(onboardingState.step, state, unlockState.registrationLost) { vault.hasRecord() }
             ZekkeTheme {
-                if (!hasRecord || onboardingState.inProgress || onboardingState.kitLost) {
+                if (onboardingState.inProgress || onboardingState.kitLost || (!hasRecord && unlockState.registrationLost == null)) {
                     OnboardingFlow(onboardingState, onboarding, identity.version)
                 } else {
                     AppRoot(
                         state = state,
                         epoch = epoch,
                         viewModels = viewModels,
-                        locked = { LockedHoldingScreen() },
-                        unlocked = { HomeHoldingScreen(guard::lockNow) },
+                        locked = {
+                            UnlockFlow(unlockState, unlock) {
+                                unlock.continueWithPhrase()
+                                onboarding.startEnrolling()
+                            }
+                        },
+                        unlocked = {
+                            HomeHoldingScreen(guard::lockNow) {
+                                UnlockSessionNotices(
+                                    unlockState,
+                                    unlock::dismissChainProblem,
+                                    unlock::dismissRewrapIssue,
+                                )
+                            }
+                        },
                     )
                 }
             }

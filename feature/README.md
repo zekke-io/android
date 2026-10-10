@@ -16,5 +16,6 @@ ViewModel holds plaintext only for what is on screen. Every string is a resource
 | `settings` | Devices, the account, the plan, notifications, security, about | A3.4, A7 |
 
 `onboarding` holds creating an account and adding this phone with its recovery phrase
-([its README](onboarding/README.md)). The other modules are empty, wired into the app, waiting for
-their tasks.
+([its README](onboarding/README.md)). `unlock` handles the PIN and account restoration outcomes
+([its README](unlock/README.md)). The other modules are empty, wired into the app, waiting for their
+tasks.

@@ -37,6 +37,7 @@ private fun HoldingScreen(title: String, body: String, action: @Composable () ->
 fun LockedHoldingScreen() = HoldingScreen(stringResource(R.string.locked_title), stringResource(R.string.locked_body))
 
 @Composable
-fun HomeHoldingScreen(onLock: () -> Unit) = HoldingScreen(stringResource(R.string.home_title), stringResource(R.string.home_body)) {
+fun HomeHoldingScreen(onLock: () -> Unit, notices: @Composable () -> Unit = {}) = HoldingScreen(stringResource(R.string.home_title), stringResource(R.string.home_body)) {
+    notices()
     ZekkeButton(stringResource(R.string.home_lock), onLock, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
 }
