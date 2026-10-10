@@ -92,11 +92,12 @@ only while the session is `UNLOCKED`, inside a `key` that changes with every loc
 `rememberSaveable`, survives into the next unlock. The locked branch is what the user sees
 instead.
 
-**What `MainActivity` draws**: the onboarding while the phone holds no device record, while an
-onboarding is under way (the account exists from `Creating` on, and the phrase is still to be shown)
-and after a lock lost the phrase; otherwise `AppRoot`. Until A1.4 and A3, the locked branch is a
-holding screen saying unlocking is not in this build, and the unlocked one a holding screen with
-*Lock*.
+**What `MainActivity` draws**: the onboarding while the phone holds no device record (unless the
+unlock screen is saying why the record went), while an onboarding is under way (the account exists
+from `Creating` on, and the phrase is still to be shown) and after a lock lost the phrase;
+otherwise `AppRoot`. Its locked branch is the unlock screen ([feature/unlock](feature/unlock/README.md));
+until A3, the unlocked branch is a holding screen with *Lock* and the unlock's notices (a chain that
+does not verify, a re-wrap that did not finish).
 
 **Creating an account holds the process.** `SessionGuard.holdProcess()` returns a release; while
 any hold is taken, a lock in the background does not end the process, and the last release ends it

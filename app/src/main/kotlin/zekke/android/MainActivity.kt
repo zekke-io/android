@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
             val onboardingState by onboarding.state.collectAsStateWithLifecycle()
             val unlock = viewModel { UnlockViewModel(this@MainActivity.get()) }
             val unlockState by unlock.state.collectAsStateWithLifecycle()
-            val hasRecord = remember(onboardingState.step, state, unlockState.registrationLost) { vault.hasRecord() }
+            val hasRecord = remember(onboardingState.step, state, unlockState.registrationLost, unlockState.forgotten) { vault.hasRecord() }
             ZekkeTheme {
                 if (onboardingState.inProgress || onboardingState.kitLost || (!hasRecord && unlockState.registrationLost == null)) {
                     OnboardingFlow(onboardingState, onboarding, identity.version)

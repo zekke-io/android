@@ -120,6 +120,38 @@ class SessionGuardTest {
     }
 
     @Test
+    fun everyLockMovesTheLockVersion() {
+        foreground()
+        val start = guard.lockVersion
+        guard.lockNow()
+        assertTrue(guard.lockVersion > start)
+        val afterLockNow = guard.lockVersion
+        session.state.value = SessionState.UNLOCKED
+        scope.runCurrent()
+        session.state.value = SessionState.LOCKED
+        scope.runCurrent()
+        assertTrue(guard.lockVersion > afterLockNow)
+        val afterIdle = guard.lockVersion
+        guard.holdProcess()
+        background()
+        assertTrue(guard.lockVersion > afterIdle)
+    }
+
+    @Test
+    fun anUnlockThatNeverLocksKeepsTheLockVersion() {
+        foreground()
+        session.state.value = SessionState.LOCKED
+        scope.runCurrent()
+        val start = guard.lockVersion
+        session.state.value = SessionState.UNLOCKING
+        scope.runCurrent()
+        session.state.value = SessionState.UNLOCKED
+        scope.runCurrent()
+        guard.userActivity()
+        assertEquals(start, guard.lockVersion)
+    }
+
+    @Test
     fun aHeldProcessLocksButSurvivesTheBackgroundUntilReleased() {
         foreground()
         val release = guard.holdProcess()

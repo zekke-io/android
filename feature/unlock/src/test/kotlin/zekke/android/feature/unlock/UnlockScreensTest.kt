@@ -106,21 +106,20 @@ class UnlockScreensTest {
     }
 
     @Test
-    fun forgettingThePhoneNeedsConfirmationThenOffersThePhrase() {
+    fun forgettingThePhoneNeedsConfirmationAndSaysItStaysListed() {
         showUnlockScreen()
 
         composeRule.onNodeWithText("I forgot this phone’s PIN").performClick()
         composeRule.onNodeWithText(
-            "This phone will forget your account and leave your devices. Your vault is untouched, and your recovery phrase adds this phone again, with a new PIN.",
+            "stays in your list of devices until you remove it",
+            substring = true,
         ).assertIsDisplayed()
         composeRule.onNodeWithText("Forget this phone").performClick()
         composeRule.waitForIdle()
 
         assertEquals(1, services.forgetCalls)
-        composeRule.onNodeWithText(
-            "This phone has forgotten your account: too many wrong PINs were tried, or it was removed from one of your other devices. Your vault is untouched. Enter your recovery phrase to add this phone again.",
-        ).assertIsDisplayed()
-        composeRule.onNodeWithText("I have a recovery phrase").assertIsDisplayed()
+        composeRule.onNodeWithText("too many wrong PINs", substring = true).assertDoesNotExist()
+        assertEquals(1, viewModel.state.value.forgotten)
     }
 
     @Test
@@ -136,7 +135,7 @@ class UnlockScreensTest {
         }
 
         composeRule.onNodeWithText(
-            "The history of your devices that the server returned does not verify from your recovery phrase’s key. Someone may have tampered with it. Do not trust the list below, and add no device until this is resolved.",
+            "The history of your devices that the server returned does not verify from your recovery phrase’s key. Someone may have tampered with it. Do not trust your list of devices, and add no device until this is resolved.",
         ).assertIsDisplayed()
         composeRule.onNodeWithText(
             "Your account is open, but the phone could not reach the server to finish updating items that use older keys. They will be tried again after another unlock.",

@@ -1,5 +1,9 @@
 package zekke.android.feature.unlock
 
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -109,7 +113,8 @@ class UnlockViewModelTest {
 
     @Test
     fun openedSessionRetainsChainAndRewrapProblemsForTheUnlockedShell() {
-        services.nextOutcome = UnlockAttempt.Opened(chainProblem = true, rewrapIssue = RewrapIssue.Offline)
+        services.nextOutcome = UnlockAttempt.Opened(chainProblem = true)
+        services.rewrapIssue = RewrapIssue.Offline
         submit()
         assertTrue(state.chainProblem)
         assertEquals(RewrapIssue.Offline, state.rewrapIssue)
@@ -127,8 +132,9 @@ class UnlockViewModelTest {
         assertTrue(state.confirmingForget)
         viewModel.forgetThisPhone()
         assertEquals(1, services.forgetCalls)
-        assertEquals(RegistrationLost.Forgotten, state.registrationLost)
+        assertNull(state.registrationLost)
         assertFalse(state.confirmingForget)
+        assertEquals(1, state.forgotten)
     }
 
     @Test
@@ -162,5 +168,88 @@ class UnlockViewModelTest {
         assertEquals(UnlockAttempt.Removed, mapUnlockOutcome(AccountUnlockOutcome.Removed))
         assertEquals(UnlockAttempt.Offline, mapUnlockOutcome(AccountUnlockOutcome.Offline))
         assertEquals(UnlockAttempt.RateLimited(60), mapUnlockOutcome(AccountUnlockOutcome.RateLimited(60)))
+    }
+
+    @Test
+    fun theRewrapPassRunsOnlyOnceTheVaultIsOpen() {
+        val rewrap = kotlinx.coroutines.CompletableDeferred<RewrapIssue?>()
+        services.pendingRewrap = rewrap
+        services.nextOutcome = UnlockAttempt.Opened(chainProblem = false)
+        submit()
+        assertFalse(state.busy)
+        assertEquals(1, services.rewrapCalls)
+        assertNull(state.rewrapIssue)
+        rewrap.complete(RewrapIssue.RateLimited(30))
+        assertEquals(RewrapIssue.RateLimited(30), state.rewrapIssue)
+    }
+
+    @Test
+    fun noRewrapAfterAFailedUnlockAndAFailingPassIsReported() {
+        services.nextOutcome = UnlockAttempt.WrongPin(3)
+        submit()
+        assertEquals(0, services.rewrapCalls)
+        services.nextOutcome = UnlockAttempt.Opened(chainProblem = false)
+        services.rewrapError = IllegalStateException("private detail")
+        submit()
+        assertEquals(RewrapIssue.Failed, state.rewrapIssue)
+    }
+
+    @Test
+    fun aPassThatFinishesCleanLeavesNoNotice() {
+        services.nextOutcome = UnlockAttempt.Opened(chainProblem = false)
+        submit()
+        assertEquals(1, services.rewrapCalls)
+        assertNull(state.rewrapIssue)
+    }
+
+    @Test
+    fun whileUnlockingTheFieldIsFrozenAndThePinCopyIsZeroedAfter() {
+        val pending = kotlinx.coroutines.CompletableDeferred<UnlockAttempt>()
+        services.pendingUnlock = pending
+        submit()
+        assertTrue(state.busy)
+        viewModel.pinChanged("1")
+        assertEquals("", viewModel.pinValue())
+        viewModel.submitPin()
+        viewModel.requestForget()
+        assertFalse(state.confirmingForget)
+        assertEquals(1, services.receivedPins.size)
+        pending.complete(UnlockAttempt.WrongPin(2))
+        assertFalse(state.busy)
+        assertTrue(services.receivedPinArrays.single().all { it == '\u0000' })
+    }
+
+    @Test
+    fun aLateResultAfterTheViewModelEndsIsIgnored() {
+        val store = ViewModelStore()
+        val owned = ViewModelProvider.create(store, viewModelFactory { initializer { UnlockViewModel(services) } })[UnlockViewModel::class]
+        val pending = kotlinx.coroutines.CompletableDeferred<UnlockAttempt>()
+        services.pendingUnlock = pending
+        owned.pinChanged("482913")
+        owned.submitPin()
+        store.clear()
+        pending.complete(UnlockAttempt.WrongPin(1))
+        assertNull(owned.state.value.feedback)
+        assertEquals(0, services.rewrapCalls)
+    }
+
+    @Test
+    fun goingToThePhraseClearsTheLostRegistration() {
+        services.nextOutcome = UnlockAttempt.Removed
+        submit()
+        assertEquals(RegistrationLost.Removed, state.registrationLost)
+        viewModel.continueWithPhrase()
+        assertNull(state.registrationLost)
+        assertNull(state.feedback)
+    }
+
+    @Test
+    fun theRegistrationLostScreenRefusesAPin() {
+        services.nextOutcome = UnlockAttempt.Forgotten
+        submit()
+        viewModel.pinChanged("482913")
+        viewModel.submitPin()
+        assertEquals(1, services.receivedPins.size)
+        assertEquals("", viewModel.pinValue())
     }
 }

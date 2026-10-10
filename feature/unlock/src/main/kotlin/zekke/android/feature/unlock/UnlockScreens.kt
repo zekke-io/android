@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import zekke.android.feature.unlock.R
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
@@ -32,6 +32,7 @@ fun UnlockFlow(state: UnlockState, viewModel: UnlockViewModel, onAddRecoveryPhra
     Column(
         Modifier.fillMaxSize()
             .background(palette.ground)
+            .safeDrawingPadding()
             .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 32.dp),

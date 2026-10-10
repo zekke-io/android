@@ -41,44 +41,34 @@ class CoreUnlockServices(
                 return UnlockAttempt.Failed
             }
 
-            if (outcome is UnlockOutcome.Unlocked) {
-                if (lockVersion != guard.lockVersion) {
-                    accountServices.session.lock()
-                    return UnlockAttempt.Interrupted
-                }
-                var rewrapIssue: RewrapIssue? = null
-                try {
-                    withContext(Dispatchers.Default) {
-                        rewrapStale(ItemContext(accountServices.api, accountServices.session, accountServices.primitives))
-                    }
-                } catch (error: CancellationException) {
-                    throw error
-                } catch (_: NetworkError) {
-                    rewrapIssue = RewrapIssue.Offline
-                } catch (error: ApiError) {
-                    rewrapIssue = if (error.isRateLimited) {
-                        RewrapIssue.RateLimited(error.retryAfterSeconds)
-                    } else {
-                        RewrapIssue.Failed
-                    }
-                } catch (_: Exception) {
-                    rewrapIssue = RewrapIssue.Failed
-                }
-
-                if (lockVersion != guard.lockVersion || accountServices.session.state.value != SessionState.UNLOCKED) {
-                    accountServices.session.lock()
-                    return UnlockAttempt.Interrupted
-                }
-                val mapped = mapUnlockOutcome(outcome) as UnlockAttempt.Opened
-                return mapped.copy(rewrapIssue = rewrapIssue)
+            if (outcome is UnlockOutcome.Unlocked && lockVersion != guard.lockVersion) {
+                accountServices.session.lock()
+                return UnlockAttempt.Interrupted
             }
-
             return mapUnlockOutcome(outcome)
         } finally {
             pin.fill('\u0000')
             if (!guard.isInForeground) guard.lockNow()
             release()
         }
+    }
+
+    override suspend fun rewrapStaleKeys(): RewrapIssue? {
+        val issue = try {
+            withContext(Dispatchers.Default) {
+                rewrapStale(ItemContext(accountServices.api, accountServices.session, accountServices.primitives))
+            }
+            null
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: NetworkError) {
+            RewrapIssue.Offline
+        } catch (error: ApiError) {
+            if (error.isRateLimited) RewrapIssue.RateLimited(error.retryAfterSeconds) else RewrapIssue.Failed
+        } catch (_: Exception) {
+            RewrapIssue.Failed
+        }
+        return if (accountServices.session.state.value == SessionState.UNLOCKED) issue else null
     }
 
     override suspend fun forgetThisPhone() {

@@ -9,7 +9,7 @@ sealed interface RewrapIssue {
 }
 
 sealed interface UnlockAttempt {
-    data class Opened(val chainProblem: Boolean, val rewrapIssue: RewrapIssue? = null) : UnlockAttempt
+    data class Opened(val chainProblem: Boolean) : UnlockAttempt
     data class WrongPin(val attemptsRemaining: Int) : UnlockAttempt
     data object Forgotten : UnlockAttempt
     data object Removed : UnlockAttempt
@@ -22,6 +22,8 @@ sealed interface UnlockAttempt {
 
 interface UnlockServices {
     suspend fun unlock(pin: CharArray): UnlockAttempt
+
+    suspend fun rewrapStaleKeys(): RewrapIssue?
 
     suspend fun forgetThisPhone()
 }

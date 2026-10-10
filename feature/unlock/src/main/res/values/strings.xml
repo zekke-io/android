@@ -6,7 +6,7 @@
     <string name="unlock_submit">Unlock</string>
     <string name="unlock_submitting">Unlocking…</string>
     <string name="unlock_start_over">I forgot this phone’s PIN</string>
-    <string name="unlock_start_over_confirm">This phone will forget your account and leave your devices. Your vault is untouched, and your recovery phrase adds this phone again, with a new PIN.</string>
+    <string name="unlock_start_over_confirm">This phone will forget your account. It stays in your list of devices until you remove it from another device, or with your recovery phrase, because a locked phone cannot sign its own removal. Your vault is untouched, and your recovery phrase adds this phone again, with a new PIN.</string>
     <string name="unlock_forget_submit">Forget this phone</string>
     <string name="unlock_forgetting">Forgetting…</string>
     <string name="unlock_stay">Keep trying the PIN</string>
@@ -23,7 +23,7 @@
     <string name="unlock_phone_locked">Unlock the phone first, then enter your Zekke PIN.</string>
     <string name="unlock_interrupted">The phone locked before unlocking finished. Enter your PIN again.</string>
     <string name="unlock_failed">Something went wrong. Please try again.</string>
-    <string name="unlock_chain_problem">The history of your devices that the server returned does not verify from your recovery phrase’s key. Someone may have tampered with it. Do not trust the list below, and add no device until this is resolved.</string>
+    <string name="unlock_chain_problem">The history of your devices that the server returned does not verify from your recovery phrase’s key. Someone may have tampered with it. Do not trust your list of devices, and add no device until this is resolved.</string>
     <string name="unlock_rewrap_offline">Your account is open, but the phone could not reach the server to finish updating items that use older keys. They will be tried again after another unlock.</string>
     <string name="unlock_rewrap_failed">Your account is open, but some items could not be updated after a key change. They will be tried again after another unlock.</string>
     <string name="unlock_wait_moment">in a moment</string>

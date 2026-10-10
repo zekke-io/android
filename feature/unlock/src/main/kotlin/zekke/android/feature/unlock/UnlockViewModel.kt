@@ -28,6 +28,7 @@ data class UnlockState(
     val confirmingForget: Boolean = false,
     val chainProblem: Boolean = false,
     val rewrapIssue: RewrapIssue? = null,
+    val forgotten: Int = 0,
 )
 
 class UnlockViewModel(private val services: UnlockServices) : ViewModel() {
@@ -70,7 +71,7 @@ class UnlockViewModel(private val services: UnlockServices) : ViewModel() {
                         busy = false,
                         feedback = null,
                         chainProblem = outcome.chainProblem,
-                        rewrapIssue = outcome.rewrapIssue,
+                        rewrapIssue = null,
                     )
                     is UnlockAttempt.WrongPin -> state.copy(busy = false, feedback = UnlockFeedback.WrongPin(outcome.attemptsRemaining))
                     UnlockAttempt.Forgotten -> state.copy(
@@ -93,6 +94,20 @@ class UnlockViewModel(private val services: UnlockServices) : ViewModel() {
                     UnlockAttempt.Failed -> state.copy(busy = false, feedback = UnlockFeedback.Failed)
                 }
             }
+            if (outcome is UnlockAttempt.Opened) rewrapAfterOpening(currentAttempt)
+        }
+    }
+
+    private fun rewrapAfterOpening(currentAttempt: Int) {
+        viewModelScope.launch {
+            val issue = try {
+                services.rewrapStaleKeys()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                RewrapIssue.Failed
+            }
+            if (currentAttempt == attemptId && issue != null) mutableState.update { it.copy(rewrapIssue = issue) }
         }
     }
 
@@ -115,14 +130,7 @@ class UnlockViewModel(private val services: UnlockServices) : ViewModel() {
             try {
                 services.forgetThisPhone()
                 if (currentAttempt == attemptId) {
-                    mutableState.update {
-                        it.copy(
-                            busy = false,
-                            confirmingForget = false,
-                            registrationLost = RegistrationLost.Forgotten,
-                            feedback = null,
-                        )
-                    }
+                    mutableState.update { UnlockState(pinRevision = it.pinRevision + 1, forgotten = it.forgotten + 1) }
                 }
             } catch (error: CancellationException) {
                 throw error
@@ -138,7 +146,7 @@ class UnlockViewModel(private val services: UnlockServices) : ViewModel() {
         if (mutableState.value.registrationLost == null) return
         attemptId++
         clearPin()
-        mutableState.value = UnlockState(pinRevision = mutableState.value.pinRevision + 1)
+        mutableState.update { UnlockState(pinRevision = it.pinRevision + 1, forgotten = it.forgotten) }
     }
 
     fun dismissChainProblem() = mutableState.update { it.copy(chainProblem = false) }

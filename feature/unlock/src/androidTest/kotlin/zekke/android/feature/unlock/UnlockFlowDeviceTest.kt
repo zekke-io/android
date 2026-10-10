@@ -53,5 +53,7 @@ private class DeviceUnlockServices : UnlockServices {
         return UnlockAttempt.WrongPin(attemptsRemaining = 4)
     }
 
+    override suspend fun rewrapStaleKeys(): RewrapIssue? = null
+
     override suspend fun forgetThisPhone() = Unit
 }
