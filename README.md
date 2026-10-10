@@ -15,8 +15,8 @@ android/
   gradle/verification-metadata.xml  the SHA-256 of every artifact the build may use
   .github/workflows/ci.yml   both variants, the unit tests and the lint, on every push
   app/                       the application: the activity, the dependency injection, resources
-  ui/                        the design system
-  platform/                  what the core asks Android for: the device vault, the databases
+  ui/                        the design system: tokens, fonts, components, the sensitive clipboard
+  platform/                  what the core asks Android for: the Keystore device vault, the databases
   feature/…                  the screens, one module per area
 ```
 
@@ -56,11 +56,40 @@ to the core is picked up on the next build without publishing anything. Its nati
 | No cloud backup and no device transfer | `allowBackup="false"`, `fullBackupContent="false"`, `data_extraction_rules.xml` excluding every domain |
 | HTTPS only | `network_security_config.xml`; the debug build alone allows cleartext to `10.0.2.2` and `localhost`, the emulator's way to a local API |
 | No logs in release | `proguard-rules.pro` strips every `android.util.Log` call; release is minified and shrunk |
-| The client's identity | `Zekke-Client: android/<versionName>` on every request, from `ZekkeApplication` |
+| Not offered to autofill | `IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS` on the window, in `MainActivity` |
+| The client's identity | `Zekke-Client: android/<versionName>` on every request, from `coreModule` |
 
 The only permission is `INTERNET`. AndroidX adds two entries of its own to the merged manifest: a
 signature-level permission for its internal receivers, and the profile installer's receiver, guarded
 by `android.permission.DUMP`.
+
+## The session's lifecycle
+
+The core's `SessionKeystore` holds every key while the app is unlocked, and its `lock()` zeroes
+them. `SessionGuard` (`app/src/main/kotlin/zekke/android/session`) decides when that happens, and
+what follows.
+
+| Trigger | What happens |
+| --- | --- |
+| The app leaves the foreground (Home, another app, Recents) | `ProcessLifecycleOwner`'s `ON_STOP`, about 700 ms after the last activity stops, so a rotation does not count: **lock** |
+| The screen turns off | `ACTION_SCREEN_OFF`: **lock**, even with a picker open |
+| No interaction for the idle timeout (15 minutes) | The core's own timer, renewed by every touch (`MainActivity.onUserInteraction` → `userActivity`) |
+| A system picker the app launched (files, photos, camera, share sheet) | `pickerWillOpen()` before launching it: leaving the foreground does **not** lock until it returns or **3 minutes** pass, whichever is first. Returning to the app ends the exception |
+| `lockNow()` | The *Lock* action, when there is one |
+
+**After a lock in the background, the process ends** (`Process.killProcess`), which reclaims what
+zeroing cannot reach: copies inside JCA, buffers the garbage collector moved, the `String`s the
+keyboard produced. A lock while the app is in the foreground (the idle timeout) keeps the process
+and shows the locked screens instead. **A running transfer keeps the process alive** without keys:
+`transferStarted()` and `transferFinished()` count them, and the process ends when the last one
+finishes, if the session is locked and the app is in the background by then.
+
+**A lock clears every screen.** The unlocked part of the UI lives under `AppRoot`, which draws it
+only while the session is `UNLOCKED`, inside a `key` that changes with every lock, and gives it
+`SessionViewModels` as its `ViewModelStoreOwner`. A lock clears that store (every ViewModel's
+`onCleared` runs) and moves the key, so nothing a screen remembered, with `remember` or
+`rememberSaveable`, survives into the next unlock. The locked branch is what the user sees
+instead; until the onboarding and unlock screens exist (A1), both branches draw the start screen.
 
 ## Variants
 
@@ -88,6 +117,21 @@ by changing its pin in `libs.versions.toml` and regenerating the file:
 
 and the diff of that file is reviewed like code: every new entry is an artifact the app now trusts.
 
+**Android Studio's sync resolves files the command-line build never does.** Two kinds:
+
+- **Source code and documentation** (`-sources.jar`, `-javadoc.jar`, and Gradle's own
+  `gradle-<version>-src.zip`), which the Kotlin importer fetches for every library so the editor can
+  show and navigate it. They are trusted by rule in the file's `<trusted-artifacts>`, as Gradle
+  recommends for IDE use: they never reach a build or runtime classpath, so nothing in them runs or
+  ships.
+- **A few metadata files** (the `.pom` and `.module` of some BOMs). When a sync reports one as
+  failing verification, it is fetched from Maven Central, checked against the SHA-1 Maven Central
+  publishes, and added with the origin *Checked against Maven Central's SHA-1, added for Android
+  Studio's sync*. Regenerating from the command line keeps those entries.
+
+When a sync fails on verification, the list of artifacts is in the newest
+`~/.gradle/daemon/<version>/daemon-*.out.log`.
+
 ## Lint
 
 Warnings are errors. The only checks turned off are the ones that report a newer version of Gradle,
@@ -114,5 +158,18 @@ docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
   ./gradlew assembleDebug assembleRelease
 ```
 
-The parent directory is mounted because the composite build reads `../mobile-base`. The release APK
+The parent directory is mounted because the composite build reads `../mobile-base`.
+
+**In Android Studio**, open `android/`. What the IDE does not do for the included core:
+
+- **`mobile-base/local.properties`** needs its own `sdk.dir`: Studio writes the SDK's location only
+  into the opened project's `local.properties`, and without it the core's Android target has no
+  boot classpath (the sync fails in `KotlinModelBuildingConfigurator`). Copy the line from
+  `android/local.properties`; the file is ignored by git, as it is per machine.
+- **The NDK the core pins** (`android-ndk` in `mobile-base/gradle/libs.versions.toml`, today
+  28.2.13676358) must be installed in the SDK Manager (*SDK Tools*, *Show Package Details*). The
+  core's native build reads the SDK's location from the Android plugin, so `ANDROID_HOME` need not
+  be set.
+- **A JDK 21** must be installed (`sudo apt install openjdk-21-jdk`): the core compiles with a
+  Java 21 toolchain, and Studio's own runtime is newer. The release APK
 comes out unsigned: signing is task A8.5.

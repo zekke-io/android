@@ -1,0 +1,79 @@
+package zekke.android.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import zekke.android.ui.components.AppTile
+import zekke.android.ui.components.Block
+import zekke.android.ui.components.ButtonVariant
+import zekke.android.ui.components.EmptyState
+import zekke.android.ui.components.FloatingAddButton
+import zekke.android.ui.components.IconButtonTone
+import zekke.android.ui.components.ItemRow
+import zekke.android.ui.components.Notice
+import zekke.android.ui.components.NoticeTone
+import zekke.android.ui.components.StatusBadge
+import zekke.android.ui.components.StorageMeter
+import zekke.android.ui.components.StorageReading
+import zekke.android.ui.components.Tone
+import zekke.android.ui.components.ZekkeButton
+import zekke.android.ui.components.ZekkeIconButton
+import zekke.android.ui.components.ZekkeIconToggleButton
+import zekke.android.ui.theme.Zekke
+
+private const val GIB = 1024L * 1024 * 1024
+
+@Composable
+fun ComponentGallery() {
+    val palette = Zekke.palette
+    Column(
+        modifier = Modifier.fillMaxWidth().background(palette.ground).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            ZekkeButton("Create account", onClick = {}, variant = ButtonVariant.Accent)
+            ZekkeIconButton(R.drawable.ic_menu, hint = "Menu", onClick = {})
+            ZekkeIconToggleButton(R.drawable.ic_eye, hint = "Show values", checked = false, onCheckedChange = {})
+            ZekkeIconToggleButton(R.drawable.ic_eye_off, hint = "Hide values", checked = true, onCheckedChange = {})
+            ZekkeIconButton(R.drawable.ic_lock_session, hint = "Lock", onClick = {}, framed = true)
+            ZekkeIconButton(R.drawable.ic_trash, hint = "Delete", label = "Delete Bank PIN", onClick = {}, tone = IconButtonTone.Danger)
+            StatusBadge("Draft", Tone.Neutral)
+        }
+        Notice("A username is permanent. Choose one you are happy to share with your contacts.")
+        Notice("Password saved.", tone = NoticeTone.Success, onDismiss = {})
+        Notice("Your plan ends in 6 days.", tone = NoticeTone.Warning, onDismiss = {})
+        Notice("This contact's key does not match the one you pinned.", tone = NoticeTone.Danger)
+        Block(title = "Passwords", subtitle = "Website logins, encrypted here.", actions = {
+            ZekkeButton("Recently deleted", onClick = {}, variant = ButtonVariant.Ghost)
+        }) {
+            Column {
+                ItemRow("github.com", meta = "ada@lovelace.dev", icon = R.drawable.ic_passwords, onClick = {}) {
+                    ZekkeIconButton(R.drawable.ic_clipboard, hint = "Copy", label = "Copy the password for github.com", onClick = {})
+                }
+                ItemRow("Bank PIN", meta = "••••", metaIsValue = true, icon = R.drawable.ic_vault, onClick = {}) {
+                    ZekkeIconButton(R.drawable.ic_eye, hint = "Show", label = "Show Bank PIN", onClick = {})
+                }
+            }
+        }
+        StorageMeter(StorageReading(storedBytes = 3 * GIB + GIB / 5, usedBytes = 3 * GIB + GIB / 3, quotaBytes = 10 * GIB))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AppTile(R.drawable.mark_secrets, "Vault", onClick = {}, modifier = Modifier.width(80.dp))
+            AppTile(R.drawable.mark_password_manager, "Passwords", onClick = {}, modifier = Modifier.width(80.dp))
+            AppTile(R.drawable.mark_notes, "Notes", onClick = {}, modifier = Modifier.width(80.dp))
+            AppTile(R.drawable.mark_drive, "Drive", onClick = {}, modifier = Modifier.width(80.dp))
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            EmptyState("No passwords yet. Tap + to add the first one.", icon = R.drawable.ic_passwords, modifier = Modifier.weight(1f))
+            FloatingAddButton(label = "Add password", onClick = {})
+        }
+    }
+}

@@ -3,6 +3,11 @@ package zekke.android.di
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import zekke.android.session.KeystoreSessionControl
+import zekke.android.session.KillThisProcess
+import zekke.android.session.SessionControl
+import zekke.android.session.SessionGuard
+import zekke.android.session.SessionViewModels
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import zekke.android.BuildConfig
@@ -19,6 +24,7 @@ import zekke.core.items.ItemContext
 import zekke.core.session.SessionKeystore
 
 val APP_SCOPE = named("app-scope")
+val MAIN_SCOPE = named("main-scope")
 
 val coreModule = module {
     single<CoroutineScope>(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
@@ -26,6 +32,10 @@ val coreModule = module {
     single { ZekkeApi(baseUrl = BuildConfig.API_BASE_URL, clientIdentity = get()) }
     single { SessionKeystore(timerScope = get(APP_SCOPE)) }
     single { AccountServices(get(), get(), get()) }
+    single<CoroutineScope>(MAIN_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate) }
+    single<SessionControl> { KeystoreSessionControl(get()) }
+    single { SessionViewModels() }
+    single { SessionGuard(get(), get(MAIN_SCOPE), KillThisProcess).also { guard -> guard.onLocked(get<SessionViewModels>()::clear) } }
     single<ObjectStore> { HttpObjectStore() }
     factory { ItemContext(get(), get()) }
     factory { (userAddress: String) -> Replica(get<LocalDatabases>().replicaDriver(), userAddress) }

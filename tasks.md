@@ -54,23 +54,55 @@ and an `android` row in the API's `client_releases` (A8.4).
   databases), eight `feature` modules (`onboarding` holds the start screen, the others wait for
   their tasks), and `coreModule` in `app`. `CoreModuleTest` passes on an Android 14 emulator: every
   binding resolves with the real native library, one API and one session are shared, and the
-  replica and the outbox open in the no-backup directory. **The device vault is provisionally the
-  core's in-memory one**, until A0.5.
-- [ ] **A0.4 The design system.** `ui`: the web app's tokens (colours, type scale, shapes) as a
+  replica and the outbox open in the no-backup directory. The device vault was the core's
+  in-memory one until A0.5.
+- [x] **A0.4 The design system.** `ui`: the web app's tokens (colours, type scale, shapes) as a
   Material 3 theme, light and dark; `PinField`, `SecretField` (masked until revealed),
   `CopyButton` (the clip marked sensitive, cleared after a timeout), and the private-text modifiers
   every secret-bearing field uses (no personalised learning, no suggestions, not important for
   autofill). *Done when* Compose UI tests pin the masking, the clip's sensitivity and the clearing.
-- [ ] **A0.5 The device vault.** `platform`: replacing the provisional `MemoryDeviceVault` binding,
+  **Done 2026-10-09**: the light palette from the web app's `globals.css` (its `DESIGN.md` header
+  is not what it uses), a dark palette derived from it, Inter and JetBrains Mono bundled, the
+  components and the sensitive clipboard (cleared by an alarm, so it survives the lock ending the
+  process). The whole window is excluded from autofill. `ComponentsTest`, `PaletteContrastTest`
+  and the screenshots of both themes pass.
+  - [ ] **The owner reviews the dark palette** (`ui/src/test/screenshots/gallery-dark.png`).
+  - [x] **The rest of the kit.** The design system's remaining tokens (`brandMark`, `brandSoft`,
+    the action gradient, `focusRing`, `scrim`, the folder's shine and edge), the outline icons and
+    the feature marks as vector drawables, and the components the screens will need: icon buttons,
+    the floating add button and menu, `Notice`, `EmptyState`, `LoadingIndicator`, `StorageMeter`,
+    `Block`, `ItemRow`, `AppTile`, `ConfirmDeleteDialog`, `FormSheet`, the accent button and the
+    neutral badge. **Done 2026-10-10**: `KitTest`, the 3:1 pairs in `PaletteContrastTest` and the
+    `components-*.png` screenshots pass, the existing gallery screenshots are unchanged, and lint
+    is clean.
+  - [ ] **`verification-metadata.xml` is missing `groovy-bom-4.0.29.pom`**: `:ui:lintDebug` stops
+    on it when the lint tool is resolved online (it passed with `--dependency-verification lenient`).
+    Regenerate the file as the README says and review the diff.
+- [x] **A0.5 The device vault.** `platform`: replacing the provisional `MemoryDeviceVault` binding,
   the core's `DeviceVault` backed by an AES-256-GCM key in
   the Android Keystore, StrongBox where present, `setUnlockedDeviceRequired(true)`, never
   exportable, the record in the app's no-backup storage. *Done when* instrumented tests store, read
   and forget a record, and a record copied to another install does not open.
-- [ ] **A0.6 The session's lifecycle.** The app observes the core's session state; a lock clears
+  **Done 2026-10-09**: `KeystoreDeviceVault` is the binding. The emulator showed two things the
+  plan did not say: the Keystore cannot create an unlocked-device-required key on a phone with no
+  secure lock screen, so the requirement applies only when there is one; and a read while the phone
+  is locked must not be taken for a foreign record, so it raises `DeviceVaultUnavailableException`
+  and keeps the file. Both are tested, with a real lock and unlock on the emulator.
+  - [ ] **A1.4 maps `DeviceVaultUnavailableException`** to "unlock the phone first".
+  - [ ] **A8.2 checks `keyLocation`** is the trusted environment or StrongBox on a real phone.
+
+- [x] **A0.6 The session's lifecycle.** The app observes the core's session state; a lock clears
   every screen's state and navigates to the unlock screen. Locking on leaving the foreground
   (`ProcessLifecycleOwner`), on the screen turning off, after the idle timeout; the exception for a
   system picker the app launched, with a maximum; ending the process after a lock unless an upload
   runs. *Done when* Robolectric tests cover each trigger and the picker exception.
+  **Done 2026-10-09**: `SessionGuard` and `AppRoot` in `app`; 9 Robolectric tests for the triggers
+  (leaving the foreground, the screen-off broadcast, the idle lock in and out of the foreground,
+  user activity), the picker exception and its maximum, and a transfer keeping the process; one
+  for a lock clearing every ViewModel and remembered value. On the emulator, Home ends the process
+  and the app reopens in a new one.
+  - [ ] **A5.2 calls `pickerWillOpen()`** before every picker and `transferStarted()` /
+    `transferFinished()` around every upload.
 
 ## A1 — Onboarding and unlock
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="secret_show">Show</string>
+    <string name="secret_hide">Hide</string>
+    <string name="copy_done">Copied — clears in %1$d s</string>
+    <string name="notice_dismiss">Dismiss</string>
+    <string name="loading">Loading</string>
+    <string name="dialog_keep">Keep it</string>
+    <string name="dialog_delete">Delete</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="storage_used">%1$s used · %2$s%%</string>
+    <string name="storage_free">%1$s free</string>
+    <string name="storage_unfinished">Unfinished uploads hold %1$s.</string>
+    <string name="storage_ready">Ready for new files</string>
+</resources>
