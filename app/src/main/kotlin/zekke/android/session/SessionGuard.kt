@@ -43,8 +43,9 @@ class SessionGuard(
         }
     }
 
-    fun onLocked(listener: () -> Unit) {
+    fun onLocked(listener: () -> Unit): () -> Unit {
         lockListeners += listener
+        return { lockListeners -= listener }
     }
 
     override fun onStart(owner: LifecycleOwner) {

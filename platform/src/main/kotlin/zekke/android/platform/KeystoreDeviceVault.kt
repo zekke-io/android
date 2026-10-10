@@ -50,6 +50,8 @@ class KeystoreDeviceVault(
             }
         }
 
+    fun hasRecord(): Boolean = file.baseFile.exists()
+
     override fun store(record: ByteArray) {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         val sealed = try {

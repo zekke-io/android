@@ -3,4 +3,61 @@
     <string name="start_title">Zekke</string>
     <string name="start_tagline">Your encrypted vault, drive and passwords.</string>
     <string name="start_version">Version %1$s</string>
+    <string name="start_create">Create an account</string>
+    <string name="lost_title">Your account was created</string>
+    <string name="lost_body">This phone locked before your recovery phrase was saved, and the phrase cannot be shown again. Your account exists, and this phone is now the only way into it: if this phone forgets your account, the account is lost.</string>
+
+    <string name="phrase_title">Your recovery phrase</string>
+    <string name="phrase_body">Your recovery phrase is the account. Nothing on our servers can replace it. We will generate one for you, and it will be the only way back into your account and the only way to add a device.</string>
+    <string name="phrase_length">Phrase length</string>
+    <plurals name="phrase_words">
+        <item quantity="one">%1$d word</item>
+        <item quantity="other">%1$d words</item>
+    </plurals>
+    <string name="phrase_create">Create my recovery phrase</string>
+
+    <string name="mode_title">How should your recovery phrase be protected?</string>
+    <string name="mode_label">Protection mode</string>
+    <string name="mode_standard">Standard</string>
+    <string name="mode_paranoid">Paranoid</string>
+    <string name="mode_standard_summary">Your recovery phrase alone can add a device and recover everything.</string>
+    <string name="mode_standard_tradeoff">Your PIN only unlocks this phone. The server rations every try without ever seeing the PIN. Standard is a deliberate choice: with it, nothing but losing your phrase can lock you out.</string>
+    <string name="mode_paranoid_summary">Your recovery phrase also needs an account PIN before it can add a device or delete the account.</string>
+    <string name="mode_paranoid_tradeoff">Someone who steals your phrase still cannot get in without the account PIN. The PIN you choose here becomes your account PIN too.</string>
+    <string name="mode_one_way">There is no way back to Standard, and no reset. If you forget your account PIN, your account is lost for ever, even with your recovery phrase.</string>
+
+    <string name="pin_title">Choose your 6-digit PIN</string>
+    <string name="pin_subtitle">It unlocks this phone. It never leaves this phone: the server helps check it without seeing it, and after too many wrong tries this phone forgets your account until you type your recovery phrase again. It is not your phone\'s screen lock.</string>
+    <string name="pin_label">PIN</string>
+    <string name="pin_confirm_label">Confirm PIN</string>
+    <string name="pin_create">Create my account</string>
+    <string name="pin_wrong_length">Your PIN must be exactly 6 digits.</string>
+    <string name="pin_non_digit">Your PIN must be digits only.</string>
+    <string name="pin_repeating">That PIN repeats one digit. Choose a less predictable one.</string>
+    <string name="pin_ascending">That PIN counts up. Choose a less predictable one.</string>
+    <string name="pin_descending">That PIN counts down. Choose a less predictable one.</string>
+    <string name="pin_mismatch">Those PINs do not match.</string>
+
+    <string name="creating_title">Creating your account</string>
+    <string name="creating_body">Generating this phone\'s keys and checking your PIN with the server. This takes a moment: checking a PIN is deliberately slow, so that guessing one is slow too.</string>
+
+    <string name="failure_offline">Zekke could not be reached. Check your connection and try again; nothing was created.</string>
+    <string name="failure_rate_limited">Too many attempts from this network. Try again in a few minutes.</string>
+    <plurals name="failure_rate_limited_seconds">
+        <item quantity="one">Too many attempts from this network. Try again in %1$d second.</item>
+        <item quantity="other">Too many attempts from this network. Try again in %1$d seconds.</item>
+    </plurals>
+    <string name="failure_generic">Your account could not be created. Try again.</string>
+
+    <string name="recovery_title">Save your recovery phrase</string>
+    <string name="recovery_username">Your username is %1$s. It is permanent.</string>
+    <string name="recovery_warning">Write it down and keep it offline. Anyone who has your recovery phrase has your vault, and nobody can restore it for you if you lose it. This phone does not keep your recovery phrase: you type it again to add a device, to bring this phone back if it forgets your account, and to remove a device you lost.</string>
+    <string name="recovery_reveal">Show my phrase</string>
+    <string name="recovery_not_copyable">Your phrase cannot be copied, on purpose. A clipboard is shared with other apps and is often synced to your other devices, so your recovery phrase should never pass through one. Write it down instead.</string>
+    <string name="recovery_paranoid_failed">Your account was created in Standard mode: turning on Paranoid mode did not finish. You can turn it on later in Settings.</string>
+    <string name="recovery_continue">I have written it down</string>
+    <string name="recovery_word">%1$d. %2$s</string>
+
+    <string name="back">Back</string>
+    <string name="continue_label">Continue</string>
 </resources>

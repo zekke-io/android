@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="zekke_surface">#F8F9FF</color>
+    <color name="zekke_ground">#F9FAFB</color>
     <color name="zekke_primary">#4648D4</color>
     <color name="zekke_on_primary">#FFFFFF</color>
 </resources>

@@ -21,6 +21,8 @@ import zekke.android.ui.components.IconButtonTone
 import zekke.android.ui.components.ItemRow
 import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
+import zekke.android.ui.components.Segment
+import zekke.android.ui.components.SegmentedControl
 import zekke.android.ui.components.StatusBadge
 import zekke.android.ui.components.StorageMeter
 import zekke.android.ui.components.StorageReading
@@ -48,6 +50,12 @@ fun ComponentGallery() {
             ZekkeIconButton(R.drawable.ic_trash, hint = "Delete", label = "Delete Bank PIN", onClick = {}, tone = IconButtonTone.Danger)
             StatusBadge("Draft", Tone.Neutral)
         }
+        SegmentedControl(
+            segments = listOf(Segment(false, "Standard"), Segment(true, "Paranoid")),
+            selected = false,
+            onSelect = {},
+            label = "Protection mode",
+        )
         Notice("A username is permanent. Choose one you are happy to share with your contacts.")
         Notice("Password saved.", tone = NoticeTone.Success, onDismiss = {})
         Notice("Your plan ends in 6 days.", tone = NoticeTone.Warning, onDismiss = {})

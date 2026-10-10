@@ -31,8 +31,9 @@ that the web app does not use, and is not a source.)
 | `folderShine`, `folderEdge` | `#C7D2FE`, `#6366F1` | the same |
 
 **The web app has no dark theme.** The dark palette is derived from the same families (Tailwind's
-gray and indigo, one step lighter for anything drawn on a dark ground) and **awaits the owner's
-review**. `ZekkeTheme` follows the system setting.
+gray and indigo, one step lighter for anything drawn on a dark ground), and it ships: `ZekkeTheme`
+follows the system setting. The window behind Compose follows it too (`app`'s `values-night`
+theme draws `ground`), so a dark phone never flashes white at launch.
 
 `ZekkePalette` holds every token, reached in a composable as `Zekke.palette`; `colorScheme()` maps
 it onto Material 3's roles, so Material components take the right colours by themselves.
@@ -73,6 +74,7 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | `CopyButton` | Copies through `SensitiveClipboard` and says *Copied — clears in 30 s* |
 | `ZekkeButton` | The web app's variants: primary, secondary, ghost, danger, and accent (the action gradient, onboarding only) |
 | `StatusBadge` | Neutral, brand, success, warning and danger pills, always on one line |
+| `SegmentedControl` | Two or three exclusive options in a pill track, the chosen one in `brand`; each segment is a radio button for TalkBack |
 | `ZekkeIconButton` | An icon in a 48 dp target, plain, framed or danger. Its short `hint` shows on long-press; its `label` (default the hint) is what TalkBack reads, so a row passes *Delete Bank PIN*, not *Delete* |
 | `ZekkeIconToggleButton` | The same, with a checked state (`brandTint` fill, `brandText` glyph): *Show values* / *Hide values*. TalkBack hears the state from the toggle's own semantics |
 | `FloatingAddButton`, `FloatingAddMenu` | The 56 dp gradient disc; the menu variant opens a list of `AddOption`s and turns its `+` 45° while open |

@@ -26,7 +26,9 @@ layer). A copy of the app's storage is useless off the phone.
   requirement. A lock screen added later applies to the next key, which `delete` and a new device
   create.
 - **The file**: `device-record.bin` in the no-backup directory, written atomically
-  (`AtomicFile`): `0x01 ‖ iv(12) ‖ AES-GCM(record) ‖ tag(16)`.
+  (`AtomicFile`): `0x01 ‖ iv(12) ‖ AES-GCM(record) ‖ tag(16)`. `hasRecord()` says whether the file
+  exists, without touching the key: the app uses it to choose between the onboarding and the
+  session. The vault is bound both as the core's `DeviceVault` and as itself.
 
 **When the record does not open**, the vault tells apart what is final from what is temporary:
 

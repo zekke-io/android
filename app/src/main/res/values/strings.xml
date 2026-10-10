@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Zekke</string>
+    <string name="locked_title">Zekke is locked</string>
+    <string name="locked_body">Unlocking with your PIN is not in this build yet.</string>
+    <string name="home_title">Zekke</string>
+    <string name="home_body">Your account is open on this phone.</string>
+    <string name="home_lock">Lock</string>
 </resources>

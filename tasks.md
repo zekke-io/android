@@ -66,7 +66,8 @@ and an `android` row in the API's `client_releases` (A8.4).
   components and the sensitive clipboard (cleared by an alarm, so it survives the lock ending the
   process). The whole window is excluded from autofill. `ComponentsTest`, `PaletteContrastTest`
   and the screenshots of both themes pass.
-  - [ ] **The owner reviews the dark palette** (`ui/src/test/screenshots/gallery-dark.png`).
+  - [x] **The dark palette ships** (2026-10-10, the owner's call: shipped as derived, to be refined
+    later). The window theme follows the system setting too.
   - [x] **The rest of the kit.** The design system's remaining tokens (`brandMark`, `brandSoft`,
     the action gradient, `focusRing`, `scrim`, the folder's shine and edge), the outline icons and
     the feature marks as vector drawables, and the components the screens will need: icon buttons,
@@ -106,10 +107,20 @@ and an `android` row in the API's `client_releases` (A8.4).
 
 ## A1 — Onboarding and unlock
 
-- [ ] **A1.1 Creating an account.** Start, the mode (Standard or Paranoid, the one-way sentence
+- [x] **A1.1 Creating an account.** Start, the mode (Standard or Paranoid, the one-way sentence
   before the PIN), the PIN (twice for Paranoid, the account PIN becoming this phone's), creating,
   then the recovery kit. *Done when* an account created on the emulator against the local API opens
   in the web app with its phrase.
+  **Done 2026-10-10**: `feature:onboarding` and `CoreOnboardingServices` in `app`; 11 ViewModel
+  tests and 4 Robolectric screen tests. On the emulator against the local API, a Paranoid account
+  with 24 words was created through the screens (a weak PIN refused first), its phrase read from the
+  screen, *Lock* and a relaunch opened on the locked screen, and the web app's own `lib/account`
+  entered the account with that phrase and PIN, found the same username and Paranoid mode, and
+  deleted it. The recovery step shows the phrase on screen until A1.2 builds the kit.
+  - [ ] **A1.2 decides what a lock on the recovery step does.** Today a lock (idle, or leaving the
+    app, which ends the process) once the account exists loses the phrase for good: the account
+    stays usable on this phone only. Either show the phrase before creating the account, or hold
+    the phrase through a lock until it was saved.
 - [ ] **A1.2 The recovery kit.** The web app's page from the core's content, the phrase as vector
   outlines and the QR code holding the bare phrase, printed through the print framework or saved
   through the system picker; the vault stays shut until it was saved or printed once. The phrase can

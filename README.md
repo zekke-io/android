@@ -33,6 +33,7 @@ Koin, started once in `ZekkeApplication` with `platformModule` and `coreModule`
 | `ClientIdentity`, `ZekkeApi` | One for the process; `Zekke-Client: android/<version>` on every request |
 | `SessionKeystore` | One for the process, its idle timer on the app's coroutine scope |
 | `AccountServices` | One, over the API, the session and the platform's `DeviceVault` |
+| `OnboardingServices` | A new `CoreOnboardingServices` per onboarding ViewModel: the core's sign-up, the session guard's lock |
 | `ObjectStore` | One `HttpObjectStore`, for the drive's presigned URLs |
 | `ItemContext` | A new one per use, over the same API and session |
 | `Replica`, `Outbox` | Built with the account's `user_address` as a parameter, on the platform's no-backup databases; their lifetime per session is task A3.1's |
@@ -89,7 +90,17 @@ only while the session is `UNLOCKED`, inside a `key` that changes with every loc
 `SessionViewModels` as its `ViewModelStoreOwner`. A lock clears that store (every ViewModel's
 `onCleared` runs) and moves the key, so nothing a screen remembered, with `remember` or
 `rememberSaveable`, survives into the next unlock. The locked branch is what the user sees
-instead; until the onboarding and unlock screens exist (A1), both branches draw the start screen.
+instead.
+
+**What `MainActivity` draws**: the onboarding while the phone holds no device record, while an
+onboarding is under way (the account exists from `Creating` on, and the phrase is still to be shown)
+and after a lock lost the phrase; otherwise `AppRoot`. Until A1.4 and A3, the locked branch is a
+holding screen saying unlocking is not in this build, and the unlocked one a holding screen with
+*Lock*.
+
+**Creating an account keeps the process alive.** `CoreOnboardingServices` counts the sign-up as a
+transfer, so leaving the app mid-sign-up does not end the process half-way through; if the app is in
+the background when it finishes, it locks at once.
 
 ## Variants
 
