@@ -12,4 +12,33 @@
     <string name="storage_free">%1$s free</string>
     <string name="storage_unfinished">Unfinished uploads hold %1$s.</string>
     <string name="storage_ready">Ready for new files</string>
+    <string name="phrase_entry_length">Phrase length</string>
+    <plurals name="phrase_entry_words">
+        <item quantity="one">%1$d word</item>
+        <item quantity="other">%1$d words</item>
+    </plurals>
+    <string name="phrase_entry_word">Word %1$d</string>
+    <string name="phrase_entry_suggestions">Suggestions</string>
+    <string name="phrase_entry_checksum">This recovery phrase could not be verified. Check each word and try again.</string>
+    <string name="phrase_entry_scan">Scan the QR code of your recovery kit</string>
+    <string name="phrase_entry_scan_refused">That code is not a Zekke recovery phrase. Scan the QR code of your recovery kit, or type the words.</string>
+    <string name="rate_limited">Too many requests have come from this network, so the server is pausing them. This is not a problem with your account or your PIN. Try again %1$s.</string>
+    <string name="wait_moment">in a moment</string>
+    <string name="wait_minute">in about a minute</string>
+    <plurals name="wait_seconds">
+        <item quantity="one">in %d second</item>
+        <item quantity="other">in %d seconds</item>
+    </plurals>
+    <plurals name="wait_minutes">
+        <item quantity="one">in about a minute</item>
+        <item quantity="other">in about %d minutes</item>
+    </plurals>
+    <string name="scanner_title">Scan your recovery kit</string>
+    <string name="scanner_hint">Point the camera at the QR code of your recovery kit. It is read on this phone and nothing is saved.</string>
+    <string name="scanner_why">Zekke uses the camera only to read the QR code of your recovery kit. Nothing is recorded or saved.</string>
+    <string name="scanner_allow">Allow the camera</string>
+    <string name="scanner_denied">Camera access is off. You can allow it, or type the words instead.</string>
+    <string name="scanner_blocked">Camera access is off for Zekke. Turn it on in the phone’s settings, or type the words instead.</string>
+    <string name="scanner_open_settings">Open settings</string>
+    <string name="scanner_unavailable">The camera could not be started. Type the words instead.</string>
 </resources>

@@ -17,7 +17,7 @@ class FakeOnboardingServices(var lostKit: Boolean = false) : OnboardingServices 
     var systemScreens = 0
     val enrolmentPhrases = mutableListOf<List<String>>()
     val enrolmentPins = mutableListOf<String>()
-    val removedDeviceIds = mutableListOf<List<String>>()
+    val removals = mutableListOf<DeviceRemoval>()
     var settled = 0
     private val listeners = mutableListOf<() -> Unit>()
 
@@ -30,11 +30,11 @@ class FakeOnboardingServices(var lostKit: Boolean = false) : OnboardingServices 
     var enrolment: CompletableDeferred<Unit> = CompletableDeferred()
     val enrolmentWordArrays = mutableListOf<List<CharArray>>()
 
-    override suspend fun enrolDevice(words: List<CharArray>, pin: CharArray, removeDeviceIds: List<String>) {
+    override suspend fun enrolDevice(words: List<CharArray>, pin: CharArray, removal: DeviceRemoval) {
         enrolmentPhrases += words.map { String(it) }
         enrolmentWordArrays += words
         enrolmentPins += String(pin)
-        removedDeviceIds += removeDeviceIds
+        removals += removal
         enrolment.await()
     }
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="security_mode_unavailable">Your account settings could not be loaded. Check your connection and try again.</string>
+    <string name="security_try_again">Try again</string>
+
+    <string name="paranoid_section_title">Paranoid mode</string>
+    <string name="paranoid_open">Turn on Paranoid mode…</string>
+    <string name="rotate_open">Change the account PIN…</string>
+    <string name="paranoid_offer_title">Turn on Paranoid mode</string>
+    <string name="paranoid_offer_summary">Adds an account PIN to everything your recovery phrase alone could do: adding a device, deleting the account, changing this PIN. Someone who steals your phrase then still cannot add a device of their own.</string>
+    <string name="paranoid_one_way">Before you turn it on: there is no way back to Standard, and no reset. If you forget your account PIN, your account is lost for ever, even with your recovery phrase. Standard is a deliberate choice, not a lesser one: with it, your recovery phrase alone is always enough.</string>
+    <string name="paranoid_signs_out">Your other devices that open everything are signed out, because their PINs would no longer match the account PIN. Each comes back with your recovery phrase and the account PIN. Devices with limited access, such as the browser extension, stay signed in.</string>
+    <string name="paranoid_continue">Continue</string>
+    <string name="paranoid_submit">Turn on Paranoid mode</string>
+    <string name="paranoid_submitting">Turning it on…</string>
+    <string name="paranoid_pin_hint">This is your account PIN. It becomes this phone’s PIN too, and it is asked for separately, whenever your recovery phrase is used.</string>
+
+    <string name="paranoid_on_title">Paranoid mode is on</string>
+    <string name="paranoid_on_summary">Adding a device, deleting the account and changing the account PIN need your account PIN as well as your recovery phrase.</string>
+    <string name="paranoid_on_one_way">There is no way back to Standard, and no reset. A forgotten account PIN ends the account.</string>
+
+    <string name="rotate_title">Change the account PIN</string>
+    <string name="rotate_summary">Needs your recovery phrase, your current account PIN and the new one. Your recovery phrase alone can never replace a PIN that is set.</string>
+    <string name="rotate_signs_out">Your other devices that open everything are signed out, and each comes back with your recovery phrase and the new account PIN. The new PIN is also this phone’s PIN.</string>
+    <string name="rotate_submit">Change the account PIN</string>
+    <string name="rotate_submitting">Changing it…</string>
+
+    <string name="security_phrase_prompt">Your recovery phrase signs this change. This phone does not keep it, so type it here; it is forgotten as soon as the change is made.</string>
+    <string name="security_working">This takes a moment. Keep Zekke open.</string>
+    <string name="security_current_pin_label">Current account PIN</string>
+    <string name="security_new_pin_label">New account PIN</string>
+    <string name="security_account_pin_label">Account PIN</string>
+    <string name="security_confirm_pin_label">Confirm account PIN</string>
+
+    <string name="security_paranoid_done">Paranoid mode is on. Your account PIN is now needed whenever your recovery phrase is used. It is also this phone’s PIN.</string>
+    <string name="security_rotate_done">Your account PIN has changed. It is also this phone’s PIN now.</string>
+    <plurals name="security_signed_out">
+        <item quantity="one">%1$d other device was signed out. It comes back with your recovery phrase and the account PIN.</item>
+        <item quantity="other">%1$d other devices were signed out. Each comes back with your recovery phrase and the account PIN.</item>
+    </plurals>
+
+    <string name="security_phrase_mismatch">That recovery phrase belongs to a different account. Check it against the one this phone belongs to.</string>
+    <string name="security_pin_refused">That did not work. Nothing was changed. Check your recovery phrase and account PIN.</string>
+    <string name="security_pin_refused_wait">That did not work. Nothing was changed. If you are sure of your account PIN, wait a few minutes before trying again: after several wrong tries the server stops evaluating it for a while, so an immediate retry cannot succeed and still counts as a try.</string>
+    <string name="security_paranoid_unfinished">Paranoid mode is on, but the change did not finish: this phone’s PIN and your other devices may not have been updated. Use Change the account PIN, with the PIN you just chose as the current one, to finish it.</string>
+    <string name="security_offline">Zekke could not be reached. Check your connection and try again.</string>
+    <string name="security_phone_locked">Unlock the phone first, then try again.</string>
+    <string name="security_chain_problem">The history of your devices that the server returned does not verify from your recovery phrase’s key. Someone may have tampered with it. Do not add or trust any device until this is resolved.</string>
+    <string name="security_failed">Something went wrong. Please try again.</string>
+
+    <string name="security_pin_wrong_length">Your PIN must be exactly 6 digits.</string>
+    <string name="security_pin_non_digit">Your PIN must be digits only.</string>
+    <string name="security_pin_repeating">That PIN repeats one digit. Choose a less predictable one.</string>
+    <string name="security_pin_ascending">That PIN counts up. Choose a less predictable one.</string>
+    <string name="security_pin_descending">That PIN counts down. Choose a less predictable one.</string>
+    <string name="security_pin_mismatch">Those PINs do not match.</string>
+    <string name="security_current_pin_incomplete">Type your current account PIN: 6 digits.</string>
+</resources>

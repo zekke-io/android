@@ -71,9 +71,6 @@
 
     <string name="enrol_phrase_title">Add this phone</string>
     <string name="enrol_phrase_body">Your recovery phrase adds this phone as one of your devices. This phone does not keep your recovery phrase: you type it again to add a device, to bring this phone back if it forgets your account, and to remove a device you lost.</string>
-    <string name="enrol_word_index">Word %1$d</string>
-    <string name="enrol_suggestions">Suggestions</string>
-    <string name="enrol_phrase_checksum">This recovery phrase could not be verified. Check each word and try again.</string>
     <string name="enrol_pin_title">Choose a PIN for this phone</string>
     <string name="enrol_pin_body">Choose this phone\'s PIN. If your account uses Paranoid mode, type your account PIN: it is checked, and becomes this phone\'s PIN too. It never leaves this phone.</string>
     <string name="enrol_pin_label">PIN for this phone</string>
@@ -86,6 +83,9 @@
     <string name="enrol_devices_unavailable">Your device list could not be loaded. Go back and try adding this phone again.</string>
     <string name="enrol_device_added">Added %1$s</string>
     <string name="enrol_device_details">Device ending …%1$s</string>
+    <string name="enrol_lost_devices">I lost my other devices: remove them all</string>
+    <string name="enrol_lost_devices_warning">Every other device is removed in the same step and every key they held changes, so they cannot read anything saved afterwards. They keep whatever they had already copied.</string>
+    <string name="enrol_remove_all_and_add">Remove my other devices and add this phone</string>
     <string name="enrol_add">Add this phone</string>
     <string name="enrol_remove_and_add">Remove selected devices and add this phone</string>
     <string name="enrolling_title">Adding this phone</string>

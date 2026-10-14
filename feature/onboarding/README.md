@@ -15,8 +15,8 @@ ViewModel are tested with a fake and no network.
 | `Pin` | The PIN twice. The core's `validatePin` refuses a weak one with its reason; a different confirmation is refused before anything is sent. On Paranoid the one-way warning stays on screen, and this PIN becomes the account PIN too |
 | `Creating` | The spinner while the core signs up, registers the PIN and opens the session |
 | `Recovery` | The recovery kit: the permanent username, *Save as PDF* and *Print*, and *Show my phrase* (the words numbered, in mono, **never copyable**). **The vault stays shut until the kit was saved or printed once**: *Continue to my vault* is enabled only then |
-| `EnterRecoveryPhrase` | *Add this phone*: 12 or 24 words, one private field each, with the core's BIP39 suggestions under the focused field. The keyboard's *Next* moves to the next word's field; the checksum is checked before the PIN step |
-| `EnrolPin` | This phone's PIN, twice; on a Paranoid account it is the account PIN, which is checked and becomes this phone's PIN. At the device limit, the account's devices as rows to tick before *Remove selected devices and add this phone* |
+| `EnterRecoveryPhrase` | *Add this phone*: `ui`'s `PhraseEntryFields` over the ViewModel's `phrase`: 12 or 24 words, one private field each, the core's BIP-39 suggestions under the focused field, the keyboard's *Next* moving to the next word; the checksum is checked before the PIN step. Typed, or scanned from the kit's QR code |
+| `EnrolPin` | This phone's PIN, twice; on a Paranoid account it is the account PIN, which is checked and becomes this phone's PIN. *I lost my other devices: remove them all* removes every other device in the same step, after its warning. At the device limit, the account's devices as rows to tick before *Remove selected devices and add this phone* |
 | `Enrolling` | The spinner while the core reads the chain, enrols this phone, registers the PIN and opens the session |
 | `Done` | The app routes to the session; the ViewModel holds nothing |
 
@@ -29,7 +29,7 @@ new phrase and zeroes the previous one.
 | --- | --- |
 | `newPhrase(wordCount)` | Fresh BIP39 words as `CharArray`s, and any pending draft discarded |
 | `phraseSuggestions(prefix)`, `isValidPhrase(words)` | The core's `mnemonicWordSuggestions` and `isValidMnemonic`; the module carries no wordlist of its own |
-| `enrolDevice(words, pin, removeDeviceIds)` | The core's `enrolThisDevice`, removing the listed devices in the same batch; it opens the session, and zeroes the phrase and PIN it was given on every outcome. Failures are `DeviceEnrolmentException` with `NoAccount`, `Refused` (the account PIN, one message for every refusal), `Offline`, `RateLimited`, `TooManyDevices(devices)` or `Failed`. If the app is in the background when it ends, it locks at once |
+| `enrolDevice(words, pin, removal)` | The core's `enrolThisDevice`, with `removal` = `DeviceRemoval.None`, `All` (*I lost my other devices*) or `Listed(ids)` (the devices chosen at the limit), removing them in the same batch. **When devices were removed, every key they held changed**, so the app is told (`KeyRotationEvents`) and runs the re-wrap as soon as the session shows; it opens the session, and zeroes the phrase and PIN it was given on every outcome. Failures are `DeviceEnrolmentException` with `NoAccount`, `Refused` (the account PIN, one message for every refusal), `Offline`, `RateLimited`, `TooManyDevices(devices)` or `Failed`. If the app is in the background when it ends, it locks at once |
 | `createAccount(words, pin, paranoid)` | Creates the account and opens the session, or throws `AccountCreationException` with `Offline`, `RateLimited(retryAfterSeconds)` or `Failed`. **A retry reuses the same draft**, so a sign-up that failed after reaching the server is completed, not duplicated. `paranoidFailed` says the account was made Standard because turning Paranoid on did not finish. Before signing up it records that a kit is pending |
 | `username()` | The account's username, asked of the server up to three times; `null` when it could not be had. The kit needs it, so the step offers *Try again* |
 | `kitContent(username, words, createdAt)` | The core's `recoveryKitContent` |
@@ -41,20 +41,28 @@ new phrase and zeroes the previous one.
 
 ## Adding this phone
 
-- **The phrase** is one `CharArray` per word in the ViewModel, not in the state; the fields read it
-  through `phraseWord(index)`, as Compose text needs a `String` while a word is typed. Each field is
-  `ui`'s `PrivateField`, so the keyboard does not learn, correct or suggest; a word keeps only its
-  lowercase letters, eight at most (the longest BIP-39 word). *Back* to the start, a lock, another
-  phrase length, success and the ViewModel's end zero the words; *Back* from the PIN keeps them.
-- **Focus**: the keyboard's *Next* asks the next word's field for focus by its `FocusRequester`,
-  never with `moveFocus(Down)`, which would land on the suggestion row drawn under the field.
-  Choosing a suggestion fills the word and moves to the next field the same way.
+- **The phrase** is `ui`'s `PhraseEntry`, held by the ViewModel as `phrase`: one `CharArray` per
+  word outside the state, read by the fields through `word(index)`, as Compose text needs a
+  `String` while a word is typed. Each field is `PrivateField`, so the keyboard does not learn,
+  correct or suggest; a word keeps only its lowercase letters, eight at most. The component, its
+  focus rule (the keyboard's *Next* asks the next word's own field for focus, never
+  `moveFocus(Down)`) and its scanning are [ui's](../../ui/README.md); this module only gives it the
+  core's suggestions and checksum. *Back* to the start, a lock, success and the ViewModel's end
+  zero the words; *Back* from the PIN keeps them.
 - **Refusals**: no account for the phrase has its own message (the web app's); a refused account
   PIN has one message for every cause, and after two the screen suggests waiting, since the server
   rations the account PIN's tries.
 - **The device limit**: the core lists the account's devices; each is a `CheckboxRow` with the day
   it was added (`deviceAddedDate`, the phone's locale and zone) and the end of its id. Nothing is
   removed until at least one is ticked and the danger button pressed; the PIN is typed again.
+- **I lost my other devices** is a `CheckboxRow` on the PIN step. Ticking it shows the web app's
+  warning (every key they held changes, so they cannot read what is saved afterwards; they keep
+  what they had already copied) and turns the button into *Remove my other devices and add this
+  phone*. It replaces the choice at the device limit, since removing every other device makes room.
+  The tick survives a failure and is cleared by *Back*.
+- **The re-wrap follows a removal.** What the removed devices held is re-wrapped under the new keys
+  by the same pass as after unlocking, which `app` starts when the session shows
+  ([app](../../README.md)); it is idempotent, so a pass cut short is finished at the next unlock.
 - **The process is held** (`holdProcess`) from the request until it ends, so leaving the app while
   the phone is being added does not end the process half-way, which could leave a device enrolled
   on the server whose keys this phone lost. A failure or success releases it.
@@ -111,8 +119,8 @@ phrase cannot be shown again, and this phone is the only way into the account. T
 | Test | What |
 | --- | --- |
 | `OnboardingViewModelTest` | The steps and *Back*; the phrase length; a new phrase zeroing the old; a weak PIN and a mismatch refused before anything is sent; the account created with the generated phrase, the PIN and the mode; the phrase shown only on request; the vault shut until the kit is delivered, and the phrase zeroed after; the process held from creating to the end, and released by a failure; a missing username looked up again; a lost kit said once; a lock before, while and after creating |
-| `EnrolmentViewModelTest` | An empty form of either length; a word cut to its lowercase letters; suggestions and choosing one; a failed checksum refused before the PIN; a weak PIN and a mismatch refused before anything is sent; the phone added with the process held, then released and the phrase zeroed; a failure releasing the process and keeping the phrase; no account; refusals counted; a full account's devices chosen and sent on the retry; *Back* zeroing the phrase; a lock while adding; the day a device was added |
-| `EnrolmentScreensTest` (Robolectric) | The keyboard's *Next* reaching the next word with suggestions shown (it fails with `moveFocus(Down)`); a suggestion filling the word and moving on; a full account's devices as rows to tick; the no-account message, and the hint to wait after two refusals |
+| `EnrolmentViewModelTest` | The form wired to the core's suggestions; a failed checksum refused before the PIN; a weak PIN and a mismatch refused before anything is sent; the phone added with the process held, then released and the phrase zeroed; a failure releasing the process and keeping the phrase; no account; refusals counted; a full account's devices chosen and sent on the retry; *Back* zeroing the phrase; a lock while adding; the day a device was added; lost devices sending the removal of every other device, with no choice needed on a full account, cleared by *Back*, kept by a failure |
+| `EnrolmentScreensTest` (Robolectric) | Continue held until every word is typed; a full account's devices as rows to tick; ticking *I lost my other devices* warning and sending the removal of all; the no-account message, and the hint to wait after two refusals |
 | `OnboardingScreensTest` (Robolectric) | The one-way warning only on Paranoid; a weak PIN named on screen; *Continue to my vault* disabled until the kit is saved; a failure shown on the PIN step |
 | `RecoveryKitDocumentTest` (instrumented) | The page rendered back with `PdfRenderer` is one page, and zxing's reader decodes its QR code to the bare phrase, for 12 and 24 words; 24 words with a 64-character username stay on one page; the matrix carries its quiet zone |
 

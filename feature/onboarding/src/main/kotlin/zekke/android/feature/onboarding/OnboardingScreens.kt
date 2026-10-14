@@ -61,7 +61,7 @@ fun OnboardingFlow(state: OnboardingState, viewModel: OnboardingViewModel, versi
         OnboardingStep.Pin -> PinStep(state, viewModel)
         OnboardingStep.Creating -> CreatingStep()
         OnboardingStep.Recovery -> RecoveryStep(state, viewModel)
-        OnboardingStep.EnterRecoveryPhrase -> RecoveryPhraseEntryStep(state, viewModel)
+        OnboardingStep.EnterRecoveryPhrase -> RecoveryPhraseEntryStep(viewModel)
         OnboardingStep.EnrolPin -> EnrolPinStep(state, viewModel)
         OnboardingStep.Enrolling -> AddingThisPhoneStep()
     }

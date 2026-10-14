@@ -4,6 +4,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import zekke.android.onboarding.CoreOnboardingServices
+import zekke.android.feature.settings.AccountSecurityServices
+import zekke.android.rekey.KeyRotationEvents
+import zekke.android.security.CoreAccountSecurityServices
 import zekke.android.clients.ClientPolicyMonitor
 import zekke.android.feature.unlock.ThisPhoneServices
 import zekke.android.unlock.CoreThisPhoneServices
@@ -22,6 +25,8 @@ import org.koin.dsl.module
 import zekke.android.BuildConfig
 import zekke.android.platform.LocalDatabases
 import zekke.core.account.AccountServices
+import zekke.core.account.changeAccountPin
+import zekke.core.account.turnOnParanoid
 import zekke.core.account.forgetThisDevice
 import zekke.core.account.removeThisDevice
 import zekke.core.clients.getClientPolicy
@@ -34,6 +39,7 @@ import zekke.core.files.HttpObjectStore
 import zekke.core.files.ObjectStore
 import zekke.core.items.ItemContext
 import zekke.core.session.SessionKeystore
+import zekke.core.users.getMe
 
 val APP_SCOPE = named("app-scope")
 val MAIN_SCOPE = named("main-scope")
@@ -48,12 +54,24 @@ val coreModule = module {
     single<SessionControl> { KeystoreSessionControl(get()) }
     single { SessionViewModels() }
     single { SessionGuard(get(), get(MAIN_SCOPE), KillThisProcess).also { guard -> guard.onLocked(get<SessionViewModels>()::clear) } }
-    factory<OnboardingServices> { CoreOnboardingServices(androidContext(), get(), get(), get()) }
+    factory<OnboardingServices> { CoreOnboardingServices(androidContext(), get(), get(), get(), get()) }
     factory<UnlockServices> { CoreUnlockServices(get(), get()) }
     single { ThisPhoneEvents() }
+    single { KeyRotationEvents() }
     factory<ThisPhoneServices> {
         val account = get<AccountServices>()
         CoreThisPhoneServices(get(), get(), { removeThisDevice(account) }, { forgetThisDevice(account) })
+    }
+    factory<AccountSecurityServices> {
+        val account = get<AccountServices>()
+        val api = get<ZekkeApi>()
+        CoreAccountSecurityServices(
+            get(),
+            get(),
+            { words, pin -> turnOnParanoid(account, words, pin) },
+            { words, current, new -> changeAccountPin(account, words, current, new) },
+            { getMe(api).paranoid },
+        )
     }
     single {
         val api = get<ZekkeApi>()

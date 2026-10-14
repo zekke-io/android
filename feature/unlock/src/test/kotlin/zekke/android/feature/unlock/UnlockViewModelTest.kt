@@ -252,4 +252,17 @@ class UnlockViewModelTest {
         assertEquals(1, services.receivedPins.size)
         assertEquals("", viewModel.pinValue())
     }
+
+    @Test
+    fun rewrapNowRunsThePassWithoutAnUnlockAndShowsItsIssue() {
+        services.rewrapIssue = RewrapIssue.RateLimited(30)
+        viewModel.rewrapNow()
+        assertEquals(1, services.rewrapCalls)
+        assertEquals(RewrapIssue.RateLimited(30), state.rewrapIssue)
+        services.rewrapIssue = null
+        viewModel.dismissRewrapIssue()
+        viewModel.rewrapNow()
+        assertEquals(2, services.rewrapCalls)
+        assertNull(state.rewrapIssue)
+    }
 }

@@ -27,7 +27,12 @@ the listings of every scope, which grows with the vault. It re-wraps what an ear
 under an old generation (a rotation made by another device is caught only this way). It is
 idempotent, so a pass cut short by a lock or the network is finished by the next unlock. A failure
 leaves the vault open and shows why in the unlocked shell; a pass that ends because the session
-locked shows nothing.
+locked shows nothing. The ViewModel's `rewrapNow()` runs the same pass on demand: `app` calls it when
+devices were removed and their keys rotated (adding this phone with *I lost my other devices*,
+turning Paranoid on, changing the account PIN), so those flows end in the same notices.
+
+The wording of a rate limit (*Too many requests have come from this network… Try again in about two
+minutes*) is `ui`'s `rateLimitedMessage`, shared with the other modules.
 
 ## Forgetting this phone
 

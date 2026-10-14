@@ -2,7 +2,7 @@ package zekke.android.feature.onboarding
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -11,15 +11,14 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -57,30 +56,16 @@ class EnrolmentScreensTest {
     private fun field(index: Int) = compose.onAllNodes(hasSetTextAction())[index]
 
     @Test
-    fun theKeyboardsNextKeyMovesToTheNextWordEvenWithSuggestionsShown() {
-        field(0).performClick()
-        field(0).performTextInput("aba")
-        compose.onNodeWithText("abandon").assertExists()
-        field(0).performImeAction()
-        field(1).assertIsFocused()
-        field(1).performTextInput("abandon")
-        field(1).performImeAction()
-        field(2).assertIsFocused()
-    }
-
-    @Test
-    fun aSuggestionFillsTheWordAndMovesOn() {
-        field(0).performClick()
-        field(0).performTextInput("aba")
-        compose.onNodeWithText("abandon").performClick()
-        compose.runOnIdle { check(viewModel.phraseWord(0) == "abandon") }
-        field(1).assertIsFocused()
+    fun theEntryStepHoldsContinueUntilEveryWordIsTyped() {
+        compose.onNodeWithText("Continue").assertIsNotEnabled()
+        compose.runOnIdle { VALID_PHRASE.forEachIndexed { index, word -> viewModel.phrase.wordChanged(index, word) } }
+        compose.onNodeWithText("Continue").assertIsEnabled()
     }
 
     @Test
     fun aFullAccountShowsItsDevicesAsRowsToTick() {
         compose.runOnIdle {
-            VALID_PHRASE.forEachIndexed { index, word -> viewModel.phraseWordChanged(index, word) }
+            VALID_PHRASE.forEachIndexed { index, word -> viewModel.phrase.wordChanged(index, word) }
             viewModel.confirmEnteredPhrase()
             viewModel.enrolPinChanged("395172")
             viewModel.enrolPinConfirmationChanged("395172")
@@ -102,7 +87,7 @@ class EnrolmentScreensTest {
     @Test
     fun saysWhenNoAccountUsesThePhraseAndSuggestsWaitingAfterTwoRefusals() {
         compose.runOnIdle {
-            VALID_PHRASE.forEachIndexed { index, word -> viewModel.phraseWordChanged(index, word) }
+            VALID_PHRASE.forEachIndexed { index, word -> viewModel.phrase.wordChanged(index, word) }
             viewModel.confirmEnteredPhrase()
             viewModel.enrolPinChanged("395172")
             viewModel.enrolPinConfirmationChanged("395172")
@@ -121,5 +106,21 @@ class EnrolmentScreensTest {
         }
         compose.onNodeWithText("Your account PIN was not accepted. Check it and try again.").assertExists()
         compose.onNodeWithText("wait before trying again", substring = true).assertExists()
+    }
+
+    @Test
+    fun tickingLostDevicesWarnsAndSendsTheRemovalOfEveryOtherDevice() {
+        compose.runOnIdle {
+            VALID_PHRASE.forEachIndexed { index, word -> viewModel.phrase.wordChanged(index, word) }
+            viewModel.confirmEnteredPhrase()
+            viewModel.enrolPinChanged("395172")
+            viewModel.enrolPinConfirmationChanged("395172")
+        }
+        compose.onNodeWithText("Every other device is removed", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("Add this phone").assertIsEnabled()
+        compose.onNodeWithText("I lost my other devices: remove them all").performScrollTo().performClick()
+        compose.onNodeWithText("Every other device is removed", substring = true).assertExists()
+        compose.onNodeWithText("Remove my other devices and add this phone").performClick()
+        compose.runOnIdle { assertEquals(DeviceRemoval.All, services.removals.single()) }
     }
 }

@@ -98,6 +98,8 @@ class UnlockViewModel(private val services: UnlockServices) : ViewModel() {
         }
     }
 
+    fun rewrapNow() = rewrapAfterOpening(attemptId)
+
     private fun rewrapAfterOpening(currentAttempt: Int) {
         viewModelScope.launch {
             val issue = try {

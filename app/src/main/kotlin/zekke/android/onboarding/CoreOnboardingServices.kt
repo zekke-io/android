@@ -7,18 +7,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import zekke.android.feature.onboarding.AccountCreationException
 import zekke.android.feature.onboarding.CreatedAccount
-import zekke.android.feature.onboarding.DeviceEnrolmentException
-import zekke.android.feature.onboarding.DeviceEnrolmentFailure
-import zekke.android.feature.onboarding.EnrolmentDevice
 import zekke.android.feature.onboarding.CreationFailure
+import zekke.android.feature.onboarding.DeviceRemoval
 import zekke.android.feature.onboarding.OnboardingServices
 import zekke.android.platform.KeystoreDeviceVault
+import zekke.android.rekey.KeyRotationEvents
 import zekke.android.session.SessionGuard
 import zekke.core.account.AccountServices
-import zekke.core.account.DevicesToRemove
-import zekke.core.account.NoAccountForPhraseException
-import zekke.core.account.ParanoidPinRequiredException
-import zekke.core.account.TooManyDevicesException
 import zekke.core.account.enrolThisDevice
 import zekke.core.account.SignUpDraft
 import zekke.core.account.completeSignUp
@@ -26,7 +21,6 @@ import zekke.core.account.discardSignUpDraft
 import zekke.core.account.draftSignUp
 import zekke.core.api.ApiError
 import zekke.core.api.NetworkError
-import zekke.core.auth.AuthRejectedException
 import zekke.core.keys.generateMnemonic
 import zekke.core.keys.isValidMnemonic
 import zekke.core.keys.mnemonicWordSuggestions
@@ -44,50 +38,19 @@ class CoreOnboardingServices(
     private val services: AccountServices,
     private val guard: SessionGuard,
     private val vault: KeystoreDeviceVault,
+    rotations: KeyRotationEvents,
     private val now: () -> Long = System::currentTimeMillis,
 ) : OnboardingServices {
     private val preferences = context.getSharedPreferences(ONBOARDING_PREFERENCES, Context.MODE_PRIVATE)
+    private val enrolment = DeviceEnrolment(guard, rotations, { words, pin, removal -> enrolThisDevice(services, words, pin, removal) })
     private var draft: SignUpDraft? = null
 
     override fun phraseSuggestions(prefix: CharArray): List<String> = mnemonicWordSuggestions(prefix)
 
     override fun isValidPhrase(words: List<CharArray>): Boolean = isValidMnemonic(words)
 
-    override suspend fun enrolDevice(words: List<CharArray>, pin: CharArray, removeDeviceIds: List<String>) {
-        try {
-            withContext(Dispatchers.Default) {
-                val remove = if (removeDeviceIds.isEmpty()) DevicesToRemove.None else DevicesToRemove.Listed(removeDeviceIds)
-                enrolThisDevice(services, words, pin, remove)
-            }
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: TooManyDevicesException) {
-            throw DeviceEnrolmentException(
-                DeviceEnrolmentFailure.TooManyDevices(
-                    error.devices.map { EnrolmentDevice(it.id, it.scopes, it.createdAt) },
-                ),
-            )
-        } catch (error: AuthRejectedException) {
-            throw DeviceEnrolmentException(DeviceEnrolmentFailure.Refused)
-        } catch (error: NoAccountForPhraseException) {
-            throw DeviceEnrolmentException(DeviceEnrolmentFailure.NoAccount)
-        } catch (error: ParanoidPinRequiredException) {
-            throw DeviceEnrolmentException(DeviceEnrolmentFailure.Refused)
-        } catch (error: NetworkError) {
-            throw DeviceEnrolmentException(DeviceEnrolmentFailure.Offline)
-        } catch (error: ApiError) {
-            throw DeviceEnrolmentException(
-                if (error.isRateLimited) DeviceEnrolmentFailure.RateLimited(error.retryAfterSeconds)
-                else DeviceEnrolmentFailure.Failed,
-            )
-        } catch (error: Exception) {
-            throw DeviceEnrolmentException(DeviceEnrolmentFailure.Failed)
-        } finally {
-            words.forEach { it.fill('\u0000') }
-            pin.fill('\u0000')
-            if (!guard.isInForeground) guard.lockNow()
-        }
-    }
+    override suspend fun enrolDevice(words: List<CharArray>, pin: CharArray, removal: DeviceRemoval) =
+        enrolment.enrolDevice(words, pin, removal)
 
     override fun newPhrase(wordCount: Int): List<CharArray> {
         forgetDraft()

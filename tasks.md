@@ -182,12 +182,56 @@ and an `android` row in the API's `client_releases` (A8.4).
 
 ## A2 — The phrase's other ways in
 
-- [ ] **A2.1 Scanning the kit.** CameraX and zxing-cpp, frames decoded on the phone and kept
+- [~] **A2.1 Scanning the kit.** CameraX and zxing-cpp, frames decoded on the phone and kept
   nowhere; the bare phrase accepted with stray space or case.
-- [ ] **A2.2 "I lost my other devices".** The enrolment that removes them in the same batch, with
+  **Built 2026-10-14, not closed**: `ui` gained `PhraseScanSheet`, `QrScanner` and `QrDecoder` (CameraX
+  1.6.2 and zxing's Java decoder, the library the kit's encoder already uses, instead of zxing-cpp:
+  no native library to build and verify; the scanner lives in `ui` because onboarding and Settings
+  both use it), the `CAMERA` permission and its optional features in the manifest, and the shared
+  `PhraseEntry` the scan fills. *Proven*: the decoder against QR images made with zxing's encoder (a
+  12 and a 24-word kit, a camera row with padding, a code turned on its side, a small code in a large
+  frame, nothing from a blank frame or another kind of code); a scanned text accepted in any case
+  and spacing and a URL refused; the permission path on an API 34 emulator against the local API
+  (the camera explained first, the system dialog, the scanner opening); the manifest in both APKs
+  (`aapt2`). *Not proven*: **reading a code from a live camera.** The emulator's virtual scene never
+  produced a read in three poster setups, and it is not known whether the poster renders there.
+  - [ ] **A2.1 live scan on a real phone** (with A8.2's arm64 phone): a 12 and a 24-word kit read by
+    the camera, the fields filled, the checksum passing. Until then the camera path is untested.
+- [x] **A2.2 "I lost my other devices".** The enrolment that removes them in the same batch, with
   the warning, then the re-wrap.
-- [ ] **A2.3 The Paranoid flows.** Turning Paranoid on with the phrase after the one-way warning;
+  **Done 2026-10-14**: *I lost my other devices: remove them all* on the PIN step (`DeviceRemoval.All`,
+  the web app's warning, a danger button), replacing the choice at the device limit; the removal
+  rotates what the other devices held, so `app` runs the re-wrap as soon as the session shows
+  (`KeyRotationEvents`, the unlock's `rewrapNow()`), which also fixes the removal chosen at the limit
+  (A1.3), which did not re-wrap. `ui` gained the shared `PhraseEntry` (the 12 or 24 words, the
+  suggestions, the keyboard's Next, the scan) that onboarding now uses, and `rateLimitedMessage`.
+  Tests: ui 50, onboarding 40, unlock 44, settings 25, app 54 (`DeviceEnrolmentTest` among them). On the
+  emulator against the local API: an account with three browsers and a secret made before; the phone
+  added with the box ticked left only itself on the server; the secret moved from key generation 1 to 2
+  and still opened.
+- [x] **A2.3 The Paranoid flows.** Turning Paranoid on with the phrase after the one-way warning;
   rotating the account PIN; both say the other full devices are signed out, and re-wrap.
+  **Done 2026-10-14**: `feature/settings` (account security: *Turn on Paranoid mode…* and *Change the
+  account PIN…* in a sheet, with the web app's wording, on the unlocked home screen until Settings
+  exists: A7.2) over the core's `turnOnParanoid` and `changeAccountPin`, with the process held and the
+  call run to its end. Typed outcomes for the wrong phrase, a refused PIN (one message, the web
+  app's advice to wait after two tries, counted across reopenings), offline, rate limited, a locked
+  phone, a chain that does not verify, and a Paranoid mode that was turned on but did not finish. On
+  the emulator against the local API: Paranoid turned on (the account Paranoid on the server, one
+  browser signed out and the notice saying so, the web entering only with the account PIN, the phone
+  unlocking with it); two wrong current PINs then the right one (the wait advice only after the second,
+  the new PIN accepted by the web and the phone, the old one refused, one browser signed out); a secret
+  made before each rotation moved to the new key generation (1 to 3, 2 to 3, 3 to 4) and still opened.
+  - [ ] **A2.3 a change that fails half-way**: turning on is followed by a read of the account's mode to
+    tell whether the server applied it (`ParanoidOnUnfinished`); changing the PIN has no such read, so a
+    failure after the PIN rotated leaves the person told only that it failed. Decide whether it needs
+    one when Settings is built (A7.2).
+
+**Decided by default during A2, awaiting the owner's confirmation**: the scanner reads with zxing's Java
+decoder (plan: zxing-cpp); it lives in `ui` (plan: `platform`) and is offered wherever the phrase is
+typed; the account's security section sits on the home screen under *Lock* until Settings exists;
+`feature/settings` keeps its own copy of the PIN-problem wording (onboarding's is not shareable between
+feature modules) to be consolidated.
 
 ## A3 — The replica and the shell
 

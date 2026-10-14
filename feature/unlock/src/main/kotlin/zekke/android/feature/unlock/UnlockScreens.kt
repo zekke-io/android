@@ -24,6 +24,7 @@ import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
 import zekke.android.ui.components.PinField
 import zekke.android.ui.components.ZekkeButton
+import zekke.android.ui.components.rateLimitedMessage
 import zekke.android.ui.theme.Zekke
 
 @Composable
@@ -153,7 +154,7 @@ private fun feedbackText(feedback: UnlockFeedback): String = when (feedback) {
         }
     }
     UnlockFeedback.Offline -> stringResource(R.string.unlock_offline)
-    is UnlockFeedback.RateLimited -> stringResource(R.string.unlock_rate_limited, waitDescription(feedback.retryAfterSeconds))
+    is UnlockFeedback.RateLimited -> rateLimitedMessage(feedback.retryAfterSeconds)
     UnlockFeedback.PhoneLocked -> stringResource(R.string.unlock_phone_locked)
     UnlockFeedback.Interrupted -> stringResource(R.string.unlock_interrupted)
     UnlockFeedback.Failed -> stringResource(R.string.unlock_failed)
@@ -171,18 +172,6 @@ private fun feedbackTone(feedback: UnlockFeedback): NoticeTone = when (feedback)
 @Composable
 private fun rewrapIssueText(issue: RewrapIssue): String = when (issue) {
     RewrapIssue.Offline -> stringResource(R.string.unlock_rewrap_offline)
-    is RewrapIssue.RateLimited -> stringResource(R.string.unlock_rate_limited, waitDescription(issue.retryAfterSeconds))
+    is RewrapIssue.RateLimited -> rateLimitedMessage(issue.retryAfterSeconds)
     RewrapIssue.Failed -> stringResource(R.string.unlock_rewrap_failed)
-}
-
-@Composable
-internal fun waitDescription(seconds: Long?): String {
-    if (seconds == null || seconds <= 0) return stringResource(R.string.unlock_wait_moment)
-    if (seconds < 60) {
-        val count = seconds.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
-        return pluralStringResource(R.plurals.unlock_wait_seconds, count, count)
-    }
-    val minutes = (seconds / 60 + if (seconds % 60 == 0L) 0 else 1).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
-    if (minutes == 1) return stringResource(R.string.unlock_wait_minute)
-    return pluralStringResource(R.plurals.unlock_wait_minutes, minutes, minutes)
 }

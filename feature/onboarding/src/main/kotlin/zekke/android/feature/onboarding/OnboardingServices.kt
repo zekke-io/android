@@ -32,12 +32,20 @@ sealed interface DeviceEnrolmentFailure {
 
 class DeviceEnrolmentException(val failure: DeviceEnrolmentFailure) : Exception()
 
+sealed interface DeviceRemoval {
+    data object None : DeviceRemoval
+
+    data object All : DeviceRemoval
+
+    data class Listed(val ids: List<String>) : DeviceRemoval
+}
+
 interface OnboardingServices {
     fun phraseSuggestions(prefix: CharArray): List<String>
 
     fun isValidPhrase(words: List<CharArray>): Boolean
 
-    suspend fun enrolDevice(words: List<CharArray>, pin: CharArray, removeDeviceIds: List<String>)
+    suspend fun enrolDevice(words: List<CharArray>, pin: CharArray, removal: DeviceRemoval)
 
     fun newPhrase(wordCount: Int): List<CharArray>
 

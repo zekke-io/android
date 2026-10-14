@@ -13,6 +13,7 @@ import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
 import zekke.android.ui.components.ZekkeButton
+import zekke.android.ui.components.rateLimitedMessage
 import zekke.android.ui.theme.Zekke
 
 @Composable
@@ -61,7 +62,7 @@ fun RemoveThisPhoneSection(state: RemovePhoneState, viewModel: RemoveThisPhoneVi
 @Composable
 private fun removalFailureText(failure: RemovalOutcome): String = when (failure) {
     RemovalOutcome.Offline -> stringResource(R.string.remove_phone_offline)
-    is RemovalOutcome.RateLimited -> stringResource(R.string.unlock_rate_limited, waitDescription(failure.retryAfterSeconds))
+    is RemovalOutcome.RateLimited -> rateLimitedMessage(failure.retryAfterSeconds)
     RemovalOutcome.Refused -> stringResource(R.string.remove_phone_refused)
     RemovalOutcome.ChainProblem -> stringResource(R.string.remove_phone_chain_problem)
     RemovalOutcome.PhoneLocked -> stringResource(R.string.remove_phone_phone_locked)

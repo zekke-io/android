@@ -35,6 +35,8 @@ Koin, started once in `ZekkeApplication` with `platformModule` and `coreModule`
 | `AccountServices` | One, over the API, the session and the platform's `DeviceVault` |
 | `OnboardingServices` | A new `CoreOnboardingServices` per onboarding ViewModel: the core's sign-up, the session guard's lock |
 | `ThisPhoneServices` | A new `CoreThisPhoneServices` per use: the core's `removeThisDevice`, with the process held |
+| `AccountSecurityServices` | A new `CoreAccountSecurityServices` per use: the core's `turnOnParanoid` and `changeAccountPin`, with the process held and the call run to its end |
+| `KeyRotationEvents` | One for the process: says that devices were removed and their keys rotated, so `MainActivity` runs the re-wrap once the session shows |
 | `ThisPhoneEvents` | One for the process: counts the phone's removals, so `MainActivity` looks for the device record again |
 | `ClientPolicyMonitor` | One for the process, over `ZekkeApi.upgradeRequired` and `getClientPolicy`: read at the first `ON_START` of the process, again when the app returns to the foreground after 15 minutes, and after any `426` |
 | `ObjectStore` | One `HttpObjectStore`, for the drive's presigned URLs |
@@ -99,8 +101,15 @@ instead.
 unlock screen is saying why the record went), while an onboarding is under way (the account exists
 from `Creating` on, and the phrase is still to be shown) and after a lock lost the phrase;
 otherwise `AppRoot`. Its locked branch is the unlock screen ([feature/unlock](feature/unlock/README.md));
-until A3, the unlocked branch is a holding screen with *Lock*, *Remove this phone* and the unlock's
-notices (a chain that does not verify, a re-wrap that did not finish) and the version notices.
+until A3, the unlocked branch is a holding screen with *Lock*, the account's security section
+(Paranoid mode, the account PIN), *Remove this phone* and the unlock's notices (a chain that does
+not verify, a re-wrap that did not finish) and the version notices.
+
+**A removal of devices is followed by the re-wrap.** Adding this phone with *I lost my other devices*
+and turning Paranoid on or changing the account PIN remove the account's other full devices and
+rotate what they held. The services say so through `KeyRotationEvents`, and `MainActivity`, in the
+unlocked branch, runs the unlock's `rewrapNow()`: the same pass that follows a PIN unlock, with the
+same notice when it cannot finish, and idempotent, so a pass cut short is finished at the next unlock.
 
 **The update screen comes first.** Everything above is drawn inside `ClientGate`: when the client
 policy says the version is `Required`, or any request of the process was answered `426`

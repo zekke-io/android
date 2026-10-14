@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import zekke.android.ui.components.PhraseEntry
 import zekke.core.pin.PinRejection
 import zekke.core.pin.PinValidation
 import zekke.core.pin.validatePin
@@ -19,10 +20,6 @@ sealed interface PinProblem {
     data class Rejected(val reason: PinRejection) : PinProblem
 
     data object Mismatch : PinProblem
-}
-
-sealed interface PhraseProblem {
-    data object InvalidChecksum : PhraseProblem
 }
 
 data class OnboardingState(
@@ -41,11 +38,6 @@ data class OnboardingState(
     val kitSaved: Boolean = false,
     val kitFailed: Boolean = false,
     val kitLost: Boolean = false,
-    val phraseWordCount: Int = 12,
-    val phraseRevision: Int = 0,
-    val focusedPhraseWord: Int = 0,
-    val phraseSuggestions: List<String> = emptyList(),
-    val phraseProblem: PhraseProblem? = null,
     val enrolPin: String = "",
     val enrolPinConfirmation: String = "",
     val enrolPinProblem: PinProblem? = null,
@@ -53,6 +45,7 @@ data class OnboardingState(
     val enrolmentRefusals: Int = 0,
     val devicesToRemove: List<EnrolmentDevice>? = null,
     val selectedDeviceIds: Set<String> = emptySet(),
+    val removeAllDevices: Boolean = false,
 ) {
     val inProgress: Boolean get() = step != OnboardingStep.Start && step != OnboardingStep.Done
 }
@@ -62,29 +55,25 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
         if (services.kitWasLost()) OnboardingState(step = OnboardingStep.Done, kitLost = true) else OnboardingState(),
     )
     private var words: List<CharArray>? = null
-    private var phraseEntry: MutableList<CharArray>? = null
     private var releaseProcess: (() -> Unit)? = null
     private var enrolmentAttempt = 0
     private val stopListening = services.onLocked(::lockedOut)
 
+    val phrase = PhraseEntry(services::phraseSuggestions, services::isValidPhrase)
+
     val state: StateFlow<OnboardingState> = mutableState.asStateFlow()
 
     fun startCreating() {
-        forgetEnrolmentPhrase()
+        phrase.forget()
         mutableState.update { it.copy(step = OnboardingStep.Phrase, failure = null) }
     }
 
     fun startEnrolling() {
         forgetWords()
-        forgetEnrolmentPhrase()
-        phraseEntry = MutableList(mutableState.value.phraseWordCount) { CharArray(0) }
+        phrase.start()
         mutableState.update {
             it.copy(
                 step = OnboardingStep.EnterRecoveryPhrase,
-                phraseRevision = it.phraseRevision + 1,
-                focusedPhraseWord = 0,
-                phraseSuggestions = emptyList(),
-                phraseProblem = null,
                 enrolPin = "",
                 enrolPinConfirmation = "",
                 enrolPinProblem = null,
@@ -156,86 +145,12 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
         }
     }
 
-    fun phraseWord(index: Int): String = phraseEntry?.getOrNull(index)?.let { String(it) }.orEmpty()
-
-    val phraseComplete: Boolean get() = phraseEntry?.all { it.isNotEmpty() } == true
-
-    fun changePhraseWordCount(count: Int) {
-        if (count !in listOf(12, 24) || mutableState.value.step != OnboardingStep.EnterRecoveryPhrase) return
-        forgetEnrolmentPhrase()
-        phraseEntry = MutableList(count) { CharArray(0) }
-        mutableState.update {
-            it.copy(
-                phraseWordCount = count,
-                phraseRevision = it.phraseRevision + 1,
-                focusedPhraseWord = 0,
-                phraseSuggestions = emptyList(),
-                phraseProblem = null,
-                enrolmentFailure = null,
-                devicesToRemove = null,
-                selectedDeviceIds = emptySet(),
-            )
-        }
-    }
-
-    fun phraseWordChanged(index: Int, value: String) {
-        val entry = phraseEntry ?: return
-        if (mutableState.value.step != OnboardingStep.EnterRecoveryPhrase || index !in entry.indices) return
-        val normalized = value.trim().lowercase().filter { it in 'a'..'z' }.take(8)
-        entry[index].fill('\u0000')
-        entry[index] = normalized.toCharArray()
-        val prefix = entry[index].copyOf()
-        val suggestions = try {
-            services.phraseSuggestions(prefix)
-        } finally {
-            prefix.fill('\u0000')
-        }
-        mutableState.update {
-            it.copy(
-                phraseRevision = it.phraseRevision + 1,
-                focusedPhraseWord = index,
-                phraseSuggestions = suggestions,
-                phraseProblem = null,
-                enrolmentFailure = null,
-            )
-        }
-    }
-
-    fun focusPhraseWord(index: Int) {
-        val entry = phraseEntry ?: return
-        if (mutableState.value.step != OnboardingStep.EnterRecoveryPhrase || index !in entry.indices) return
-        val prefix = entry[index].copyOf()
-        val suggestions = try {
-            services.phraseSuggestions(prefix)
-        } finally {
-            prefix.fill('\u0000')
-        }
-        mutableState.update { it.copy(focusedPhraseWord = index, phraseSuggestions = suggestions) }
-    }
-
-    fun choosePhraseSuggestion(index: Int, word: String) {
-        phraseWordChanged(index, word)
-        val next = (index + 1).coerceAtMost((phraseEntry?.size ?: 1) - 1)
-        focusPhraseWord(next)
-    }
-
     fun confirmEnteredPhrase() {
-        if (mutableState.value.step != OnboardingStep.EnterRecoveryPhrase || !phraseComplete) return
-        val copy = phraseEntry?.map { it.copyOf() } ?: return
-        val valid = try {
-            services.isValidPhrase(copy)
-        } finally {
-            copy.forEach { it.fill('\u0000') }
-        }
-        if (!valid) {
-            mutableState.update { it.copy(phraseProblem = PhraseProblem.InvalidChecksum) }
-            return
-        }
+        if (mutableState.value.step != OnboardingStep.EnterRecoveryPhrase || !phrase.complete) return
+        if (!phrase.validate()) return
         mutableState.update {
             it.copy(
                 step = OnboardingStep.EnrolPin,
-                phraseProblem = null,
-                phraseSuggestions = emptyList(),
                 enrolPin = "",
                 enrolPinConfirmation = "",
                 enrolPinProblem = null,
@@ -263,6 +178,10 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
         else current.copy(selectedDeviceIds = if (id in current.selectedDeviceIds) current.selectedDeviceIds - id else current.selectedDeviceIds + id)
     }
 
+    fun toggleRemoveAllDevices(checked: Boolean) = mutableState.update {
+        if (it.step == OnboardingStep.EnrolPin) it.copy(removeAllDevices = checked, enrolmentFailure = null) else it
+    }
+
     fun submitEnrolment() {
         val current = mutableState.value
         if (current.step != OnboardingStep.EnrolPin) return
@@ -278,22 +197,29 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
             mutableState.update { it.copy(enrolPinProblem = PinProblem.Mismatch, enrolPinConfirmation = "") }
             return
         }
-        val phrase = phraseEntry ?: run { pin.fill('\u0000'); return }
-        val requiresRemoval = current.devicesToRemove != null
-        if (requiresRemoval && (current.devicesToRemove.isNullOrEmpty() || current.selectedDeviceIds.isEmpty())) {
+        if (!phrase.active) {
+            pin.fill('\u0000')
+            return
+        }
+        val requiresChoice = current.devicesToRemove != null && !current.removeAllDevices
+        if (requiresChoice && (current.devicesToRemove.isNullOrEmpty() || current.selectedDeviceIds.isEmpty())) {
             pin.fill('\u0000')
             return
         }
         val attempt = ++enrolmentAttempt
-        val phraseCopy = phrase.map { it.copyOf() }
+        val phraseCopy = phrase.copyWords()
         if (releaseProcess == null) releaseProcess = services.holdProcess()
-        val removeIds = current.selectedDeviceIds.toList()
+        val removal = when {
+            current.removeAllDevices -> DeviceRemoval.All
+            current.devicesToRemove != null -> DeviceRemoval.Listed(current.selectedDeviceIds.toList())
+            else -> DeviceRemoval.None
+        }
         mutableState.update { it.copy(step = OnboardingStep.Enrolling, enrolPin = "", enrolPinConfirmation = "", enrolPinProblem = null, enrolmentFailure = null) }
         viewModelScope.launch {
             try {
-                services.enrolDevice(phraseCopy, pin, removeIds)
+                services.enrolDevice(phraseCopy, pin, removal)
                 if (attempt != enrolmentAttempt) return@launch
-                forgetEnrolmentPhrase()
+                phrase.forget()
                 releaseHeldProcess()
                 mutableState.update { OnboardingState(step = OnboardingStep.Done) }
             } catch (error: CancellationException) {
@@ -322,14 +248,13 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
     }
 
     fun back() {
-        val step = mutableState.value.step
-        if (step == OnboardingStep.EnterRecoveryPhrase) forgetEnrolmentPhrase()
+        if (mutableState.value.step == OnboardingStep.EnterRecoveryPhrase) phrase.forget()
         mutableState.update {
             when (it.step) {
                 OnboardingStep.Phrase -> it.copy(step = OnboardingStep.Start)
                 OnboardingStep.Mode -> it.copy(step = OnboardingStep.Phrase)
                 OnboardingStep.Pin -> it.copy(step = OnboardingStep.Mode, pin = "", confirmation = "", pinProblem = null, failure = null)
-                OnboardingStep.EnterRecoveryPhrase -> it.copy(step = OnboardingStep.Start, phraseProblem = null, phraseSuggestions = emptyList(), enrolmentFailure = null, devicesToRemove = null, selectedDeviceIds = emptySet())
+                OnboardingStep.EnterRecoveryPhrase -> it.copy(step = OnboardingStep.Start, enrolmentFailure = null, devicesToRemove = null, selectedDeviceIds = emptySet(), removeAllDevices = false)
                 OnboardingStep.EnrolPin -> it.copy(
                     step = OnboardingStep.EnterRecoveryPhrase,
                     enrolPin = "",
@@ -338,6 +263,7 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
                     enrolmentFailure = null,
                     devicesToRemove = null,
                     selectedDeviceIds = emptySet(),
+                    removeAllDevices = false,
                 )
                 else -> it
             }
@@ -395,7 +321,7 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
         if (step == OnboardingStep.Creating || step == OnboardingStep.Recovery) return
         enrolmentAttempt++
         forgetWords()
-        forgetEnrolmentPhrase()
+        phrase.forget()
         releaseHeldProcess()
         mutableState.update { OnboardingState() }
     }
@@ -403,11 +329,6 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
     private fun forgetWords() {
         words?.forEach { it.fill('\u0000') }
         words = null
-    }
-
-    private fun forgetEnrolmentPhrase() {
-        phraseEntry?.forEach { it.fill('\u0000') }
-        phraseEntry = null
     }
 
     private fun releaseHeldProcess() {
@@ -420,7 +341,7 @@ class OnboardingViewModel(private val services: OnboardingServices) : ViewModel(
         services.forgetDraft()
         enrolmentAttempt++
         forgetWords()
-        forgetEnrolmentPhrase()
+        phrase.forget()
         releaseHeldProcess()
     }
 }

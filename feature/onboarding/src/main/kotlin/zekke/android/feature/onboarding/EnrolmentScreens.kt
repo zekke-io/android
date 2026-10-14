@@ -1,27 +1,12 @@
 package zekke.android.feature.onboarding
 
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -32,12 +17,9 @@ import zekke.android.ui.components.CheckboxRow
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
+import zekke.android.ui.components.PhraseEntryFields
+import zekke.android.ui.components.PhraseScan
 import zekke.android.ui.components.PinField
-import zekke.android.ui.components.PrivateField
-import zekke.android.ui.components.Segment
-import zekke.android.ui.components.SegmentedControl
-import zekke.android.ui.components.ZekkeButton
-import zekke.android.ui.theme.Zekke
 
 private const val DEVICE_ID_SUFFIX_LENGTH = 8
 private const val REFUSALS_BEFORE_WAITING_HINT = 2
@@ -61,12 +43,7 @@ private fun enrolmentFailureText(failure: DeviceEnrolmentFailure): String = when
 }
 
 @Composable
-internal fun RecoveryPhraseEntryStep(state: OnboardingState, viewModel: OnboardingViewModel) {
-    val requesters = remember(state.phraseWordCount) { List(state.phraseWordCount) { FocusRequester() } }
-    val focusManager = LocalFocusManager.current
-    LaunchedEffect(state.focusedPhraseWord, state.phraseWordCount) {
-        requesters.getOrNull(state.focusedPhraseWord)?.requestFocus()
-    }
+internal fun RecoveryPhraseEntryStep(viewModel: OnboardingViewModel) {
     Page(
         title = stringResource(R.string.enrol_phrase_title),
         body = stringResource(R.string.enrol_phrase_body),
@@ -75,61 +52,35 @@ internal fun RecoveryPhraseEntryStep(state: OnboardingState, viewModel: Onboardi
                 stringResource(R.string.continue_label),
                 viewModel::confirmEnteredPhrase,
                 viewModel::back,
-                enabled = viewModel.phraseComplete,
+                enabled = viewModel.phrase.complete,
             )
         },
     ) {
-        SegmentedControl(
-            segments = listOf(12, 24).map { Segment(it, pluralStringResource(R.plurals.phrase_words, it, it)) },
-            selected = state.phraseWordCount,
-            onSelect = viewModel::changePhraseWordCount,
-            label = stringResource(R.string.phrase_length),
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-        )
-        repeat(state.phraseWordCount) { index ->
-            val last = index == state.phraseWordCount - 1
-            PrivateField(
-                value = viewModel.phraseWord(index),
-                onValueChange = { viewModel.phraseWordChanged(index, it) },
-                label = stringResource(R.string.enrol_word_index, index + 1),
-                singleLine = true,
-                keyboardType = KeyboardType.Ascii,
-                imeAction = if (last) ImeAction.Done else ImeAction.Next,
-                onImeAction = { if (last) focusManager.clearFocus() else requesters[index + 1].requestFocus() },
-                modifier = Modifier.fillMaxWidth()
-                    .focusRequester(requesters[index])
-                    .onFocusChanged { if (it.isFocused) viewModel.focusPhraseWord(index) },
-            )
-            if (state.focusedPhraseWord == index && state.phraseSuggestions.isNotEmpty()) {
-                Text(stringResource(R.string.enrol_suggestions), style = MaterialTheme.typography.bodySmall, color = Zekke.palette.inkMuted)
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    state.phraseSuggestions.forEach { suggestion ->
-                        ZekkeButton(suggestion, { viewModel.choosePhraseSuggestion(index, suggestion) }, variant = ButtonVariant.Ghost)
-                    }
-                }
-            }
-        }
-        if (state.phraseProblem != null) Notice(stringResource(R.string.enrol_phrase_checksum), tone = NoticeTone.Danger)
+        PhraseEntryFields(viewModel.phrase, scan = PhraseScan(viewModel::systemScreenWillOpen, viewModel::systemScreenReturned))
     }
 }
 
 @Composable
 internal fun EnrolPinStep(state: OnboardingState, viewModel: OnboardingViewModel) {
     val devicesToRemove = state.devicesToRemove
-    val requiresRemoval = devicesToRemove != null
+    val requiresChoice = devicesToRemove != null && !state.removeAllDevices
+    val removing = state.removeAllDevices || devicesToRemove != null
     Page(
         title = stringResource(R.string.enrol_pin_title),
         body = stringResource(R.string.enrol_pin_body),
         footer = {
             BackAndContinue(
-                stringResource(if (requiresRemoval) R.string.enrol_remove_and_add else R.string.enrol_add),
+                stringResource(
+                    when {
+                        state.removeAllDevices -> R.string.enrol_remove_all_and_add
+                        devicesToRemove != null -> R.string.enrol_remove_and_add
+                        else -> R.string.enrol_add
+                    },
+                ),
                 viewModel::submitEnrolment,
                 viewModel::back,
-                enabled = !requiresRemoval || (!devicesToRemove.isNullOrEmpty() && state.selectedDeviceIds.isNotEmpty()),
-                continueVariant = if (requiresRemoval) ButtonVariant.Danger else ButtonVariant.Primary,
+                enabled = !requiresChoice || (!devicesToRemove.isNullOrEmpty() && state.selectedDeviceIds.isNotEmpty()),
+                continueVariant = if (removing) ButtonVariant.Danger else ButtonVariant.Primary,
             )
         },
     ) {
@@ -152,11 +103,17 @@ internal fun EnrolPinStep(state: OnboardingState, viewModel: OnboardingViewModel
         if (state.enrolmentRefusals >= REFUSALS_BEFORE_WAITING_HINT) {
             Notice(stringResource(R.string.enrol_refused_wait), tone = NoticeTone.Info)
         }
-        if (devicesToRemove != null) {
+        CheckboxRow(
+            title = stringResource(R.string.enrol_lost_devices),
+            checked = state.removeAllDevices,
+            onCheckedChange = viewModel::toggleRemoveAllDevices,
+        )
+        if (state.removeAllDevices) Notice(stringResource(R.string.enrol_lost_devices_warning), tone = NoticeTone.Warning)
+        if (requiresChoice) {
             Notice(stringResource(R.string.enrol_device_limit), tone = NoticeTone.Warning)
-            if (devicesToRemove.isEmpty()) Notice(stringResource(R.string.enrol_devices_unavailable), tone = NoticeTone.Danger)
+            if (devicesToRemove.isNullOrEmpty()) Notice(stringResource(R.string.enrol_devices_unavailable), tone = NoticeTone.Danger)
             Column {
-                devicesToRemove.forEach { device ->
+                devicesToRemove.orEmpty().forEach { device ->
                     val added = remember(device.createdAt) { deviceAddedDate(device.createdAt) }
                     CheckboxRow(
                         title = stringResource(R.string.enrol_device_added, added),

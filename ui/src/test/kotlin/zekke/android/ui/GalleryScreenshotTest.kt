@@ -43,4 +43,32 @@ class GalleryScreenshotTest {
         compose.setContent { ZekkeTheme(darkTheme = true) { ComponentGallery() } }
         compose.onRoot().captureRoboImage("src/test/screenshots/components-dark.png")
     }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w411dp-h1250dp-xxhdpi")
+    fun phraseEntryLight() {
+        compose.setContent { ZekkeTheme(darkTheme = false) { PhraseEntryGallery() } }
+        compose.onRoot().captureRoboImage("src/test/screenshots/phrase-entry-light.png")
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w411dp-h1250dp-xxhdpi")
+    fun phraseEntryDark() {
+        compose.setContent { ZekkeTheme(darkTheme = true) { PhraseEntryGallery() } }
+        compose.onRoot().captureRoboImage("src/test/screenshots/phrase-entry-dark.png")
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w411dp-h520dp-xxhdpi")
+    fun scannerLight() {
+        compose.setContent { ZekkeTheme(darkTheme = false) { ScannerGallery() } }
+        compose.onRoot().captureRoboImage("src/test/screenshots/scanner-light.png")
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w411dp-h520dp-xxhdpi")
+    fun scannerDark() {
+        compose.setContent { ZekkeTheme(darkTheme = true) { ScannerGallery() } }
+        compose.onRoot().captureRoboImage("src/test/screenshots/scanner-dark.png")
+    }
 }

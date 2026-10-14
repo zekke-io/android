@@ -6,8 +6,10 @@ import org.junit.runner.RunWith
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.getKoin
 import zekke.android.clients.ClientPolicyMonitor
+import zekke.android.feature.settings.AccountSecurityServices
 import zekke.android.feature.unlock.ThisPhoneServices
 import zekke.android.platform.LocalDatabases
+import zekke.android.rekey.KeyRotationEvents
 import zekke.core.account.AccountServices
 import zekke.core.api.CLIENT_HEADER
 import zekke.core.api.ClientIdentity
@@ -40,6 +42,8 @@ class CoreModuleTest {
         assertEquals(BuildConfig.API_BASE_URL, api.baseUrl)
         koin.get<ObjectStore>()
         koin.get<ThisPhoneServices>()
+        koin.get<AccountSecurityServices>()
+        assertSame(koin.get<KeyRotationEvents>(), koin.get<KeyRotationEvents>())
         assertSame(koin.get<ClientPolicyMonitor>(), koin.get<ClientPolicyMonitor>())
         val context = koin.get<ItemContext>()
         assertSame(session, context.session)

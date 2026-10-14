@@ -19,23 +19,12 @@
         <item quantity="other">Wrong PIN. %d attempts left. When none are left, this phone forgets your account, and you will need your recovery phrase to add it again.</item>
     </plurals>
     <string name="unlock_offline">Unlocking needs the server, and it cannot be reached right now. Check your connection and try again. This is not a PIN error, and no attempt was used.</string>
-    <string name="unlock_rate_limited">Too many requests have come from this network, so the server is pausing them. This is not a problem with your account or your PIN. Try again %1$s.</string>
     <string name="unlock_phone_locked">Unlock the phone first, then enter your Zekke PIN.</string>
     <string name="unlock_interrupted">The phone locked before unlocking finished. Enter your PIN again.</string>
     <string name="unlock_failed">Something went wrong. Please try again.</string>
     <string name="unlock_chain_problem">The history of your devices that the server returned does not verify from your recovery phrase’s key. Someone may have tampered with it. Do not trust your list of devices, and add no device until this is resolved.</string>
     <string name="unlock_rewrap_offline">Your account is open, but the phone could not reach the server to finish updating items that use older keys. They will be tried again after another unlock.</string>
     <string name="unlock_rewrap_failed">Your account is open, but some items could not be updated after a key change. They will be tried again after another unlock.</string>
-    <string name="unlock_wait_moment">in a moment</string>
-    <string name="unlock_wait_minute">in about a minute</string>
-    <plurals name="unlock_wait_seconds">
-        <item quantity="one">in %d second</item>
-        <item quantity="other">in %d seconds</item>
-    </plurals>
-    <plurals name="unlock_wait_minutes">
-        <item quantity="one">in about a minute</item>
-        <item quantity="other">in about %d minutes</item>
-    </plurals>
     <string name="remove_phone_label">Remove this phone</string>
     <string name="remove_phone_description">Takes this phone off your account’s devices. Coming back needs your recovery phrase.</string>
     <string name="remove_phone_confirm">Remove this phone from your account? It forgets every key it holds, and the server stops accepting it at once. To come back you type your recovery phrase, and nobody can issue you another. Your vault itself is untouched.</string>

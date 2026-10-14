@@ -1,8 +1,9 @@
 # `ui` — the design system
 
-What every screen is drawn with: the web app's look, adapted to Material 3 and to touch. It depends
-on Compose and Material 3 only, never on the core: a component draws what it is given and holds no
-key.
+What every screen is drawn with: the web app's look, adapted to Material 3 and to touch. It never
+depends on the core: a component draws what it is given and holds no key. Besides Compose and
+Material 3 it uses what its components need to talk to the phone: CameraX and zxing's decoder for
+the QR scanner, and the activity result API for the camera permission.
 
 ## Where the look comes from
 
@@ -70,7 +71,10 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | `PrivateTextInput { … }` | Every text field inside it asks the keyboard **not to learn** (`IME_FLAG_NO_PERSONALIZED_LEARNING`); `privateKeyboard()` turns off suggestions, autocorrect and capitalisation. Every field that can hold a secret, a phrase word, a password or a note is inside one |
 | `SecretField` | Masked until *Show*, masked again on *Hide*; a password keyboard while masked. The field is rebuilt when the mode changes, because Compose kept the password semantics of the masked field otherwise |
 | `PrivateField` | A plain field with the same protections, for text that is private but not masked. Takes the keyboard type, the IME action and its handler, so a form moves focus to its own next field |
+| `PhraseEntry`, `PhraseEntryFields` | The recovery phrase typed one word per field: the 12 or 24 choice, the BIP-39 suggestions under the focused field, the Next key moving to the next word's own field, the checksum asked for by the consumer, a scanned phrase accepted whatever its case and spacing. The words are `CharArray`s outside the screen's state, zeroed when forgotten |
+| `PhraseScanSheet`, `QrScanner`, `QrScannerFrame`, `QrDecoder` | Scanning the kit: a full-screen dialog that explains the camera before asking, handles a refusal and a permanent refusal (*Open settings*), reads one QR code with CameraX and zxing's Java decoder, keeps no frame and stops at the first code. A scanned text goes to `PhraseEntry.acceptScanned`; what is not a 12 or 24-word phrase is refused there |
 | `PinField` | Six boxes, digits only, masked; `onComplete` fires once, on the sixth digit |
+| `rateLimitedMessage`, `waitDescription` | The web app's sentence for a `429` and its wait (*in a moment*, *in 45 seconds*, *in about 2 minutes*, rounded up), so every screen says it the same way |
 | `CopyButton` | Copies through `SensitiveClipboard` and says *Copied — clears in 30 s* |
 | `ZekkeButton` | The web app's variants: primary, secondary, ghost, danger, and accent (the action gradient, onboarding only) |
 | `StatusBadge` | Neutral, brand, success, warning and danger pills, always on one line |
@@ -105,6 +109,18 @@ copied password is pasted elsewhere. Android may delay an inexact alarm while th
 the web app, it clears whatever is on the clipboard by then: a background app cannot read it to
 check.
 
+**The camera** (`PhraseScanSheet`, `QrScanner`): used only to read the QR code of a recovery kit.
+The permission is asked for in the app's own words first (*Zekke uses the camera only to read the QR
+code of your recovery kit*), refused politely (*type the words instead*) and, when the system will
+not ask again, pointed at the settings. A frame is analysed in memory by zxing's Java decoder
+(`ImageAnalysis`, only the latest frame, every frame closed, the luminance copy zeroed) and dropped:
+nothing is recorded, saved or sent, and the first code read ends the session. The scanned text is a
+`String` on its way into `PhraseEntry`, which cannot be zeroed; the form keeps `CharArray`s from
+there. The permission dialog and the settings count as system screens (`PhraseScan` tells the
+caller), so the app does not lock while the person is in them. The manifest declares `CAMERA` and
+marks the `camera` and `camera.any` features not required, so the app still installs on a phone
+without a camera, where typing remains.
+
 **Autofill**: the app excludes its whole window from autofill services
 (`IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS`, set in `MainActivity`), so no password manager on
 the phone offers to save the phrase, a PIN or a secret.
@@ -117,7 +133,11 @@ the phone offers to save the phrase, a PIN or a secret.
 | `PaletteContrastTest` | Every mark that carries meaning at 3:1, both themes |
 | `ComponentsTest` (Robolectric) | The secret's masking and unmasking; the PIN's filtering and its single completion; a copy marked sensitive, its alarm at 30 s, and the receiver clearing it |
 | `KitTest` (Robolectric) | `formatBytes` against the web app's output; the storage reading's shares, free bytes and an over-quota account; a message notice closing and a page notice having no close; an icon button found by its full label; the add menu opening and running one option; a refusal showing only *Keep it* |
-| `GalleryScreenshotTest` (Roborazzi) | `DesignGallery` and `ComponentGallery` in both themes, recorded to `src/test/screenshots/gallery-*.png` and `components-*.png` |
+| `PhraseEntryFieldsTest` (Robolectric) | The keyboard's Next key reaching the next word with suggestions shown (it fails with `moveFocus(Down)`); a suggestion filling the word and moving on; the 24-word choice; the scan button only when offered; the checksum and refused-scan notices coming and going |
+| `QrDecoderTest` | A 12 and a 24-word kit decoded as the bare phrase; a camera row with padding; a code turned on its side; a small code in a large frame; nothing from a blank frame or another kind of code; the text filling the form whatever its case, and a URL filling nothing |
+| `RateLimitTest` (Robolectric) | The wait in seconds then in minutes rounded up, and the whole sentence |
+| `PhraseEntryTest` | Normalising a word; the suggestions and the prefix copy zeroed; choosing one; the checksum with copies zeroed after; a scan in any case and spacing, 24 words, and everything that is not a phrase refused; forgetting |
+| `GalleryScreenshotTest` (Roborazzi) | `DesignGallery` and `ComponentGallery` in both themes, recorded to `src/test/screenshots/gallery-*.png`, `components-*.png`, `phrase-entry-*.png` and `scanner-*.png` |
 
 `./gradlew :ui:recordRoborazziDebug` records the screenshots again after a deliberate change;
 `./gradlew :ui:verifyRoborazziDebug` fails when a rendering differs from them. The screenshots are
