@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +26,7 @@ import zekke.android.ui.theme.Zekke
 private fun HoldingScreen(title: String, body: String, action: @Composable () -> Unit = {}) {
     val palette = Zekke.palette
     Column(
-        Modifier.fillMaxSize().background(palette.ground).safeDrawingPadding().padding(24.dp),
+        Modifier.fillMaxSize().background(palette.ground).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(title, style = MaterialTheme.typography.headlineMedium, color = palette.ink, modifier = Modifier.semantics { heading() })
@@ -34,7 +36,12 @@ private fun HoldingScreen(title: String, body: String, action: @Composable () ->
 }
 
 @Composable
-fun HomeHoldingScreen(onLock: () -> Unit, notices: @Composable () -> Unit = {}) = HoldingScreen(stringResource(R.string.home_title), stringResource(R.string.home_body)) {
+fun HomeHoldingScreen(
+    onLock: () -> Unit,
+    notices: @Composable () -> Unit = {},
+    actions: @Composable () -> Unit = {},
+) = HoldingScreen(stringResource(R.string.home_title), stringResource(R.string.home_body)) {
     notices()
     ZekkeButton(stringResource(R.string.home_lock), onLock, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
+    actions()
 }

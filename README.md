@@ -34,6 +34,9 @@ Koin, started once in `ZekkeApplication` with `platformModule` and `coreModule`
 | `SessionKeystore` | One for the process, its idle timer on the app's coroutine scope |
 | `AccountServices` | One, over the API, the session and the platform's `DeviceVault` |
 | `OnboardingServices` | A new `CoreOnboardingServices` per onboarding ViewModel: the core's sign-up, the session guard's lock |
+| `ThisPhoneServices` | A new `CoreThisPhoneServices` per use: the core's `removeThisDevice`, with the process held |
+| `ThisPhoneEvents` | One for the process: counts the phone's removals, so `MainActivity` looks for the device record again |
+| `ClientPolicyMonitor` | One for the process, over `ZekkeApi.upgradeRequired` and `getClientPolicy`: read at the first `ON_START` of the process, again when the app returns to the foreground after 15 minutes, and after any `426` |
 | `ObjectStore` | One `HttpObjectStore`, for the drive's presigned URLs |
 | `ItemContext` | A new one per use, over the same API and session |
 | `Replica`, `Outbox` | Built with the account's `user_address` as a parameter, on the platform's no-backup databases; their lifetime per session is task A3.1's |
@@ -96,8 +99,25 @@ instead.
 unlock screen is saying why the record went), while an onboarding is under way (the account exists
 from `Creating` on, and the phrase is still to be shown) and after a lock lost the phrase;
 otherwise `AppRoot`. Its locked branch is the unlock screen ([feature/unlock](feature/unlock/README.md));
-until A3, the unlocked branch is a holding screen with *Lock* and the unlock's notices (a chain that
-does not verify, a re-wrap that did not finish).
+until A3, the unlocked branch is a holding screen with *Lock*, *Remove this phone* and the unlock's
+notices (a chain that does not verify, a re-wrap that did not finish) and the version notices.
+
+**The update screen comes first.** Everything above is drawn inside `ClientGate`: when the client
+policy says the version is `Required`, or any request of the process was answered `426`
+(`ZekkeApi.upgradeRequired`), the update screen replaces every other screen, the session is locked
+at once, and the screen stays until the app is updated and opened again. The one exception is the
+onboarding's creating and recovery-kit steps: the phrase must not be lost, so the screen follows
+when the kit is saved. Once raised, the block stays for the process even if a later policy read
+fails, and the update screen names a current version only when it is newer than this one. The policy fails open: when it cannot be read, nothing is shown. A `426` met by any call
+reaches the gate through the core's flag, so no feature handles it; each feature maps it to its
+generic failure, which the gate hides.
+
+**Removing this phone holds the process.** `CoreThisPhoneServices` takes `holdProcess()` before the
+request and releases it on every outcome, after `lockNow()` when the app is in the background. The
+call runs under `NonCancellable`: the removal locks the session before it deletes the record, and
+that lock clears the ViewModel that asked for it. Between that lock and the record's deletion the
+unlock screen can show for a moment; nothing can be typed on it. Leaving the app during a removal locks the
+session; a removal not yet signed then fails and the phone stays one of the account's devices.
 
 **Creating an account holds the process.** `SessionGuard.holdProcess()` returns a release; while
 any hold is taken, a lock in the background does not end the process, and the last release ends it
@@ -116,7 +136,8 @@ If the app is in the background when the sign-up finishes, it locks at once.
 **The application id is provisional** (the plan's open question R1): it becomes permanent with the
 first upload to Google Play, and is decided before then.
 
-Versions are semantic (`major.minor.patch`) because the API's client policy compares them.
+Versions are semantic (`major.minor.patch`) because the API's client policy compares them. The local
+API has no `android` policy row, so the policy is absent and nothing is refused (it fails open).
 
 ## Dependencies are verified
 
@@ -160,6 +181,11 @@ build reads `../mobile-base`; the core's ref is the repository variable `MOBILE_
 default), installs the NDK the core pins, and runs `assembleDebug assembleRelease
 assembleDebugAndroidTest testDebugUnitTest lintDebug`. The instrumented tests run on an emulator
 locally for now; running them in CI comes with the first screen that needs them.
+
+An API 37 emulator cannot reach the local API from a debug build yet: Android 17 blocks local-network
+addresses such as `10.0.2.2` for apps that do not hold `android.permission.ACCESS_LOCAL_NETWORK`
+(open item under A1.5 in [tasks.md](tasks.md)). Until the debug manifest declares it, use an API 34
+emulator against the local API. Release builds are unaffected.
 
 ## Building
 

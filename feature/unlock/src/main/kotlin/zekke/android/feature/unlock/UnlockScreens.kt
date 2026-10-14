@@ -27,7 +27,12 @@ import zekke.android.ui.components.ZekkeButton
 import zekke.android.ui.theme.Zekke
 
 @Composable
-fun UnlockFlow(state: UnlockState, viewModel: UnlockViewModel, onAddRecoveryPhrase: () -> Unit) {
+fun UnlockFlow(
+    state: UnlockState,
+    viewModel: UnlockViewModel,
+    onAddRecoveryPhrase: () -> Unit,
+    versionNotice: @Composable () -> Unit = {},
+) {
     val palette = Zekke.palette
     Column(
         Modifier.fillMaxSize()
@@ -44,6 +49,7 @@ fun UnlockFlow(state: UnlockState, viewModel: UnlockViewModel, onAddRecoveryPhra
             color = palette.ink,
             modifier = Modifier.semantics { heading() },
         )
+        versionNotice()
         if (state.registrationLost != null) {
             val message = when (state.registrationLost) {
                 RegistrationLost.Forgotten -> stringResource(R.string.unlock_forgotten)
@@ -170,7 +176,7 @@ private fun rewrapIssueText(issue: RewrapIssue): String = when (issue) {
 }
 
 @Composable
-private fun waitDescription(seconds: Long?): String {
+internal fun waitDescription(seconds: Long?): String {
     if (seconds == null || seconds <= 0) return stringResource(R.string.unlock_wait_moment)
     if (seconds < 60) {
         val count = seconds.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()

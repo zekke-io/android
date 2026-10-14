@@ -50,7 +50,7 @@ class UnlockScreensTest {
         composeRule.setContent {
             val state by viewModel.state.collectAsState()
             ZekkeTheme {
-                UnlockFlow(state, viewModel) {}
+                UnlockFlow(state, viewModel, onAddRecoveryPhrase = {})
             }
         }
     }
@@ -74,7 +74,7 @@ class UnlockScreensTest {
         val screenState = mutableStateOf(UnlockState())
         composeRule.setContent {
             ZekkeTheme {
-                UnlockFlow(screenState.value, viewModel) {}
+                UnlockFlow(screenState.value, viewModel, onAddRecoveryPhrase = {})
             }
         }
         val cases = listOf(
@@ -140,5 +140,19 @@ class UnlockScreensTest {
         composeRule.onNodeWithText(
             "Your account is open, but the phone could not reach the server to finish updating items that use older keys. They will be tried again after another unlock.",
         ).assertIsDisplayed()
+    }
+
+    @Test
+    fun theVersionNoticeShowsOnTheUnlockScreen() {
+        composeRule.setContent {
+            val state by viewModel.state.collectAsState()
+            ZekkeTheme {
+                UnlockFlow(state, viewModel, {}, versionNotice = {
+                    VersionNotice(ClientVersionStatus.UpdateAvailable("0.2.0")) {}
+                })
+            }
+        }
+
+        composeRule.onNodeWithText("Version 0.2.0 of Zekke is available. Update the app when you can.").assertIsDisplayed()
     }
 }

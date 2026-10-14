@@ -36,4 +36,19 @@
         <item quantity="one">in about a minute</item>
         <item quantity="other">in about %d minutes</item>
     </plurals>
+    <string name="remove_phone_label">Remove this phone</string>
+    <string name="remove_phone_description">Takes this phone off your account’s devices. Coming back needs your recovery phrase.</string>
+    <string name="remove_phone_confirm">Remove this phone from your account? It forgets every key it holds, and the server stops accepting it at once. To come back you type your recovery phrase, and nobody can issue you another. Your vault itself is untouched.</string>
+    <string name="remove_phone_removing">Removing…</string>
+    <string name="remove_phone_stay">Stay signed in</string>
+    <string name="remove_phone_offline">Removing this phone needs the server, and it cannot be reached right now. Check your connection and try again. This phone is still one of your devices.</string>
+    <string name="remove_phone_refused">The server refused this change to your devices, and nothing was changed. Try again.</string>
+    <string name="remove_phone_chain_problem">The history of your devices that the server returned does not verify from your recovery phrase’s key, so this phone was not removed. Someone may have tampered with it. Add no device until this is resolved.</string>
+    <string name="remove_phone_phone_locked">Unlock the phone first, then try again.</string>
+    <string name="upgrade_title">Update Zekke</string>
+    <string name="upgrade_body">This version is no longer supported, so it cannot reach your vault. Your vault is safe in your account. Update the app and open it again.</string>
+    <string name="upgrade_latest">The current version is %1$s.</string>
+    <string name="upgrade_how">Update Zekke where you installed it from, then open it again.</string>
+    <string name="version_available">Version %1$s of Zekke is available. Update the app when you can.</string>
+    <string name="version_deprecated">This version stops working on %1$s. Update the app before then to keep using it.</string>
 </resources>

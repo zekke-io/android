@@ -5,6 +5,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.getKoin
+import zekke.android.clients.ClientPolicyMonitor
+import zekke.android.feature.unlock.ThisPhoneServices
 import zekke.android.platform.LocalDatabases
 import zekke.core.account.AccountServices
 import zekke.core.api.CLIENT_HEADER
@@ -37,6 +39,8 @@ class CoreModuleTest {
         assertEquals("Zekke-Client", CLIENT_HEADER)
         assertEquals(BuildConfig.API_BASE_URL, api.baseUrl)
         koin.get<ObjectStore>()
+        koin.get<ThisPhoneServices>()
+        assertSame(koin.get<ClientPolicyMonitor>(), koin.get<ClientPolicyMonitor>())
         val context = koin.get<ItemContext>()
         assertSame(session, context.session)
     }

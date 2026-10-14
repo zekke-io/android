@@ -149,8 +149,35 @@ and an `android` row in the API's `client_releases` (A8.4).
   unit/Robolectric tests and the unlock Compose test on the API 37 AVD pass. Core interop and the
   web app account-library E2E both unlocked a temporary account against the local API; the temporary
   account was deleted.
-- [ ] **A1.5 Removing this phone and the client policy.** Log out (no rotation); the
+- [x] **A1.5 Removing this phone and the client policy.** Log out (no rotation); the
   `UPGRADE_REQUIRED` screen and the update notice from `GET /clients/android/policy`.
+  **Done 2026-10-14**: *Remove this phone* signs a self removal with no rotation, holding the
+  process and surviving the lock it causes; the client policy is read at start, after 15 minutes
+  and after any `426`, failing open; the update screen replaces every other screen, and the
+  notices for a deprecated or available version show on the unlock and home screens. Tests: app 34,
+  unlock 43, onboarding 37, ui 15, mobile-base 303. On an API 34 emulator against the local API: no
+  policy shows nothing, the removal is cancelled then done (3 devices, then 2, and the start screen
+  after a relaunch), the deprecated and available notices show, a required version shows the update
+  screen naming 0.2.0, a `426` in the middle of a removal refuses it (the phone stays a device), and
+  the temporary account and the policy row were removed afterwards. Decisions taken:
+  - the update screen says to update where the app was installed from, with no button, until the
+    store's wording exists;
+  - an update-available notice is shown and can be dismissed for the rest of the process;
+  - a phone the server already removed finishes locally and shows the start screen;
+  - the core gained `ZekkeApi.upgradeRequired`, raised by any `426`, so any call can reach the
+    update screen;
+  - a version that becomes unsupported locks the session at once, except while the onboarding
+    creates the account or shows the recovery kit;
+  - *Remove this phone* sits on the unlocked holding screen until Settings exists.
+  - [ ] A7.1 moves *Remove this phone* into Settings → Devices.
+  - [ ] A7.3 moves the version notices into About, with the version.
+  - [ ] A8.6 words the update screen for the store.
+  - [ ] The core's `ZekkeApi.upgradeRequired` must be committed and pushed in `mobile-base` before the app's commit (CI checks out `mobile-base` `main`).
+  - [ ] Debug builds cannot reach the local API on an API 37 emulator: Android 17 blocks
+    local-network addresses (`10.0.2.2`) for apps targeting SDK 37 that do not hold
+    `android.permission.ACCESS_LOCAL_NETWORK`. Release builds are unaffected, as the API is not on a
+    local network. Likely fix: declare the permission in the debug manifest and grant it on the test
+    emulators.
 
 ## A2 — The phrase's other ways in
 

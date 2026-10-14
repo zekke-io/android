@@ -4,7 +4,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import zekke.android.onboarding.CoreOnboardingServices
+import zekke.android.clients.ClientPolicyMonitor
+import zekke.android.feature.unlock.ThisPhoneServices
+import zekke.android.unlock.CoreThisPhoneServices
 import zekke.android.unlock.CoreUnlockServices
+import zekke.android.unlock.ThisPhoneEvents
 import zekke.android.feature.unlock.UnlockServices
 import zekke.android.feature.onboarding.OnboardingServices
 import zekke.android.session.KeystoreSessionControl
@@ -18,6 +22,9 @@ import org.koin.dsl.module
 import zekke.android.BuildConfig
 import zekke.android.platform.LocalDatabases
 import zekke.core.account.AccountServices
+import zekke.core.account.forgetThisDevice
+import zekke.core.account.removeThisDevice
+import zekke.core.clients.getClientPolicy
 import zekke.core.api.ClientIdentity
 import zekke.core.api.ClientPlatform
 import zekke.core.api.ZekkeApi
@@ -43,6 +50,22 @@ val coreModule = module {
     single { SessionGuard(get(), get(MAIN_SCOPE), KillThisProcess).also { guard -> guard.onLocked(get<SessionViewModels>()::clear) } }
     factory<OnboardingServices> { CoreOnboardingServices(androidContext(), get(), get(), get()) }
     factory<UnlockServices> { CoreUnlockServices(get(), get()) }
+    single { ThisPhoneEvents() }
+    factory<ThisPhoneServices> {
+        val account = get<AccountServices>()
+        CoreThisPhoneServices(get(), get(), { removeThisDevice(account) }, { forgetThisDevice(account) })
+    }
+    single {
+        val api = get<ZekkeApi>()
+        val guard = get<SessionGuard>()
+        ClientPolicyMonitor(
+            BuildConfig.VERSION_NAME,
+            { getClientPolicy(api, ClientPlatform.ANDROID) },
+            api.upgradeRequired,
+            get(MAIN_SCOPE),
+            { guard.lockNow() },
+        )
+    }
     single<ObjectStore> { HttpObjectStore() }
     factory { ItemContext(get(), get()) }
     factory { (userAddress: String) -> Replica(get<LocalDatabases>().replicaDriver(), userAddress) }
