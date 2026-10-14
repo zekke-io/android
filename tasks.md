@@ -159,7 +159,8 @@ and an `android` row in the API's `client_releases` (A8.4).
   policy shows nothing, the removal is cancelled then done (3 devices, then 2, and the start screen
   after a relaunch), the deprecated and available notices show, a required version shows the update
   screen naming 0.2.0, a `426` in the middle of a removal refuses it (the phone stays a device), and
-  the temporary account and the policy row were removed afterwards. Decisions taken:
+  the temporary account and the policy row were removed afterwards. The same run passed on an API 37
+  emulator once the debug build's local-network permission was granted. Decisions taken:
   - the update screen says to update where the app was installed from, with no button, until the
     store's wording exists;
   - an update-available notice is shown and can be dismissed for the rest of the process;
@@ -173,11 +174,11 @@ and an `android` row in the API's `client_releases` (A8.4).
   - [ ] A7.3 moves the version notices into About, with the version.
   - [ ] A8.6 words the update screen for the store.
   - [ ] The core's `ZekkeApi.upgradeRequired` must be committed and pushed in `mobile-base` before the app's commit (CI checks out `mobile-base` `main`).
-  - [ ] Debug builds cannot reach the local API on an API 37 emulator: Android 17 blocks
+  - [x] Debug builds could not reach the local API on an API 37 emulator: Android 17 blocks
     local-network addresses (`10.0.2.2`) for apps targeting SDK 37 that do not hold
-    `android.permission.ACCESS_LOCAL_NETWORK`. Release builds are unaffected, as the API is not on a
-    local network. Likely fix: declare the permission in the debug manifest and grant it on the test
-    emulators.
+    `android.permission.ACCESS_LOCAL_NETWORK`. The debug manifest declares it; it is a runtime
+    permission, granted on test emulators with `adb shell pm grant`. The end-to-end run passed on
+    API 34 and API 37. The release build does not declare it.
 
 ## A2 — The phrase's other ways in
 

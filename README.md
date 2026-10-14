@@ -182,10 +182,13 @@ default), installs the NDK the core pins, and runs `assembleDebug assembleReleas
 assembleDebugAndroidTest testDebugUnitTest lintDebug`. The instrumented tests run on an emulator
 locally for now; running them in CI comes with the first screen that needs them.
 
-An API 37 emulator cannot reach the local API from a debug build yet: Android 17 blocks local-network
-addresses such as `10.0.2.2` for apps that do not hold `android.permission.ACCESS_LOCAL_NETWORK`
-(open item under A1.5 in [tasks.md](tasks.md)). Until the debug manifest declares it, use an API 34
-emulator against the local API. Release builds are unaffected.
+Android 17 blocks local-network addresses such as `10.0.2.2` for apps that do not hold
+`android.permission.ACCESS_LOCAL_NETWORK`, so the debug build declares it (`app/src/debug`). It is a
+runtime permission, not granted on install: on an API 37 emulator it must be granted once per fresh
+install with `adb shell pm grant zekke.android.debug android.permission.ACCESS_LOCAL_NETWORK`, or by
+installing with `-g` (Android Studio's run configuration has an install flag for it), which grants
+runtime permissions on install. An update keeps the grant. The release build does not declare it, as
+its API is not on a local network.
 
 ## Building
 
