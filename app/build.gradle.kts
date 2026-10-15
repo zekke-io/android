@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val debugApiBaseUrl = providers.gradleProperty("zekke.api.debug").getOrElse("http://10.0.2.2:8080")
 val releaseApiBaseUrl = providers.gradleProperty("zekke.api.release").getOrElse("https://test-api.cryple.io")
 
 android {
@@ -29,7 +30,7 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080\"")
+            buildConfigField("String", "API_BASE_URL", "\"$debugApiBaseUrl\"")
         }
         release {
             isMinifyEnabled = true

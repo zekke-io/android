@@ -140,7 +140,7 @@ If the app is in the background when the sign-up finishes, it locks at once.
 
 | Variant | Application id | API |
 | --- | --- | --- |
-| debug | `zekke.android.debug` | `http://10.0.2.2:8080`, the local API seen from the emulator |
+| debug | `zekke.android.debug` | the Gradle property `zekke.api.debug`, `http://10.0.2.2:8080` (the local API seen from the emulator) by default; [on a physical phone](#on-a-physical-phone), `http://localhost:8080` with `adb reverse` |
 | release | `zekke.android` | the Gradle property `zekke.api.release`, `https://test-api.cryple.io` until production |
 
 **The application id is provisional** (the plan's open question R1): it becomes permanent with the
@@ -223,6 +223,23 @@ install with `adb shell pm grant zekke.android.debug android.permission.ACCESS_L
 installing with `-g` (Android Studio's run configuration has an install flag for it), which grants
 runtime permissions on install. An update keeps the grant. The release build does not declare it, as
 its API is not on a local network.
+
+## On a physical phone
+
+The debug build reaches the API at `http://10.0.2.2:8080`, an address that exists only inside the
+emulator. For a phone connected with USB debugging (or wireless debugging), point it at the computer
+through `adb reverse`, which the debug network security config allows (`localhost` over HTTP, and nothing
+else):
+
+```sh
+adb reverse tcp:8080 tcp:8080   # the API
+adb reverse tcp:9000 tcp:9000   # the object store's presigned URLs
+./gradlew :app:installDebug -Pzekke.api.debug=http://localhost:8080
+```
+
+Put `zekke.api.debug=http://localhost:8080` in `~/.gradle/gradle.properties` to stop passing the flag. The
+reverse mappings last until the phone is unplugged or `adb` restarts, so repeat the two `adb reverse`
+lines after reconnecting. A LAN address does not work: cleartext is refused for every other host.
 
 ## Building
 
