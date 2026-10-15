@@ -178,6 +178,30 @@ and the diff of that file is reviewed like code: every new entry is an artifact 
 When a sync fails on verification, the list of artifacts is in the newest
 `~/.gradle/daemon/<version>/daemon-*.out.log`.
 
+## The security checklist
+
+"What the phone must never leak" ([plan](../mobile/android.md#what-the-phone-must-never-leak)), checked on the
+**release** APK on 2026-10-15 (merged manifest and packaged XML read with `aapt2`, the dex with `dexdump`).
+
+| Item | Result |
+| --- | --- |
+| Screenshots and the recents thumbnail | `FLAG_SECURE` is set in `MainActivity.onCreate` before `super.onCreate`, for every screen; a `screencap` of the running app returns nothing |
+| Backups | `allowBackup="false"`, `fullBackupContent="false"`, and `dataExtractionRules` excluding root, file, database, sharedpref and external from both cloud backup and device transfer. The record, the replica, the outbox, the caches and the upload queue all live under `noBackupFilesDir` |
+| Keyboard learning | Text is entered only through `ui`'s `PrivateField`, `SecretField` and `PinField` (no feature or `app` source uses a Material text field), which go through `PrivateTextInput`: `IME_FLAG_NO_PERSONALIZED_LEARNING`, autocorrect off |
+| Clipboard | `SensitiveClipboard` marks the clip `IS_SENSITIVE` and clears it after a timeout through `ClipboardClearReceiver` (not exported); the recovery phrase has no copy action and the screen says why |
+| Autofill | The whole window is `IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS` |
+| Plaintext on disk | Decrypted content is held in memory. The exceptions are named on screen: a file the person saves or opens with another app, and the recovery kit PDF they save. Previews and *Open with* copies live under `noBackupFilesDir` in folders swept at start, on lock and when closed. **One thing is plaintext metadata:** `uploads.json` keeps the source URI, name and size of a queued upload until it finishes or is discarded (it is cleared when the phone leaves the account); no file content |
+| Logs | No source file calls `android.util.Log` or prints. R8 removes the calls (`-assumenosideeffects`, with `isLoggable` false); **two `Log.d` calls remain in the release dex, both inside CameraX's `PipeCameraPresenceSource`** ("monitoring is stopped"), neither with data of ours |
+| Cleartext | The release network security config has `cleartextTrafficPermitted="false"` for the system trust anchors and no domain exception; `usesCleartextTraffic` is not set. The debug variant alone allows `10.0.2.2` and `localhost`, and `10.0.2.2` does not occur in the release dex. No certificate pinning, by the plan |
+| Notifications and shortcuts | The app posts no notification and no shortcut |
+| Manifest | Permissions: `INTERNET`, `CAMERA` (asked only when the QR scanner opens), `ACCESS_NETWORK_STATE` and a signature-level receiver permission, both added by libraries. Not `debuggable`. The only exported component of ours is the launcher activity; the file provider, the clipboard receiver, the startup provider and CameraX's service are not exported. `androidx.profileinstaller`'s receiver is exported, guarded by its own system permission, as the library ships it |
+| Dependencies | 219 runtime artifacts in `releaseRuntimeClasspath`; the build runs with `gradle/verification-metadata.xml` (hashes, not signatures) and every one verifies. A new artifact needs the file regenerated and each hash checked, as [above](#dependencies-are-verified) |
+| Secrets in the repository | No keystore, `.jks`, `.p12`, `google-services` or environment file is tracked here; the only env-style files elsewhere hold build pins or placeholders |
+
+**Not covered here:** the release's API address defaults to `https://test-api.cryple.io` (the `zekke.api.release`
+Gradle property sets the real one) and **the API host's HTTPS and HSTS (Task 132) must be in place first**;
+the upload and signing keys are A8.5.
+
 ## Lint
 
 Warnings are errors. The only checks turned off are the ones that report a newer version of Gradle,

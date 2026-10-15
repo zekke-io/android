@@ -579,8 +579,14 @@ feature modules) to be consolidated.
 - [ ] **A8.1 Low-end measurements.** The time of an unlock, a 1 GiB upload's memory, the first pull
   of a large account, on a real low-end phone and a recent one; recorded in the README.
 - [ ] **A8.2 The core on an arm64 phone.** The core's tests on a physical device.
-- [ ] **A8.3 The security checklist.** Every item of "what the phone must never leak", the manifest's
+- [x] **A8.3 The security checklist.** Every item of "what the phone must never leak", the manifest's
   permissions, the network config, the backup rules, the dependency list.
+  **Done 2026-10-15** on the release APK (merged manifest, packaged XML and dex read with `aapt2` and
+  `dexdump`); the table is in [README.md](README.md#the-security-checklist). Every item holds. Found and
+  fixed: the R8 rule left nine `Log` references of libraries (a used `isLoggable` result is not removable
+  without a value), now two `Log.d` in CameraX with no data of ours. Found and recorded, not changed:
+  `uploads.json` keeps queued uploads' names and URIs in plaintext until they finish; the release's API
+  address still defaults to the test host.
 - [ ] **A8.4 The client policy row.** An `android` row in `client_releases` before the first release.
 - [ ] **A8.5 Reproducible builds.** Our own upload and signing keys, each release's SHA-256
   published.
