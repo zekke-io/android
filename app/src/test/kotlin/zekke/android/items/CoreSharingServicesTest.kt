@@ -55,4 +55,25 @@ class CoreSharingServicesTest {
         )
         assertNull(sendOutcomeOf(IllegalStateException()))
     }
+
+    @Test
+    fun aChainThatDoesNotVerifyIsItsOwnFailureNotAGenericOne() {
+        assertEquals(
+            zekke.android.ui.components.ItemFailure.ChainUnverified,
+            plainFailureOf(zekke.core.account.ChainNotVerifiedException(IllegalStateException())),
+        )
+        assertEquals(zekke.android.ui.components.ItemFailure.Offline, plainFailureOf(zekke.core.api.NetworkError("/x")))
+        assertNull(plainFailureOf(IllegalStateException()))
+    }
+
+    @Test
+    fun everyDeviceRemovalFailureIsTyped() {
+        assertEquals(zekke.android.feature.settings.DeviceRemoval.PhraseMismatch, removalOutcomeOf(zekke.core.account.PhraseMismatchException()))
+        assertEquals(zekke.android.feature.settings.DeviceRemoval.Offline, removalOutcomeOf(zekke.core.api.NetworkError("/x")))
+        assertEquals(
+            zekke.android.feature.settings.DeviceRemoval.ChainProblem,
+            removalOutcomeOf(zekke.core.account.ChainNotVerifiedException(IllegalStateException())),
+        )
+        assertEquals(zekke.android.feature.settings.DeviceRemoval.Failed, removalOutcomeOf(IllegalStateException()))
+    }
 }

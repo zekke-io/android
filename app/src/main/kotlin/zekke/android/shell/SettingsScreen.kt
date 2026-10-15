@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import zekke.android.R
 import zekke.android.sync.SyncStatus
 import zekke.android.ui.components.ButtonVariant
+import zekke.android.ui.components.ItemRow
 import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
 import zekke.android.ui.components.ZekkeButton
@@ -23,8 +24,8 @@ fun SettingsContent(
     status: SyncStatus,
     onOpenNotifications: () -> Unit,
     onDiscard: (Long) -> Unit,
+    onOpen: (Destination) -> Unit,
     notices: @Composable () -> Unit,
-    account: @Composable () -> Unit,
 ) {
     val palette = Zekke.palette
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
@@ -54,6 +55,17 @@ fun SettingsContent(
                 }
             }
         }
-        account()
+        ItemRow(
+            title = stringResource(R.string.settings_devices),
+            meta = stringResource(R.string.settings_devices_meta),
+            icon = zekke.android.ui.R.drawable.ic_security,
+            onClick = { onOpen(Destination.SettingsDevices) },
+        )
+        ItemRow(
+            title = stringResource(R.string.settings_account),
+            meta = stringResource(R.string.settings_account_meta),
+            icon = zekke.android.ui.R.drawable.ic_settings,
+            onClick = { onOpen(Destination.SettingsAccount) },
+        )
     }
 }

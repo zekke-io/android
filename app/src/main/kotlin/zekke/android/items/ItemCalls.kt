@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import zekke.android.session.SessionGuard
 import zekke.android.ui.components.ItemFailure
 import zekke.core.account.AccountServices
+import zekke.core.account.ChainNotVerifiedException
 import zekke.core.account.DeviceRemovedException
 import zekke.core.account.renewSignIn
 import zekke.core.api.ApiError
@@ -21,6 +22,16 @@ import zekke.core.session.SessionLockedException
 
 fun isKeptChanging(error: Exception): Boolean =
     error is FoldersKeptChangingException || error is AddressBookKeptChangingException || error is SharedFoldersKeptChangingException
+
+fun plainFailureOf(error: Exception): ItemFailure? = when {
+    error is NetworkError -> ItemFailure.Offline
+    error is ItemTooLargeException -> ItemFailure.TooLarge
+    error is ScopeNotHeldException -> ItemFailure.ScopeMissing
+    error is SessionLockedException -> ItemFailure.SessionOver
+    isKeptChanging(error) -> ItemFailure.Conflict
+    error is ChainNotVerifiedException -> ItemFailure.ChainUnverified
+    else -> null
+}
 
 sealed interface ItemResult<out T> {
     data class Done<T>(val value: T) : ItemResult<T>
@@ -54,15 +65,8 @@ class ItemCalls(
         ItemResult.Failed(failureOf(error))
     }
 
-    private suspend fun failureOf(error: Exception): ItemFailure = when {
-        error is NetworkError -> ItemFailure.Offline
-        error is ItemTooLargeException -> ItemFailure.TooLarge
-        error is ScopeNotHeldException -> ItemFailure.ScopeMissing
-        error is SessionLockedException -> ItemFailure.SessionOver
-        isKeptChanging(error) -> ItemFailure.Conflict
-        error is ApiError -> apiFailureOf(error)
-        else -> ItemFailure.Failed
-    }
+    private suspend fun failureOf(error: Exception): ItemFailure =
+        plainFailureOf(error) ?: if (error is ApiError) apiFailureOf(error) else ItemFailure.Failed
 
     private suspend fun apiFailureOf(error: ApiError): ItemFailure = when {
         error.isRateLimited -> ItemFailure.RateLimited(error.retryAfterSeconds)

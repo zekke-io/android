@@ -21,7 +21,11 @@ import zekke.android.clients.ClientPolicyMonitor
 import zekke.android.feature.onboarding.OnboardingStep
 import zekke.android.feature.onboarding.OnboardingViewModel
 import zekke.android.feature.settings.AccountSecuritySection
+import zekke.android.feature.settings.DevicesScreen
+import zekke.android.feature.settings.DevicesServices
+import zekke.android.feature.settings.DevicesViewModel
 import zekke.android.feature.settings.ExtensionLinkServices
+import zekke.android.feature.settings.LinkStep
 import zekke.android.feature.settings.ExtensionLinkSection
 import zekke.android.feature.settings.ExtensionLinkViewModel
 import zekke.android.feature.settings.AccountSecuritySheet
@@ -180,19 +184,33 @@ class MainActivity : ComponentActivity() {
                                     status = syncStatus,
                                     onLock = guard::lockNow,
                                     notices = versionNotices,
-                                    settings = { openNotifications ->
+                                    settings = { openNotifications, open ->
                                         SettingsContent(
                                             status = syncStatus,
                                             onOpenNotifications = openNotifications,
                                             onDiscard = sync::discardRefused,
+                                            onOpen = open,
                                             notices = {},
-                                            account = {
-                                                AccountSecuritySection(securityState, security)
-                                                ExtensionLinkSection(extensionState, extension)
-                                                RemoveThisPhoneSection(removalState, removal)
-                                            },
                                         )
                                     },
+                                    settingsPages = mapOf(
+                                        Destination.SettingsDevices to {
+                                            val devicesModel = viewModel { DevicesViewModel(this@MainActivity.get<DevicesServices>()) }
+                                            val devicesState by devicesModel.state.collectAsStateWithLifecycle()
+                                            LaunchedEffect(extensionState.step) {
+                                                if (extensionState.step == LinkStep.Linked) devicesModel.opened()
+                                            }
+                                            DevicesScreen(
+                                                devicesState,
+                                                devicesModel,
+                                                extension = { ExtensionLinkSection(extensionState, extension) },
+                                                thisPhone = { RemoveThisPhoneSection(removalState, removal) },
+                                            )
+                                        },
+                                        Destination.SettingsAccount to {
+                                            AccountSecuritySection(securityState, security)
+                                        },
+                                    ),
                                     notifications = { NotificationsScreen(notificationsState, notifications) },
                                     listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage, Destination.Notes to notesPage, Destination.Drive to drivePage, Destination.Shared to sharedPage),
                                 )

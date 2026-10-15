@@ -114,3 +114,21 @@ the web's:
 The code expiring, the server saying cancelled or expired, a failed open or link and an unexpected
 exception each end the flow with their own notice. `ExtensionLinkViewModelTest` plays all of it with virtual
 time and `ExtensionLinkSectionTest` (Robolectric) draws each step.
+
+## Devices
+
+Reached from the Settings index. Every device of the account with its name from the address book (only
+with the `sharing` scope; *Unnamed device* otherwise), *This phone*, *Full device* or *Limited device*, what
+it holds (*Everything* or the scopes) and the date it was added in the phone's locale. **The device chain is
+verified on every load**: the web's *verifies from your recovery phrase’s key* notice, or the warning that
+the history may have been tampered with, and then no removal is offered.
+
+| Action | Rule |
+| --- | --- |
+| Rename | A row's sheet, with the sharing scope; sealed in the address book |
+| Remove | A full device only, another device only, and only while the chain verifies. The recovery phrase is typed (with the scanner), its checksum checked before anything is sent, then zeroed; the process is held until the removal ends. Every key the device held changes, and the keys are re-wrapped afterwards |
+| Failures | A phrase of another account, offline, rate limited, the phone locked, and a chain that does not verify each have their own notice; a phrase mismatch asks for the phrase again |
+
+`DevicesViewModelTest` covers the order of the list, who may remove whom, rename and its failures, the phrase
+(checksum, one removal at a time, forgotten on cancel) and every removal outcome; `DevicesScreensTest`
+(Robolectric) draws the list, the sheets and the limited device.

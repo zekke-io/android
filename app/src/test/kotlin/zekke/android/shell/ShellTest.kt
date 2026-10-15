@@ -34,7 +34,7 @@ class ShellTest {
             status = status,
             onLock = { locks++ },
             notices = { Text("a notice") },
-            settings = { openNotifications ->
+            settings = { openNotifications, _ ->
                 Text("settings body", Modifier.clickable { openNotifications() })
             },
             notifications = { Text("notifications body") },

@@ -23,6 +23,8 @@ sealed interface ItemFailure {
 
     data object Conflict : ItemFailure
 
+    data object ChainUnverified : ItemFailure
+
     data object Failed : ItemFailure
 }
 
@@ -37,6 +39,7 @@ fun itemFailureText(failure: ItemFailure): String = when (failure) {
     ItemFailure.ScopeMissing -> stringResource(R.string.item_failure_scope_missing)
     ItemFailure.NotFound -> stringResource(R.string.item_failure_not_found)
     ItemFailure.Conflict -> stringResource(R.string.item_failure_conflict)
+    ItemFailure.ChainUnverified -> stringResource(R.string.item_failure_chain_unverified)
     ItemFailure.Failed -> stringResource(R.string.item_failure_failed)
 }
 

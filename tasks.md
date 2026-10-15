@@ -9,12 +9,11 @@ States: `[ ]` open, `[~]` under way, `[x]` done.
 
 ## Awaiting the owner
 
+Decisions taken by default and not yet confirmed; each is recorded where it was taken.
+
 - **A6.4 by hand with the real extension.** The linking is verified end to end against a scripted extension
   (same API calls and fingerprint construction); linking the phone to the actual browser extension build,
   once, is left to the owner.
-
-Decisions taken by default and not yet confirmed; each is recorded where it was taken.
-
 - **Home tiles instead of tabs** (the design system's Home is a tile grid, A3.2).
 - **The A3.1 substitute**: the core's own replica and outbox tests still run on the JVM only; an
   instrumented test on the Android driver stands in for them.
@@ -518,8 +517,22 @@ feature modules) to be consolidated.
 
 ## A7 — Settings
 
-- [ ] **A7.1 Devices.** The list with labels from the address book, removing another device with the
+- [x] **A7.1 Devices.** The list with labels from the address book, removing another device with the
   phrase and the re-wrap, renaming a device.
+  **Done 2026-10-15**: Settings is now an index (Notifications, the refused changes, then *Devices* and
+  *Account* rows that open their own pages, with the system back and the bar's arrow returning to
+  Settings). *Devices*: every device with its name from the address book (only on a phone holding
+  `sharing`; *Unnamed device* otherwise), *This phone*, full or limited, what it holds (*Everything* or the
+  scopes) and when it was added in the phone's locale; the account's chain verified on every load with
+  the web's two notices; renaming from a row's sheet; *Remove* only on a full device, for another device,
+  and only while the chain verifies, asking for the recovery phrase (checksum checked first, zeroed after)
+  with the process held, the keys re-wrapped afterwards. The *Browser extension* section and *Remove this
+  phone* moved here, as on the web, and the list refreshes when an extension links. A chain that does not
+  verify is now its own failure (*ChainUnverified*, the web's wording) instead of *Something went wrong*,
+  for every call. On the emulator against the local API (account with four web devices, a secret and
+  this phone): the list and the verified notice; four unnamed web devices; a rename read back from the
+  address book on the web; removing a device with the phrase left one device fewer, moved the secret to
+  a newer key generation and it still opened; a phrase that fails its checksum removed nothing.
 - [ ] **A7.2 Account.** The username, the mode, deleting the account with the phrase (and the account
   PIN on Paranoid) with `retention_days` stated.
 - [ ] **A7.3 Plan, security and about.** The plan read-only, the idle timeout, changing the device

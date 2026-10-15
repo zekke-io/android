@@ -45,7 +45,12 @@ import zekke.android.ui.components.ZekkeIconButton
 import zekke.android.ui.theme.Zekke
 import zekke.core.feed.FeedScope
 
-enum class Destination { Home, Passwords, Vault, Notes, Drive, Shared, Settings, Notifications }
+enum class Destination { Home, Passwords, Vault, Notes, Drive, Shared, Settings, SettingsDevices, SettingsAccount, Notifications }
+
+private val SETTINGS_PAGES = mapOf(
+    Destination.SettingsDevices to R.string.settings_devices,
+    Destination.SettingsAccount to R.string.settings_account,
+)
 
 private class Section(
     val destination: Destination,
@@ -69,7 +74,8 @@ fun Shell(
     status: SyncStatus,
     onLock: () -> Unit,
     notices: @Composable () -> Unit,
-    settings: @Composable (openNotifications: () -> Unit) -> Unit,
+    settings: @Composable (openNotifications: () -> Unit, open: (Destination) -> Unit) -> Unit,
+    settingsPages: Map<Destination, @Composable () -> Unit> = emptyMap(),
     notifications: @Composable () -> Unit,
     listPages: Map<Destination, @Composable () -> Unit> = emptyMap(),
 ) {
@@ -80,7 +86,11 @@ fun Shell(
         destination = Destination.Notifications
     }
     BackHandler(enabled = destination != Destination.Home) {
-        destination = if (destination == Destination.Notifications) notificationsFrom else Destination.Home
+        destination = when {
+            destination == Destination.Notifications -> notificationsFrom
+            destination in SETTINGS_PAGES -> Destination.Settings
+            else -> Destination.Home
+        }
     }
     val palette = Zekke.palette
     Column(Modifier.fillMaxSize().background(palette.ground).safeDrawingPadding()) {
@@ -96,7 +106,12 @@ fun Shell(
                 title = stringResource(R.string.shell_settings),
                 onBack = { destination = Destination.Home },
                 onLock = onLock,
-            ) { settings(openNotifications) }
+            ) { settings(openNotifications) { destination = it } }
+            Destination.SettingsDevices, Destination.SettingsAccount -> ShellPage(
+                title = stringResource(SETTINGS_PAGES.getValue(destination)),
+                onBack = { destination = Destination.Settings },
+                onLock = onLock,
+            ) { settingsPages[destination]?.invoke() }
             Destination.Notifications -> ShellPage(
                 title = stringResource(R.string.shell_notifications),
                 onBack = { destination = notificationsFrom },
