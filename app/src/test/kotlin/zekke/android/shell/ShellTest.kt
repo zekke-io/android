@@ -63,6 +63,18 @@ class ShellTest {
     }
 
     @Test
+    fun theSharedTileNeedsAScopeThatCanBeShared() {
+        show(SyncStatus(active = true, heldScopes = listOf(FeedScope.PASSWORDS)))
+        compose.onNodeWithText("Shared").assertDoesNotExist()
+    }
+
+    @Test
+    fun theSharedTileAppearsWithAnySharableScope() {
+        show(SyncStatus(active = true, heldScopes = listOf(FeedScope.FILES)))
+        compose.onNodeWithText("Shared").assertExists()
+    }
+
+    @Test
     fun aSectionShowsItsCountAndGoesBackToHome() {
         show(SyncStatus(active = true, heldScopes = held, counts = SectionCounts(vault = 3), lastSyncEpochSeconds = 1))
         compose.onNodeWithText("Vault").performClick()

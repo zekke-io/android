@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sharing_invite_title">Invite someone</string>
+    <string name="sharing_invite_hint">Ask them for their username and type it here. Once they accept, you can both send each other items: one invitation connects you both ways.</string>
+    <string name="sharing_invite_label">Their username</string>
+    <string name="sharing_invite_submit">Send invitation</string>
+    <string name="sharing_invite_sending">Sending…</string>
+    <string name="sharing_invite_sent">Invitation sent to %1$s.</string>
+    <string name="sharing_invite_unknown">No account currently uses that username.</string>
+    <string name="sharing_invite_exists">You are already connected to that account, or have an invitation pending with it. One connection works in both directions.</string>
+    <string name="sharing_invite_refused">Nothing can be sent through a connection to this account right now.</string>
+    <string name="sharing_reshare_warning">Anything you send can be copied by the person you send it to. Only share with people you would trust with the contents.</string>
+    <string name="sharing_pending_inbound">Waiting for you</string>
+    <string name="sharing_pending_outbound">Waiting for them</string>
+    <string name="sharing_connected">Connected</string>
+    <string name="sharing_connected_subtitle">Disconnecting deletes every share between you, in both directions.</string>
+    <string name="sharing_connections_empty">You have no connections yet.</string>
+    <string name="sharing_review">Review</string>
+    <string name="sharing_fingerprint_title">Check their fingerprint before you accept</string>
+    <string name="sharing_fingerprint_why">Read this code to them out loud, on a call or in person, and check it matches what they see. It is the fingerprint of their account key, which never changes. It is the one part of sharing that maths cannot do for you: if the server ever substituted another account for theirs, this is where it shows.</string>
+    <string name="sharing_fingerprint_theirs">%1$s’s fingerprint</string>
+    <string name="sharing_fingerprint_mine">Yours, to read back to them</string>
+    <string name="sharing_fingerprint_loading">Checking…</string>
+    <string name="sharing_fingerprint_confirm">It matches — accept</string>
+    <string name="sharing_fingerprint_accepting">Accepting…</string>
+    <string name="sharing_fingerprint_decline">Decline</string>
+    <string name="sharing_alarm_badge">Do not send</string>
+    <string name="sharing_alarm_root_changed">This connection’s account key is not the one you first checked. An account key never changes, so someone may be intercepting it, and nothing more can be sent through it. Tell them through another channel, then disconnect and invite each other again.</string>
+    <string name="sharing_alarm_proof_invalid">Their sharing keys could not be traced back to their account key, so they may not be theirs. Nothing can be sent through this connection until they can.</string>
+    <string name="sharing_alarm_account_changed">The username on this connection now leads to a different account from the one you connected to, so nothing more can be sent through it. This connection is gone. To share again, send a new invitation and compare fingerprints again. A connection is never repaired by looking their username up again: the name may belong to someone else now.</string>
+    <string name="sharing_alarm_unresolvable">This connection’s keys could not be checked, so nothing can be sent through it right now. This connection is gone. To share again, send a new invitation and compare fingerprints again. A connection is never repaired by looking their username up again: the name may belong to someone else now.</string>
+    <string name="sharing_alarm_unaccepted">This connection has not been accepted yet, so nothing can be sent through it.</string>
+    <string name="sharing_nickname_label">Nickname</string>
+    <string name="sharing_nickname_hint">Only you see it. It is sealed in your address book, never sent in the clear.</string>
+    <string name="sharing_nickname_save">Save nickname</string>
+    <string name="sharing_nickname_saving">Saving…</string>
+    <string name="sharing_detail_disconnect">Disconnect</string>
+    <string name="sharing_disconnect_title">Disconnect from %1$s?</string>
+    <string name="sharing_disconnect_message">Every item you shared with each other stops being shared, in both directions. Copies that were already made stay with whoever made them. To share again you both compare fingerprints again.</string>
+    <string name="sharing_disconnect_confirm">Disconnect</string>
+</resources>

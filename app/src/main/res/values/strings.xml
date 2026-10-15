@@ -11,6 +11,8 @@
     <string name="section_vault">Vault</string>
     <string name="section_notes">Notes</string>
     <string name="section_drive">Drive</string>
+    <string name="section_shared">Shared</string>
+    <string name="section_shared_description">Sent and received</string>
     <string name="section_passwords_description">Logins and passkeys</string>
     <string name="section_vault_description">Secrets and recovery codes</string>
     <string name="section_notes_description">Private notes</string>

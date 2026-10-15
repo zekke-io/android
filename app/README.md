@@ -15,6 +15,7 @@ tiles; a section is a page with a back button, its title and *Lock*. `BackHandle
 | --- | --- |
 | Home | The marker *Your account is open on this phone.*, the version and session notices (an unverified chain, a re-wrap that failed), the tiles, *Lock*, the bell with the unread count as a badge (capped at 99+) |
 | Passwords, Vault, Notes | How many items the replica holds, then the sync status. The lists arrive with A4 |
+| Shared | [`feature:sharing`](../feature/sharing/README.md): the tile shows when any of the vault, notes or files scopes is held |
 | Drive | The sync status; Drive has no count, because telling a thumbnail from a file needs the manifests decrypted |
 | Settings | The notifications entry with the unread count, the outbox's refused changes with *Discard*, then the account-security section and *Remove this phone* |
 | Notifications | `feature:settings`' list, opened from Home or Settings |

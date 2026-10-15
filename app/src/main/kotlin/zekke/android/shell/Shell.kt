@@ -45,11 +45,11 @@ import zekke.android.ui.components.ZekkeIconButton
 import zekke.android.ui.theme.Zekke
 import zekke.core.feed.FeedScope
 
-enum class Destination { Home, Passwords, Vault, Notes, Drive, Settings, Notifications }
+enum class Destination { Home, Passwords, Vault, Notes, Drive, Shared, Settings, Notifications }
 
 private class Section(
     val destination: Destination,
-    val scope: FeedScope,
+    val scopes: Set<FeedScope>,
     @DrawableRes val mark: Int,
     @StringRes val title: Int,
     @StringRes val description: Int,
@@ -57,10 +57,11 @@ private class Section(
 )
 
 private val SECTIONS = listOf(
-    Section(Destination.Passwords, FeedScope.PASSWORDS, zekke.android.ui.R.drawable.mark_password_manager, R.string.section_passwords, R.string.section_passwords_description, R.plurals.count_passwords),
-    Section(Destination.Vault, FeedScope.SECRETS, zekke.android.ui.R.drawable.mark_secrets, R.string.section_vault, R.string.section_vault_description, R.plurals.count_vault),
-    Section(Destination.Notes, FeedScope.NOTES, zekke.android.ui.R.drawable.mark_notes, R.string.section_notes, R.string.section_notes_description, R.plurals.count_notes),
-    Section(Destination.Drive, FeedScope.FILES, zekke.android.ui.R.drawable.mark_drive, R.string.section_drive, R.string.section_drive_description, null),
+    Section(Destination.Passwords, setOf(FeedScope.PASSWORDS), zekke.android.ui.R.drawable.mark_password_manager, R.string.section_passwords, R.string.section_passwords_description, R.plurals.count_passwords),
+    Section(Destination.Vault, setOf(FeedScope.SECRETS), zekke.android.ui.R.drawable.mark_secrets, R.string.section_vault, R.string.section_vault_description, R.plurals.count_vault),
+    Section(Destination.Notes, setOf(FeedScope.NOTES), zekke.android.ui.R.drawable.mark_notes, R.string.section_notes, R.string.section_notes_description, R.plurals.count_notes),
+    Section(Destination.Drive, setOf(FeedScope.FILES), zekke.android.ui.R.drawable.mark_drive, R.string.section_drive, R.string.section_drive_description, null),
+    Section(Destination.Shared, setOf(FeedScope.SECRETS, FeedScope.NOTES, FeedScope.FILES), zekke.android.ui.R.drawable.mark_safe_sharing, R.string.section_shared, R.string.section_shared_description, null),
 )
 
 @Composable
@@ -165,7 +166,7 @@ private fun HomeScreen(
         Text(stringResource(R.string.home_body), style = MaterialTheme.typography.bodyLarge, color = palette.inkSoft)
         notices()
         FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
-            SECTIONS.filter { it.scope in status.heldScopes }.forEach { section ->
+            SECTIONS.filter { section -> section.scopes.any { it in status.heldScopes } }.forEach { section ->
                 AppTile(
                     mark = section.mark,
                     label = stringResource(section.title),

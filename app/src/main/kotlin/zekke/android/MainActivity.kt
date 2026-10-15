@@ -42,6 +42,9 @@ import zekke.android.feature.drive.DriveViewModel
 import zekke.android.feature.notes.NotesScreen
 import zekke.android.feature.notes.NotesServices
 import zekke.android.feature.notes.NotesViewModel
+import zekke.android.feature.sharing.ConnectionsScreen
+import zekke.android.feature.sharing.ConnectionsViewModel
+import zekke.android.feature.sharing.SharingServices
 import zekke.android.feature.vault.VaultScreen
 import zekke.android.feature.vault.VaultServices
 import zekke.android.feature.vault.VaultViewModel
@@ -152,6 +155,11 @@ class MainActivity : ComponentActivity() {
                                     val driveState by driveModel.state.collectAsStateWithLifecycle()
                                     DriveScreen(driveState, driveModel)
                                 }
+                                val sharedPage: @Composable () -> Unit = {
+                                    val connectionsModel = viewModel { ConnectionsViewModel(this@MainActivity.get<SharingServices>()) }
+                                    val connectionsState by connectionsModel.state.collectAsStateWithLifecycle()
+                                    ConnectionsScreen(connectionsState, connectionsModel)
+                                }
                                 Shell(
                                     status = syncStatus,
                                     onLock = guard::lockNow,
@@ -169,7 +177,7 @@ class MainActivity : ComponentActivity() {
                                         )
                                     },
                                     notifications = { NotificationsScreen(notificationsState, notifications) },
-                                    listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage, Destination.Notes to notesPage, Destination.Drive to drivePage),
+                                    listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage, Destination.Notes to notesPage, Destination.Drive to drivePage, Destination.Shared to sharedPage),
                                 )
                                 AccountSecuritySheet(securityState, security)
                             },

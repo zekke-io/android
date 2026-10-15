@@ -281,8 +281,7 @@ feature modules) to be consolidated.
   title, back, *Lock*, the item count read from the replica without decrypting, the sync status) and
   Settings (notifications, the outbox's refused changes, the account-security section, *Remove this
   phone*). The design system's Home is a tile grid with a top bar, not tabs ("a TabView is not the
-  pattern"), so the plan's tabs are tiles: **awaiting the owner**. Missing: *Shared* (no tile until the
-  sharing screens exist), a Drive count (a thumbnail is only told from a file by decrypting the
+  pattern"), so the plan's tabs are tiles: **awaiting the owner**. Missing: a Drive count (a thumbnail is only told from a file by decrypting the
   manifests), and the lists themselves (A4 and A5). The Home keeps *Your account is open on this
   phone.* and *Lock*; the account-security section and *Remove this phone* moved to Settings, where
   A7.2 will place them.
@@ -458,8 +457,22 @@ feature modules) to be consolidated.
 
 ## A6 — Sharing and the extension
 
-- [ ] **A6.1 Connections.** Inviting, accepting with the fingerprint, nicknames, disconnecting, and
+- [x] **A6.1 Connections.** Inviting, accepting with the fingerprint, nicknames, disconnecting, and
   the danger states saying *do not send*.
+  **Done 2026-10-15**: the *Shared* tile (any of the vault, notes or files scopes) opens `feature:sharing`:
+  the invite form with the keyboard's *Send* and the one re-sharing sentence, *Waiting for you* with the
+  fingerprint review (the phone never marks it compared; accept is disabled while the fingerprint loads or
+  any alarm shows), the connections with their nicknames, and a row's sheet with the nickname and, on a
+  full device, *Disconnect* behind a confirmation (the web has none). Every accepted connection and sent
+  invitation is checked on each load: *Do not send* and the web's sentence for the three danger states, a
+  warning for an unresolvable one; outbound connections are re-established silently. Unit tests cover
+  every trust state, every invite refusal and the review's gates. On the emulator against the local API (44
+  checks, three accounts): an unknown username; an invitation sent with the keyboard's *Send* and accepted
+  on the web; an invitation from the web reviewed on the phone with both fingerprints equal to the web's
+  `ownRootFingerprint`, then accepted; a nickname read back from the address book on the web; a disconnect
+  that removes the other side. Not exercised on a device: the danger states (covered by unit tests, since
+  they need a root key that changes). The connections ViewModel lives with the activity, so the page reads
+  the list again each time it opens.
 - [ ] **A6.2 The Shared space.** One folder per friendship, both directions, the friendship's
   folders, opening, *Copy to my account*, re-establishing in the background.
 - [ ] **A6.3 Sending.** From each tab, trust checked first, filed into a folder in the same gesture.

@@ -38,6 +38,9 @@ import zekke.core.api.ZekkeApi
 import zekke.android.feature.passwords.PasswordsServices
 import zekke.android.feature.drive.DriveServices
 import zekke.android.feature.notes.NotesServices
+import zekke.android.feature.sharing.SharingServices
+import zekke.android.items.CoreSharingServices
+import zekke.core.sharing.SharingService
 import zekke.android.items.CoreDriveServices
 import zekke.android.items.PlaintextFiles
 import zekke.android.uploads.ContentUploadSources
@@ -119,6 +122,8 @@ val coreModule = module {
     factory<VaultServices> { CoreVaultServices(get(), get(), get()) }
     factory(named("secrets-tabs")) { CoreFolderTabsServices(ManifestScope.SECRETS, get(), get(), get()) }
     factory<PasswordsServices> { CorePasswordsServices(get(), get(), get()) }
+    single { SharingService(get()) }
+    factory<SharingServices> { CoreSharingServices(get(), get(), get()) }
     factory<NotificationsServices> { CoreNotificationsServices(get()) }
     factory<AccountSecurityServices> {
         val account = get<AccountServices>()
