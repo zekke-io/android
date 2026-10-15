@@ -143,3 +143,18 @@ the history may have been tampered with, and then no removal is offered.
   what happens after it, the storage meter and the Trash's retention. Nothing is bought here.
   `PlanAndAboutTest` (Robolectric) draws the free, paid and grace plans and a failed read.
 - **About** — the version and whatever notices the app gives it (the client policy's update notice).
+
+## The account: username and deletion
+
+- **Username** — the current name in mono, a field (full device only), *Change username*: the claim is
+  normalised and checked first (3 to 64 characters, lowercase letters and digits with `.`, `_`, `-` between),
+  the same name is refused as unchanged, a name another account holds is *unavailable* whoever holds it, and
+  the web's two notices say a rename adds a name and that the old one stops resolving.
+- **Delete this account** — full device only. The recovery phrase (with the scanner), the account PIN when
+  the account is Paranoid (the mode is read again when the sheet opens), and a confirmation; one
+  refusal message for every wrong-PIN cause, with the wait hint after two. The sheet cannot close while
+  the call runs, and the call's own result is never dropped by a profile reload (separate counters). A
+  success ends the way *Remove this phone* does and the app wipes the phone.
+
+`AccountSettingsViewModelTest` covers the checks, every outcome of both calls and the counters;
+`AccountSettingsScreensTest` (Robolectric) draws the page and the sheet.

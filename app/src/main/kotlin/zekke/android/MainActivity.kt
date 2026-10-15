@@ -6,11 +6,14 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,6 +25,11 @@ import zekke.android.feature.onboarding.OnboardingStep
 import zekke.android.feature.onboarding.OnboardingViewModel
 import zekke.android.feature.settings.AccountSecuritySection
 import zekke.android.feature.settings.AboutScreen
+import zekke.android.feature.settings.AccountSettingsSection
+import zekke.android.feature.settings.AccountSettingsServices
+import zekke.android.feature.settings.AccountSettingsViewModel
+import zekke.android.feature.settings.DeleteAccountSection
+import zekke.android.feature.settings.DeleteAccountSheet
 import zekke.android.feature.settings.DevicesScreen
 import zekke.android.feature.settings.PlanScreen
 import zekke.android.feature.settings.PlanServices
@@ -143,6 +151,8 @@ class MainActivity : ComponentActivity() {
                                 val removalState by removal.state.collectAsStateWithLifecycle()
                                 val security = viewModel { AccountSecurityViewModel(this@MainActivity.get()) }
                                 val securityState by security.state.collectAsStateWithLifecycle()
+                                val accountModel = viewModel { AccountSettingsViewModel(this@MainActivity.get<AccountSettingsServices>()) }
+                                val accountState by accountModel.state.collectAsStateWithLifecycle()
                                 val extension = viewModel { ExtensionLinkViewModel(this@MainActivity.get<ExtensionLinkServices>()) }
                                 val extensionState by extension.state.collectAsStateWithLifecycle()
                                 val syncStatus by sync.status.collectAsStateWithLifecycle()
@@ -214,7 +224,11 @@ class MainActivity : ComponentActivity() {
                                             )
                                         },
                                         Destination.SettingsAccount to {
-                                            AccountSecuritySection(securityState, security)
+                                            Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
+                                                AccountSettingsSection(accountState, accountModel)
+                                                AccountSecuritySection(securityState, security)
+                                                DeleteAccountSection(accountState, accountModel)
+                                            }
                                         },
                                         Destination.SettingsSecurity to {
                                             val securityModel = viewModel { SecurityViewModel(this@MainActivity.get<SecurityServices>()) }
@@ -234,6 +248,7 @@ class MainActivity : ComponentActivity() {
                                     listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage, Destination.Notes to notesPage, Destination.Drive to drivePage, Destination.Shared to sharedPage),
                                 )
                                 AccountSecuritySheet(securityState, security)
+                                DeleteAccountSheet(accountState, accountModel)
                                 shareTarget?.let { target ->
                                     val shareModel = viewModel(key = "share-${target.type}-${target.id}") {
                                         ShareViewModel(this@MainActivity.get<SharingServices>(), target.type, target.id)

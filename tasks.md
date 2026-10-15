@@ -11,6 +11,9 @@ States: `[ ]` open, `[~]` under way, `[x]` done.
 
 Decisions taken by default and not yet confirmed; each is recorded where it was taken.
 
+- **A7.2's wrong-account-PIN refusal on a device.** Deleting the account with a wrong PIN left the account
+  intact but showed no notice in five emulator runs (the instrumentation could see no text, the log no
+  error); the unit tests show the notice. Worth one look by hand on a Paranoid throwaway account.
 - **The idle-lock choices** (1, 5, 15, 30, 60 minutes; 15 by default) are this app's own: the web app has no
   such setting to copy (A7.3).
 - **A6.4 by hand with the real extension.** The linking is verified end to end against a scripted extension
@@ -535,8 +538,27 @@ feature modules) to be consolidated.
   this phone): the list and the verified notice; four unnamed web devices; a rename read back from the
   address book on the web; removing a device with the phrase left one device fewer, moved the secret to
   a newer key generation and it still opened; a phrase that fails its checksum removed nothing.
-- [ ] **A7.2 Account.** The username, the mode, deleting the account with the phrase (and the account
+- [~] **A7.2 Account.** The username, the mode, deleting the account with the phrase (and the account
   PIN on Paranoid) with `retention_days` stated.
+  **Built 2026-10-15**: the *Account* page now holds, in order, *Your username* (the web's rules and words:
+  a malformed name refused before anything is sent, a taken name said without guessing who holds it, the
+  permanence and old-name notices, full device only), the existing security mode section, and *Delete this
+  account*: the recovery phrase typed (checksum checked first, zeroed after), the account PIN on a Paranoid
+  account, an explicit confirmation, the process held; what it means is stated from the server's own
+  documents (irreversible, no grace, every username stays taken, the Trash's retention does not apply to a
+  deleted account's files, a renewing card subscription is cancelled and refunded); a limited phone is told to
+  use a full device. After a deletion the phone takes the path of *Remove this phone*: the start screen and the
+  local replica, outbox, caches and upload queue wiped. The page reads the account's mode again when the
+  deletion opens (an E2E found it stale after Paranoid was turned on in the same visit, so the PIN was not
+  asked and the core refused). On the emulator against the local API (a Paranoid account with a second
+  account): a short name refused; another account's name unavailable; a new name resolving to this account
+  and the old one to nobody; Paranoid turned on; the deletion with the right PIN ending on the start screen
+  with no replica, outbox or upload files left on the phone, and the web no longer finding an account for the
+  phrase; the other account deleted. **Not settled**: the attempt with a **wrong account PIN** showed no
+  refusal notice on the device in five runs, with no error in the log, although the account survived it (the
+  right PIN then deleted it). The refusal's wording and its count are covered by unit tests of the
+  ViewModel, the mapper and the sheet, and the stale-result path was fixed, but the on-device refusal is
+  unexplained: **awaiting the owner**.
 - [x] **A7.3 Plan, security and about.** The plan read-only, the idle timeout, changing the device
   PIN, the version and the client policy.
   **Done 2026-10-15**: three more Settings pages. *Plan*: the plan's name, what it is paid until (or the

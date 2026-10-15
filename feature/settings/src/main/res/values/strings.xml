@@ -184,4 +184,33 @@
     <string name="plan_read_only">Plans are bought and managed in the web app. This app shows what the account has.</string>
     <string name="about_app">Zekke for Android</string>
     <string name="about_version">Version %1$s</string>
+    <string name="username_title">Your username</string>
+    <string name="username_summary">The name other people use to reach your account.</string>
+    <string name="username_current">Current username</string>
+    <string name="username_label">Username</string>
+    <string name="username_hint">Lowercase letters and numbers, with dots, underscores or hyphens between them. Three to sixty-four characters.</string>
+    <string name="username_submit">Change username</string>
+    <string name="username_submitting">Changing…</string>
+    <string name="username_permanence">Changing your username adds a name, it does not remove one. Every name this account has ever used stays yours for ever: nobody else can take it, and you can switch back to it at any time by claiming it again.</string>
+    <string name="username_old_name_stops">Your old name stops working the moment you change it. Anyone who wrote it down will no longer reach you with it — only your current name resolves to this account.</string>
+    <string name="username_unchanged">That is already your username.</string>
+    <string name="username_malformed">A username is 3 to 64 characters — lowercase letters and numbers, with dots, underscores or hyphens between them, starting and ending with a letter or a number.</string>
+    <string name="username_unavailable">That username is unavailable. Choose another one.</string>
+    <string name="username_renamed">You are now %1$s.</string>
+    <string name="username_limited_device">This phone cannot change the username. Use a full device.</string>
+    <string name="delete_title">Delete this account</string>
+    <string name="delete_summary">Deletes every device, key, item, connection and share. It needs your recovery phrase, so a stolen phone alone can never do it.</string>
+    <string name="delete_warning">This cannot be undone, by you or by anyone at Zekke. Everything shared with others stops opening for them too. Every username this account has used stays taken, so a contact who writes to one reaches no one.</string>
+    <plurals name="delete_retention">
+        <item quantity="one">Your files are removed from storage straight away: the %1$d day that deleted files are normally kept does not apply.</item>
+        <item quantity="other">Your files are removed from storage straight away: the %1$d days that deleted files are normally kept do not apply.</item>
+    </plurals>
+    <string name="delete_renews">Your card subscription still renews. Cancel it from the web app before deleting the account. If you delete it anyway, the subscription is cancelled and any charge made after the deletion is refunded.</string>
+    <string name="delete_open">Delete my account…</string>
+    <string name="delete_phrase_hint">Your recovery phrase signs the deletion. This phone forgets it as soon as the request is sent.</string>
+    <string name="delete_account_pin">Account PIN</string>
+    <string name="delete_confirm">I understand that my account and everything in it will be gone for good.</string>
+    <string name="delete_submit">Delete my account</string>
+    <string name="delete_deleting">Deleting…</string>
+    <string name="delete_limited_device">This phone cannot delete the account. Use a full device, with your recovery phrase.</string>
 </resources>

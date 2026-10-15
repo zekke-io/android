@@ -1,6 +1,8 @@
 package zekke.android.items
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -98,7 +100,8 @@ class CoreDevicesServices(
                     rotations.rotated()
                     DeviceRemoval.Removed
                 } catch (error: CancellationException) {
-                    throw error
+                    currentCoroutineContext().ensureActive()
+                    DeviceRemoval.Failed
                 } catch (error: Exception) {
                     removalOutcomeOf(error)
                 }

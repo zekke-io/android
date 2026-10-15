@@ -90,4 +90,30 @@ class CoreSharingServicesTest {
         assertEquals("free", free.code)
         assertEquals(7, free.retentionDays)
     }
+
+    @Test
+    fun everyUsernameFailureIsTypedAndATakenNameIsTheServers422() {
+        assertEquals(zekke.android.feature.settings.UsernameOutcome.Malformed, usernameOutcomeOf(zekke.core.users.MalformedUsernameException("x")))
+        assertEquals(zekke.android.feature.settings.UsernameOutcome.Offline, usernameOutcomeOf(zekke.core.api.NetworkError("/x")))
+        assertEquals(
+            zekke.android.feature.settings.UsernameOutcome.Unavailable,
+            usernameOutcomeOf(zekke.core.api.ApiError("USERNAME_UNAVAILABLE", 422, "/users/username")),
+        )
+        assertEquals(zekke.android.feature.settings.UsernameOutcome.Failed, usernameOutcomeOf(IllegalStateException()))
+    }
+
+    @Test
+    fun everyDeleteFailureIsTypedAndOneBadProofIsAPinRefusal() {
+        assertEquals(zekke.android.feature.settings.DeleteOutcome.PhraseMismatch, deleteOutcomeOf(zekke.core.account.PhraseMismatchException()))
+        assertEquals(
+            zekke.android.feature.settings.DeleteOutcome.PinRefused,
+            deleteOutcomeOf(zekke.core.api.ApiError("INVALID_CREDENTIALS", 401, "/users")),
+        )
+        assertEquals(zekke.android.feature.settings.DeleteOutcome.Offline, deleteOutcomeOf(zekke.core.api.NetworkError("/x")))
+        assertEquals(
+            zekke.android.feature.settings.DeleteOutcome.ChainProblem,
+            deleteOutcomeOf(zekke.core.account.ChainNotVerifiedException(IllegalStateException())),
+        )
+        assertEquals(zekke.android.feature.settings.DeleteOutcome.Failed, deleteOutcomeOf(IllegalStateException()))
+    }
 }

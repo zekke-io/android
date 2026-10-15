@@ -1,6 +1,8 @@
 package zekke.android.items
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -45,7 +47,8 @@ class CoreSecurityServices(
                     changeDevicePin(accounts, pin)
                     DevicePinChange.Done
                 } catch (error: CancellationException) {
-                    throw error
+                    currentCoroutineContext().ensureActive()
+                    DevicePinChange.Failed
                 } catch (error: Exception) {
                     devicePinOutcomeOf(error)
                 } finally {

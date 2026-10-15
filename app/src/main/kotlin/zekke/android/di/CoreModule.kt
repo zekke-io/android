@@ -59,7 +59,9 @@ import zekke.android.items.CoreNotesServices
 import zekke.android.items.CoreFolderTabsServices
 import zekke.android.items.CoreVaultServices
 import zekke.core.folders.ManifestScope
+import zekke.android.feature.settings.AccountSettingsServices
 import zekke.android.feature.settings.DevicesServices
+import zekke.android.items.CoreAccountSettingsServices
 import zekke.android.feature.settings.PlanServices
 import zekke.android.feature.settings.SecurityServices
 import zekke.android.items.CorePlanServices
@@ -136,6 +138,7 @@ val coreModule = module {
     factory<PasswordsServices> { CorePasswordsServices(get(), get(), get()) }
     single { SharingService(get()) }
     factory<SharingServices> { CoreSharingServices(get(), get(), get(), get(), get(), get()) }
+    factory<AccountSettingsServices> { CoreAccountSettingsServices(get(), get(), get(), get(), get()) }
     factory<SecurityServices> { CoreSecurityServices(get(), get(), get()) }
     factory<PlanServices> { CorePlanServices(get(), get()) }
     factory<DevicesServices> { CoreDevicesServices(get(), get(), get(), get(), get(), get()) }

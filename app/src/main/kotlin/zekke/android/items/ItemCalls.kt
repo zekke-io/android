@@ -4,6 +4,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import zekke.android.session.SessionGuard
 import zekke.android.ui.components.ItemFailure
@@ -60,7 +62,8 @@ class ItemCalls(
     private suspend fun <T> attempt(call: suspend () -> T): ItemResult<T> = try {
         ItemResult.Done(call())
     } catch (error: CancellationException) {
-        throw error
+        currentCoroutineContext().ensureActive()
+        ItemResult.Failed(ItemFailure.Offline)
     } catch (error: Exception) {
         ItemResult.Failed(failureOf(error))
     }
