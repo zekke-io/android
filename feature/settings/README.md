@@ -92,3 +92,25 @@ ended (the ViewModel cleared, the flow closed) changes nothing.
 | `AccountSecurityScreensTest` (Robolectric) | The section for each mode; the way through the warning, the phrase and the PINs with each button enabled only when it should be; the finished notice with the number of devices; the wait advice after two refusals; the mismatch on the phrase step; the unfinished notice staying on the home screen |
 | `NotificationsViewModelTest` | The first page loaded once and its unread notices marked read; the unread count keeping what is not on the page; *Show older* appending with its cursor; each failure kept apart and *Try again*; a throwing service as a failure; a failed mark leaving the notices unread |
 | `NotificationCopyTest` (Robolectric) | The title and body of every kind with the plan name, dates, sizes and counts; a missing or wrongly typed parameter leaving its clause out; an unknown kind as the generic notice; every known kind worded; the relative age, then a date; the byte format and the badge cap |
+
+## Linking the password extension
+
+*Browser extension* in Settings, on a full device that holds `passwords`: this phone opens a pairing and
+authorises the extension, which is a device holding the `passwords` scope and nothing else. The flow is
+the web's:
+
+1. *Connect a browser extension* opens a code, shown large in mono (`ABCD-2345`), valid five minutes, with
+   the time left; the screen asks the server every two seconds whether it was claimed. *Cancel* cancels
+   it on the server.
+2. When the extension claims it, the phone computes the pairing fingerprint from **this account's**
+   address and root key and the claimed keys (`ownerFingerprint`) and shows six digits (`123 456`) to
+   compare with the extension's. A phone with the `sharing` scope can also name the extension, sealed in the
+   address book.
+3. *The numbers match* links it (`linkClaimedDevice`: the chain verified, a `device-add` with every
+   `passwords` generation this phone holds, no rotation, so no recovery phrase), with the process held
+   until it ends. *They don’t match* cancels the code and says why; **there is no retry on that code**, a
+   new one is opened.
+
+The code expiring, the server saying cancelled or expired, a failed open or link and an unexpected
+exception each end the flow with their own notice. `ExtensionLinkViewModelTest` plays all of it with virtual
+time and `ExtensionLinkSectionTest` (Robolectric) draws each step.

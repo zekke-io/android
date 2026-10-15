@@ -113,4 +113,22 @@
         <item quantity="one">%1$d day ago</item>
         <item quantity="other">%1$d days ago</item>
     </plurals>
+    <string name="extension_title">Browser extension</string>
+    <string name="extension_summary">Connect the Zekke password extension to this account. It can read and save your passwords, and nothing else — no secret, note, document or file.</string>
+    <string name="extension_start">Connect a browser extension</string>
+    <string name="extension_code_heading">Type this code into the extension</string>
+    <string name="extension_code_hint">It works once and expires in five minutes. %1$s left.</string>
+    <string name="extension_cancel">Cancel</string>
+    <string name="extension_compare_heading">Compare the numbers</string>
+    <string name="extension_compare_hint">The extension now shows a six-digit number. It must be exactly the number below. If it is not, someone else claimed this code.</string>
+    <string name="extension_match">The numbers match</string>
+    <string name="extension_no_match">They don’t match</string>
+    <string name="extension_time_left">%1$s left.</string>
+    <string name="extension_linking">Connecting…</string>
+    <string name="extension_linked">The extension is connected. Choose its PIN in the extension to finish.</string>
+    <string name="extension_mismatch_warning">The connection was refused and the code is cancelled. Different numbers mean the extension that claimed this code is not the one in front of you. Start again, and only ever type the code into your own extension.</string>
+    <string name="extension_expired">The code expired before it was used. Start again when the extension is open.</string>
+    <string name="extension_cancelled">The connection was cancelled.</string>
+    <string name="extension_paranoid_note">Paranoid Mode does not protect the extension: its own PIN does. Choose one you do not use anywhere else, and not your account PIN.</string>
+    <string name="extension_name_label">Name for this extension</string>
 </resources>

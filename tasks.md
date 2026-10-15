@@ -9,6 +9,10 @@ States: `[ ]` open, `[~]` under way, `[x]` done.
 
 ## Awaiting the owner
 
+- **A6.4 by hand with the real extension.** The linking is verified end to end against a scripted extension
+  (same API calls and fingerprint construction); linking the phone to the actual browser extension build,
+  once, is left to the owner.
+
 Decisions taken by default and not yet confirmed; each is recorded where it was taken.
 
 - **Home tiles instead of tabs** (the design system's Home is a tile grid, A3.2).
@@ -498,8 +502,19 @@ feature modules) to be consolidated.
   note and a file sent to the top were read back by that account with the right names and places; the sheet
   listed the recipient under *Already sent to*, and *Remove* made the item disappear for them. Not
   exercised on a device: a refused send (covered by unit tests, which cover every outcome).
-- [ ] **A6.4 Linking the password extension.** The code, the compared fingerprint, the link, and a
+- [~] **A6.4 Linking the password extension.** The code, the compared fingerprint, the link, and a
   mismatch cancelling with no retry. Checked by hand with the extension.
+  **Built 2026-10-15**: *Browser extension* in Settings (a full device holding `passwords`): the code in
+  mono with its countdown and *Cancel*, the number to compare (computed from this account's address and
+  root key and the claimed keys), a name for the extension on a phone with `sharing`, *The numbers match*
+  (the link, with the process held) and *They don’t match* (cancels the code, says why, no retry on it). The
+  code expiring, the server's own end of the pairing and every failure have their notice. On the emulator
+  against the local API (31 checks) **with the extension's half played by a script that claims the code the
+  way the extension's engine does** (fresh device keys, the same `claimPairing` and `pairingFingerprint`):
+  the number the phone showed equalled the script's; matching linked the device (the claim's status was
+  `linked`, the device is in the account's chain and its name is sealed in the address book); a second
+  code refused with different numbers was cancelled and never linked. **Missing**: the check by hand
+  with the real extension build in a browser, which this environment cannot run: **awaiting the owner**.
 
 ## A7 — Settings
 

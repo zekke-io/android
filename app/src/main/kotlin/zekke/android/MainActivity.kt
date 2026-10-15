@@ -21,6 +21,9 @@ import zekke.android.clients.ClientPolicyMonitor
 import zekke.android.feature.onboarding.OnboardingStep
 import zekke.android.feature.onboarding.OnboardingViewModel
 import zekke.android.feature.settings.AccountSecuritySection
+import zekke.android.feature.settings.ExtensionLinkServices
+import zekke.android.feature.settings.ExtensionLinkSection
+import zekke.android.feature.settings.ExtensionLinkViewModel
 import zekke.android.feature.settings.AccountSecuritySheet
 import zekke.android.feature.settings.AccountSecurityViewModel
 import zekke.android.feature.unlock.RemoveThisPhoneSection
@@ -129,6 +132,8 @@ class MainActivity : ComponentActivity() {
                                 val removalState by removal.state.collectAsStateWithLifecycle()
                                 val security = viewModel { AccountSecurityViewModel(this@MainActivity.get()) }
                                 val securityState by security.state.collectAsStateWithLifecycle()
+                                val extension = viewModel { ExtensionLinkViewModel(this@MainActivity.get<ExtensionLinkServices>()) }
+                                val extensionState by extension.state.collectAsStateWithLifecycle()
                                 val syncStatus by sync.status.collectAsStateWithLifecycle()
                                 val notifications = viewModel { NotificationsViewModel(this@MainActivity.get<NotificationsServices>(), sync::unreadChanged) }
                                 val notificationsState by notifications.state.collectAsStateWithLifecycle()
@@ -183,6 +188,7 @@ class MainActivity : ComponentActivity() {
                                             notices = {},
                                             account = {
                                                 AccountSecuritySection(securityState, security)
+                                                ExtensionLinkSection(extensionState, extension)
                                                 RemoveThisPhoneSection(removalState, removal)
                                             },
                                         )
