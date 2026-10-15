@@ -93,6 +93,10 @@ sealed interface SharingWrite {
 interface SharingServices {
     val canDisconnect: Boolean
 
+    val holdsSharing: Boolean
+
+    val copyable: Set<SharedType>
+
     suspend fun loadConnections(): ConnectionsLoad
 
     suspend fun checkTrust(ids: List<String>): Map<String, TrustAlarm?>
@@ -108,4 +112,18 @@ interface SharingServices {
     suspend fun disconnect(id: String): SharingWrite
 
     suspend fun rename(id: String, name: String): SharingWrite
+
+    suspend fun loadSpace(connectionId: String): SpaceLoad
+
+    suspend fun editFolders(connectionId: String, edit: zekke.core.folders.FolderEdit): FolderChange
+
+    suspend fun resetFolders(connectionId: String): FolderChange
+
+    suspend fun copyToMyAccount(connectionId: String, item: SharedItem): CopyOutcome
+
+    suspend fun saveTo(connectionId: String, item: SharedItem, target: SaveTarget): SharingWrite
+
+    fun systemScreenWillOpen()
+
+    fun systemScreenReturned()
 }

@@ -2,6 +2,12 @@ package zekke.android.feature.sharing
 
 import kotlinx.coroutines.CompletableDeferred
 import zekke.android.ui.components.ItemFailure
+import zekke.core.folders.FolderEdit
+import zekke.core.folders.FolderManifest
+import zekke.core.folders.emptyFolderManifest
+import zekke.core.sharing.SHARED_FOLDER_RULES
+
+const val AT = "2026-10-01T00:00:00.000Z"
 
 fun connection(
     id: String,
@@ -10,7 +16,21 @@ fun connection(
     nickname: String? = null,
 ) = ConnectionItem(id, username, nickname, standing)
 
-class FakeSharingServices(override var canDisconnect: Boolean = true) : SharingServices {
+fun sharedItem(
+    shareId: String,
+    name: String?,
+    type: SharedType? = SharedType.Note,
+    inbound: Boolean = true,
+    readable: Boolean = true,
+    text: String? = "body of $shareId",
+    sizeBytes: Long? = null,
+) = SharedItem(shareId, "item-$shareId", type, inbound, name, readable, null, sizeBytes, null, text)
+
+class FakeSharingServices(
+    override var canDisconnect: Boolean = true,
+    override var holdsSharing: Boolean = true,
+    override var copyable: Set<SharedType> = setOf(SharedType.Secret, SharedType.Note, SharedType.File),
+) : SharingServices {
     var items: List<ConnectionItem> = emptyList()
     var loadFailure: ItemFailure? = null
     var loads = 0
@@ -76,5 +96,62 @@ class FakeSharingServices(override var canDisconnect: Boolean = true) : SharingS
     override suspend fun rename(id: String, name: String): SharingWrite {
         renamed += id to name
         return outcome()
+    }
+
+    var space: SpaceLoad = SpaceLoad.Loaded(emptyList(), emptyFolderManifest(SHARED_FOLDER_RULES, AT), true, false)
+    var spaceLoads = mutableListOf<String>()
+    var spaceGate: CompletableDeferred<Unit>? = null
+    var folderResult: FolderChange? = null
+    var edits = mutableListOf<Pair<String, FolderEdit>>()
+    var resets = mutableListOf<String>()
+    var copied = mutableListOf<Pair<String, SharedItem>>()
+    var copyResult: CopyOutcome = CopyOutcome.Copied
+    var saved = mutableListOf<Pair<String, SharedItem>>()
+    var saveResult: SharingWrite = SharingWrite.Done
+    var pickerOpened = 0
+    var pickerReturned = 0
+    private var current: FolderManifest? = null
+
+    override suspend fun loadSpace(connectionId: String): SpaceLoad {
+        spaceLoads += connectionId
+        val result = space
+        spaceGate?.await()
+        return result
+    }
+
+    override suspend fun editFolders(connectionId: String, edit: FolderEdit): FolderChange {
+        edits += connectionId to edit
+        gate?.await()
+        folderResult?.let { return it }
+        val base = current ?: (space as? SpaceLoad.Loaded)?.manifest ?: emptyFolderManifest(SHARED_FOLDER_RULES, AT)
+        val next = edit.apply(base, SHARED_FOLDER_RULES)
+        current = next
+        return FolderChange.Done(next)
+    }
+
+    override suspend fun resetFolders(connectionId: String): FolderChange {
+        resets += connectionId
+        gate?.await()
+        return folderResult ?: FolderChange.Done(emptyFolderManifest(SHARED_FOLDER_RULES, AT))
+    }
+
+    override suspend fun copyToMyAccount(connectionId: String, item: SharedItem): CopyOutcome {
+        copied += connectionId to item
+        gate?.await()
+        return copyResult
+    }
+
+    override suspend fun saveTo(connectionId: String, item: SharedItem, target: SaveTarget): SharingWrite {
+        saved += connectionId to item
+        gate?.await()
+        return saveResult
+    }
+
+    override fun systemScreenWillOpen() {
+        pickerOpened++
+    }
+
+    override fun systemScreenReturned() {
+        pickerReturned++
     }
 }

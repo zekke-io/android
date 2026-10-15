@@ -42,7 +42,8 @@ import zekke.android.feature.drive.DriveViewModel
 import zekke.android.feature.notes.NotesScreen
 import zekke.android.feature.notes.NotesServices
 import zekke.android.feature.notes.NotesViewModel
-import zekke.android.feature.sharing.ConnectionsScreen
+import zekke.android.feature.sharing.SharedViewModel
+import zekke.android.feature.sharing.SharingScreen
 import zekke.android.feature.sharing.ConnectionsViewModel
 import zekke.android.feature.sharing.SharingServices
 import zekke.android.feature.vault.VaultScreen
@@ -158,7 +159,9 @@ class MainActivity : ComponentActivity() {
                                 val sharedPage: @Composable () -> Unit = {
                                     val connectionsModel = viewModel { ConnectionsViewModel(this@MainActivity.get<SharingServices>()) }
                                     val connectionsState by connectionsModel.state.collectAsStateWithLifecycle()
-                                    ConnectionsScreen(connectionsState, connectionsModel)
+                                    val sharedModel = viewModel { SharedViewModel(this@MainActivity.get<SharingServices>()) }
+                                    val sharedState by sharedModel.state.collectAsStateWithLifecycle()
+                                    SharingScreen(sharedState, sharedModel, connectionsState, connectionsModel)
                                 }
                                 Shell(
                                     status = syncStatus,

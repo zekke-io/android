@@ -30,6 +30,7 @@ dependencies {
     implementation(project(":ui"))
     implementation(libs.mobile.base)
     implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.activity.compose)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

@@ -123,7 +123,7 @@ val coreModule = module {
     factory(named("secrets-tabs")) { CoreFolderTabsServices(ManifestScope.SECRETS, get(), get(), get()) }
     factory<PasswordsServices> { CorePasswordsServices(get(), get(), get()) }
     single { SharingService(get()) }
-    factory<SharingServices> { CoreSharingServices(get(), get(), get()) }
+    factory<SharingServices> { CoreSharingServices(get(), get(), get(), get(), get(), get()) }
     factory<NotificationsServices> { CoreNotificationsServices(get()) }
     factory<AccountSecurityServices> {
         val account = get<AccountServices>()

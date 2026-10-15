@@ -473,8 +473,21 @@ feature modules) to be consolidated.
   that removes the other side. Not exercised on a device: the danger states (covered by unit tests, since
   they need a root key that changes). The connections ViewModel lives with the activity until a lock, so the
   page reads the list again each time it opens.
-- [ ] **A6.2 The Shared space.** One folder per friendship, both directions, the friendship's
+- [x] **A6.2 The Shared space.** One folder per friendship, both directions, the friendship's
   folders, opening, *Copy to my account*, re-establishing in the background.
+  **Done 2026-10-15**: *Shared* on the Shared page (with *Connections* beside it): a folder per friendship,
+  what went both ways with *Sent by you*, the folders both people make (create, rename, delete as
+  grouping only, move an item), text opened in a sheet with a secret masked until shown, *Copy to my own
+  account* with its refusals typed, a file saved through the system picker, a flat space for a phone
+  without `sharing`, the reset of an invalid manifest, and a silent catch-up of outbound connections
+  whenever the page opens. On the emulator against the local API (61 checks, two accounts): the three
+  kinds shared from the web appear; the secret is masked, then shown; each kind copied and read back on
+  the web with the same name and value; the file saved through the picker with the same sha256; a folder
+  made on the phone with a note filed in it, read back on the web with `folderOf`; an item sent from the
+  web shows *Sent by you* without a copy. **Not built**: preview of a shared image or video, moving a
+  folder, and copying a file over 64 MiB (the core copies in memory; the phone says to download it).
+  **Not exercised end to end**: re-establishing a connection after the other account rotated its sharing
+  keys (no web step bumps that generation here; the core's own tests cover it).
 - [ ] **A6.3 Sending.** From each tab, trust checked first, filed into a folder in the same gesture.
 - [ ] **A6.4 Linking the password extension.** The code, the compared fingerprint, the link, and a
   mismatch cancelling with no retry. Checked by hand with the extension.
