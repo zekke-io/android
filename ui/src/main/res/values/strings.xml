@@ -49,5 +49,8 @@
     <string name="item_failure_too_large">That is larger than one item can hold.</string>
     <string name="item_failure_scope_missing">This phone cannot open that kind of item. Open it from a device that holds it.</string>
     <string name="item_failure_not_found">That item no longer exists.</string>
+    <string name="item_failure_conflict">That changed on another device while it was being saved. Nothing was saved. Try again.</string>
     <string name="item_failure_failed">Something went wrong. Please try again.</string>
+    <string name="tab_strip_new">New tab</string>
+    <string name="tab_strip_manage">Rename or delete</string>
 </resources>

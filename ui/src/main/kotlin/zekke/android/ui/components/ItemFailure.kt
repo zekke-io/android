@@ -21,6 +21,8 @@ sealed interface ItemFailure {
 
     data object NotFound : ItemFailure
 
+    data object Conflict : ItemFailure
+
     data object Failed : ItemFailure
 }
 
@@ -34,10 +36,11 @@ fun itemFailureText(failure: ItemFailure): String = when (failure) {
     ItemFailure.TooLarge -> stringResource(R.string.item_failure_too_large)
     ItemFailure.ScopeMissing -> stringResource(R.string.item_failure_scope_missing)
     ItemFailure.NotFound -> stringResource(R.string.item_failure_not_found)
+    ItemFailure.Conflict -> stringResource(R.string.item_failure_conflict)
     ItemFailure.Failed -> stringResource(R.string.item_failure_failed)
 }
 
 fun itemFailureTone(failure: ItemFailure): NoticeTone = when (failure) {
-    ItemFailure.Offline, is ItemFailure.RateLimited, ItemFailure.SessionRenewed, ItemFailure.StaleKeys -> NoticeTone.Warning
+    ItemFailure.Offline, is ItemFailure.RateLimited, ItemFailure.SessionRenewed, ItemFailure.StaleKeys, ItemFailure.Conflict -> NoticeTone.Warning
     else -> NoticeTone.Danger
 }

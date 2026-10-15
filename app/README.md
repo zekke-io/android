@@ -58,6 +58,11 @@ that again.* as the web app does (`DeviceRemovedException` is *signed out*). The
 section (`CorePasswordsServices`) are built on it and ask `SyncService` for the replica, so the screens
 read the same connection the sync writes; after a write they call `syncNow()`.
 
+`FolderStore` is opened by the sync backend at unlock and closed at lock (`SyncService.folderStore()`):
+it caches the decrypted tab names, so it is never a process-wide singleton. A purge in Vault leaves a
+feed tombstone, so no scope reset is needed there (Passwords needs one: the server writes none for a
+prune).
+
 ## Leaving the account
 
 | Event | Replica | Outbox |

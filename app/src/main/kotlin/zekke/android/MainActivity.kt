@@ -34,7 +34,13 @@ import zekke.android.session.ClientGate
 import zekke.android.shell.SettingsContent
 import zekke.android.shell.Shell
 import zekke.android.sync.SyncService
+import org.koin.core.qualifier.named
 import zekke.android.feature.passwords.PasswordsScreen
+import zekke.android.feature.vault.VaultScreen
+import zekke.android.feature.vault.VaultServices
+import zekke.android.feature.vault.VaultViewModel
+import zekke.android.items.CoreFolderTabsServices
+import zekke.android.shell.Destination
 import zekke.android.feature.passwords.PasswordsServices
 import zekke.android.feature.passwords.PasswordsViewModel
 import zekke.android.feature.settings.NotificationsScreen
@@ -116,6 +122,18 @@ class MainActivity : ComponentActivity() {
                                         unlock::dismissRewrapIssue,
                                     )
                                 }
+                                val passwordsPage: @Composable () -> Unit = {
+                                    val passwordsModel = viewModel { PasswordsViewModel(this@MainActivity.get<PasswordsServices>()) }
+                                    val passwordsState by passwordsModel.state.collectAsStateWithLifecycle()
+                                    PasswordsScreen(passwordsState, passwordsModel)
+                                }
+                                val vaultPage: @Composable () -> Unit = {
+                                    val vaultModel = viewModel {
+                                        VaultViewModel(this@MainActivity.get<VaultServices>(), this@MainActivity.get<CoreFolderTabsServices>(named("secrets-tabs")))
+                                    }
+                                    val vaultState by vaultModel.state.collectAsStateWithLifecycle()
+                                    VaultScreen(vaultState, vaultModel)
+                                }
                                 Shell(
                                     status = syncStatus,
                                     onLock = guard::lockNow,
@@ -133,11 +151,7 @@ class MainActivity : ComponentActivity() {
                                         )
                                     },
                                     notifications = { NotificationsScreen(notificationsState, notifications) },
-                                    passwords = {
-                                        val passwordsModel = viewModel { PasswordsViewModel(this@MainActivity.get<PasswordsServices>()) }
-                                        val passwordsState by passwordsModel.state.collectAsStateWithLifecycle()
-                                        PasswordsScreen(passwordsState, passwordsModel)
-                                    },
+                                    listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage),
                                 )
                                 AccountSecuritySheet(securityState, security)
                             },

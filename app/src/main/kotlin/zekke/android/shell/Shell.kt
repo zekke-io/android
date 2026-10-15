@@ -70,7 +70,7 @@ fun Shell(
     notices: @Composable () -> Unit,
     settings: @Composable (openNotifications: () -> Unit) -> Unit,
     notifications: @Composable () -> Unit,
-    passwords: @Composable () -> Unit = {},
+    listPages: Map<Destination, @Composable () -> Unit> = emptyMap(),
 ) {
     var destination by rememberSaveable { mutableStateOf(Destination.Home) }
     var notificationsFrom by rememberSaveable { mutableStateOf(Destination.Home) }
@@ -101,17 +101,21 @@ fun Shell(
                 onBack = { destination = notificationsFrom },
                 onLock = onLock,
             ) { notifications() }
-            Destination.Passwords -> ShellPage(
-                title = stringResource(R.string.section_passwords),
-                onBack = { destination = Destination.Home },
-                onLock = onLock,
-                scrollable = false,
-                header = { if (status.failure != null || status.outboxPending > 0 || status.outboxWaiting > 0) SyncStatusView(status) },
-            ) { passwords() }
             else -> {
                 val section = SECTIONS.first { it.destination == destination }
-                ShellPage(stringResource(section.title), { destination = Destination.Home }, onLock) {
-                    SectionBody(section, status)
+                val listPage = listPages[destination]
+                if (listPage != null) {
+                    ShellPage(
+                        title = stringResource(section.title),
+                        onBack = { destination = Destination.Home },
+                        onLock = onLock,
+                        scrollable = false,
+                        header = { if (status.failure != null || status.outboxPending > 0 || status.outboxWaiting > 0) SyncStatusView(status) },
+                    ) { listPage() }
+                } else {
+                    ShellPage(stringResource(section.title), { destination = Destination.Home }, onLock) {
+                        SectionBody(section, status)
+                    }
                 }
             }
         }

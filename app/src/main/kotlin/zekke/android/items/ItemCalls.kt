@@ -12,6 +12,7 @@ import zekke.core.account.DeviceRemovedException
 import zekke.core.account.renewSignIn
 import zekke.core.api.ApiError
 import zekke.core.api.NetworkError
+import zekke.core.folders.FoldersKeptChangingException
 import zekke.core.items.ItemTooLargeException
 import zekke.core.session.ScopeNotHeldException
 import zekke.core.session.SessionLockedException
@@ -53,6 +54,7 @@ class ItemCalls(
         error is ItemTooLargeException -> ItemFailure.TooLarge
         error is ScopeNotHeldException -> ItemFailure.ScopeMissing
         error is SessionLockedException -> ItemFailure.SessionOver
+        error is FoldersKeptChangingException -> ItemFailure.Conflict
         error is ApiError -> apiFailureOf(error)
         else -> ItemFailure.Failed
     }

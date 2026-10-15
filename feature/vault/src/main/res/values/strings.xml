@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vault_nouns_one">secret</string>
+    <string name="vault_nouns_many">secrets</string>
+    <string name="vault_empty_all">Nothing stored yet. Add your first secret below — it is encrypted here before it leaves this phone.</string>
+    <string name="vault_empty_tab">This tab is empty. Add a secret while the tab is open, or move one into it.</string>
+    <string name="vault_unreadable">Unreadable item</string>
+    <string name="vault_masked">••••••••</string>
+    <string name="vault_show_values">Show values</string>
+    <string name="vault_hide_values">Hide values</string>
+    <string name="vault_copy">Copy value</string>
+    <string name="vault_recently_deleted">Recently deleted</string>
+    <string name="vault_add">Add a secret</string>
+    <string name="vault_add_title">Add a secret</string>
+    <string name="vault_add_subtitle">The name and the value are encrypted on this phone before they are stored.</string>
+    <string name="vault_add_submit">Add secret</string>
+    <string name="vault_saving">Saving…</string>
+    <string name="vault_field_name">Name</string>
+    <string name="vault_field_value">Value</string>
+    <string name="vault_detail_move">Move to another tab</string>
+    <string name="vault_detail_move_to">Move to “%1$s”</string>
+    <string name="vault_detail_delete">Delete</string>
+    <string name="vault_delete_title">Delete this secret?</string>
+    <string name="vault_delete_message">It disappears from every device and moves to Recently deleted, where it can be restored until you delete it permanently. Until then it stays stored, still encrypted.</string>
+    <string name="vault_delete_confirm">Delete</string>
+    <string name="vault_deleted_title">Recently deleted</string>
+    <string name="vault_deleted_subtitle">A deleted secret stays here until you delete it permanently, so it can be brought back.</string>
+    <string name="vault_deleted_none">Nothing has been deleted.</string>
+    <string name="vault_deleted_when">Deleted %1$s</string>
+    <string name="vault_deleted_restore">Restore</string>
+    <string name="vault_deleted_purge_one">Delete permanently</string>
+    <string name="vault_deleted_purge_all">Delete all permanently</string>
+    <string name="vault_deleted_close">Close</string>
+    <string name="vault_purge_title_one">Delete this secret permanently?</string>
+    <plurals name="vault_purge_title_many">
+        <item quantity="other">Delete %1$d secrets permanently?</item>
+    </plurals>
+    <string name="vault_purge_message">Deleting permanently cannot be undone. Only this account holds the key, so nobody — including Zekke — can bring it back.</string>
+    <string name="vault_purge_confirm">Delete permanently</string>
+    <string name="vault_purge_working">Deleting…</string>
+</resources>

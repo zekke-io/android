@@ -11,6 +11,10 @@ android {
         minSdk = libs.versions.android.min.sdk.get().toInt()
     }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     buildFeatures {
         compose = true
     }
@@ -24,5 +28,14 @@ android {
 
 dependencies {
     implementation(project(":ui"))
+    implementation(project(":feature:tabs"))
     implementation(libs.mobile.base)
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.serialization.json)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }

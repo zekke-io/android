@@ -2,6 +2,7 @@ package zekke.android.shell
 
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -37,7 +38,7 @@ class ShellTest {
                 Text("settings body", Modifier.clickable { openNotifications() })
             },
             notifications = { Text("notifications body") },
-            passwords = { Text("passwords body") },
+            listPages = mapOf<Destination, @Composable () -> Unit>(Destination.Passwords to { Text("passwords body") }),
         )
     }
 

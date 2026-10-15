@@ -19,6 +19,7 @@ import zekke.core.feed.Outbox
 import zekke.core.feed.OutboxEntry
 import zekke.core.feed.OutboxStop
 import zekke.core.feed.Replica
+import zekke.core.folders.FolderStore
 import zekke.core.notifications.unreadNotificationCount
 import zekke.core.notes.noteRecords
 import zekke.core.secrets.secretRecords
@@ -38,6 +39,8 @@ class CoreSyncBackend(
     override val replica: Replica get() = replicaStore
 
     override val outboxQueue: Outbox get() = outbox
+
+    override val folderStore: FolderStore? = items?.let { FolderStore(it) }
 
     override suspend fun pulse(deep: Boolean): PulseResult {
         var failure: SyncFailure? = null
@@ -102,6 +105,7 @@ class CoreSyncBackend(
 
     override fun close() {
         feed.close()
+        folderStore?.close()
         drivers.forEach { it.close() }
     }
 

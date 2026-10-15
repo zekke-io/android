@@ -18,6 +18,7 @@ import kotlinx.coroutines.sync.withLock
 import zekke.core.feed.FeedScope
 import zekke.core.feed.OutboxEntry
 import zekke.core.feed.Outbox
+import zekke.core.folders.FolderStore
 import zekke.core.feed.OutboxState
 import zekke.core.feed.Replica
 import zekke.core.session.SessionState
@@ -85,6 +86,8 @@ class SyncService(
     fun replica(): Replica? = backend?.replica
 
     fun outboxQueue(): Outbox? = backend?.outboxQueue
+
+    fun folderStore(): FolderStore? = backend?.folderStore
 
     fun resetScope(feedScope: FeedScope) {
         backend?.replica?.reset(feedScope)

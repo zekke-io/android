@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tabs_home">Home</string>
+    <string name="tabs_new_title">New tab</string>
+    <string name="tabs_rename_title">Rename tab</string>
+    <string name="tabs_field_name">Tab name</string>
+    <string name="tabs_create">Create tab</string>
+    <string name="tabs_rename">Rename</string>
+    <string name="tabs_delete">Delete tab</string>
+    <string name="tabs_delete_with">Delete tab and %1$s</string>
+    <string name="tabs_delete_title">Delete “%1$s”</string>
+    <string name="tabs_name_empty">Give the tab a name.</string>
+    <plurals name="tabs_name_long">
+        <item quantity="one">A tab name is at most %1$d character.</item>
+        <item quantity="other">A tab name is at most %1$d characters.</item>
+    </plurals>
+    <string name="tabs_name_clash">There is already a tab called “%1$s”.</string>
+    <string name="tabs_delete_empty">Delete the tab “%1$s”? It is empty, so nothing else is removed.</string>
+    <string name="tabs_delete_full">Deleting “%1$s” also deletes the %2$s in it, permanently.</string>
+    <string name="tabs_refusal_home">This tab is where everything without a tab lives, so it cannot be deleted. You can rename it.</string>
+    <string name="tabs_refusal_full_device">Only a full device can delete %1$s. Move them out of “%2$s” first, or delete it from a full device.</string>
+    <string name="tabs_invalid">Your tabs could not be shown safely: %1$s. Everything is listed in one place until the tabs are reset. Resetting keeps every item and only forgets the tabs.</string>
+    <string name="tabs_reset">Reset the tabs</string>
+    <string name="tabs_working">Working…</string>
+    <string name="tabs_invalid_cycle">the tabs refer to each other in a loop</string>
+    <string name="tabs_invalid_too_deep">a tab is nested inside another</string>
+    <string name="tabs_invalid_unknown_parent">a tab refers to one that does not exist</string>
+    <string name="tabs_invalid_deleted_parent">a tab sits inside a deleted one</string>
+    <string name="tabs_invalid_missing_home">the main tab is missing</string>
+    <string name="tabs_invalid_unknown_folder">an item is filed in a tab that never existed</string>
+    <string name="tabs_invalid_malformed">the stored tabs do not decode</string>
+    <string name="tabs_invalid_bad_name">a tab has no usable name</string>
+    <string name="tabs_invalid_unknown_version">the stored tabs were written by a newer version of Zekke</string>
+    <string name="tabs_move_title">Move to another tab</string>
+    <string name="tabs_move_to">Move to “%1$s”</string>
+</resources>

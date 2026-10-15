@@ -27,6 +27,8 @@ import zekke.android.ui.components.SegmentedControl
 import zekke.android.ui.components.StatusBadge
 import zekke.android.ui.components.StorageMeter
 import zekke.android.ui.components.StorageReading
+import zekke.android.ui.components.TabItem
+import zekke.android.ui.components.TabStrip
 import zekke.android.ui.components.Tone
 import zekke.android.ui.components.TopBar
 import zekke.android.ui.components.ZekkeButton
@@ -56,6 +58,13 @@ fun ComponentGallery() {
             title = "Passwords",
             onBack = {},
             actions = { ZekkeIconButton(R.drawable.ic_lock_session, hint = "Lock", onClick = {}) },
+        )
+        TabStrip(
+            tabs = listOf(TabItem("home", "Home", 4, manageable = false), TabItem("w", "Work", 2), TabItem("b", "Bank", 0)),
+            selected = "w",
+            onSelect = {},
+            onAdd = {},
+            onManage = {},
         )
         SegmentedControl(
             segments = listOf(Segment(false, "Standard"), Segment(true, "Paranoid")),

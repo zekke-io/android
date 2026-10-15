@@ -305,8 +305,22 @@ feature modules) to be consolidated.
   gap). Also finished here: the outbox is re-wrapped at the first pull after an unlock
   (`rewrapStaleEntries`), a cancelled pull is rethrown, and the deep pull no longer holds the unlock
   collector. Tests: passwords 25, app 83, ui 50, settings 47, onboarding 40, unlock 44.
-- [ ] **A4.2 Vault.** The tabs, secrets as name and value, the value masked until revealed, copy with
+- [x] **A4.2 Vault.** The tabs, secrets as name and value, the value masked until revealed, copy with
   clearing, Recently deleted, restore, purge, tab edits.
+  **Done 2026-10-15**: `feature:vault` (secrets as a name and a masked value with one *Show values*
+  toggle, copy through the sensitive clipboard, add with the keyboard's Next, a secret added while a
+  tab is open filed in it, a sheet to move or delete, Recently deleted with restore and purge; delete
+  and purge only on a full device) and the new `feature:tabs` shared with Notes (new, rename, delete
+  a tab with its items deleted first, the main tab undeletable, a reset for invalid tabs, the web
+  app's name checks and nine reasons), over the core's `FolderStore`, which `app` opens with the sync
+  backend and closes at lock because it caches the tab names. `mobile-base` gained `folderTabs`,
+  `activeTabOf` and `itemsInTab` (tests 307). `ui` gained `TabStrip` and `ItemFailure.Conflict`.
+  On the emulator against the local API (78 checks): a tab and a secret made on the web show on the
+  phone; a tab and a secret made on the phone open on the web with the secret filed in the tab;
+  rename, move, delete, restore, purge and deleting a tab with its secrets each read from the web.
+  Tests: vault 20, tabs 17, passwords 25, app 83, ui 50, settings 47, onboarding 40, unlock 44.
+  **Awaiting the owner**: the new `feature:tabs` module and `ui` `TabStrip`; writes go straight to the
+  server instead of through the outbox the plan describes (offline is said, never silently queued).
 - [ ] **A4.3 Notes.** The spaces, the grid of tiles, the WYSIWYG editor over the core's note format,
   autosave after two seconds, the character counter.
 - [ ] **A4.4 Against the web app.** Every item written here reads in the web app and the reverse.

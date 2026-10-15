@@ -61,6 +61,7 @@ dependencies {
     implementation(project(":feature:onboarding"))
     implementation(project(":feature:unlock"))
     implementation(project(":feature:passwords"))
+    implementation(project(":feature:tabs"))
     implementation(project(":feature:vault"))
     implementation(project(":feature:notes"))
     implementation(project(":feature:drive"))
