@@ -372,9 +372,26 @@ feature modules) to be consolidated.
   cache directory, written atomically, an id that is not a UUID never touches the disk, a half-written
   file swept), pruned against the listing at every load, and emptied when the phone leaves the account.
   5 unit tests; the end-to-end run saw the thumbnail's ciphertext there.
-- [ ] **A5.6 Preview and export.** Images from memory (Coil with no disk cache); PDFs through
+- [x] **A5.6 Preview and export.** Images from memory (Coil with no disk cache); PDFs through
   `PdfRenderer` with the temporary file deleted on close and on lock (R3); "Save to device" and
   "Open with…" saying the copy leaves Zekke's protection.
+  **Done 2026-10-15**: an image opens from memory (`ImageDecoder`, which reads HEIF and the EXIF
+  orientation, at most 2048 px on the longest edge; no Coil, so no new dependency: **a deviation from the
+  task's text, awaiting the owner**); a PDF is decrypted into `noBackupFilesDir/previews`, read by
+  `PdfRenderer` page by page, and the file is deleted when the preview closes, **before** every lock
+  (the process ends right after a lock, so a listener that ran after it would never run) and at every
+  process start; *Save to device* streams into a document made with the system picker and deletes the
+  half-written document if it fails; *Open with…* writes one copy under `noBackupFilesDir/shared`, shared
+  through a `FileProvider` with a temporary grant, and says the copy leaves Zekke's protection. **Open
+  with has a tension, awaiting the owner**: leaving the app locks it, and the other app may read the
+  file after that, so the copy is swept at the **next start** rather than at the lock, and sits on the
+  phone until then. Also fixed: while what the account keeps in the Trash is unknown, nothing is offered
+  for deletion (it said *permanent* before), and an unfinished upload is discarded, not deleted. On the
+  emulator against the local API (40 checks): a two-page PDF shows its two pages, exactly one temporary
+  file exists while it is open and none after closing or after leaving the app; an image opens without
+  error; the saved text file is byte for byte the uploaded one (sha256); the shared copy exists while the
+  chooser is open and is gone at the next start. Screenshots are blocked by `FLAG_SECURE`, so the pages'
+  pixels are not checked.
 - [x] **A5.7 Rename, move, delete and the Trash.**
   **Done 2026-10-15**: new folders (depth-checked), rename of files (the web's name rules and the
   extension note) and folders, move of a file or a folder (never into itself), delete to the Trash or

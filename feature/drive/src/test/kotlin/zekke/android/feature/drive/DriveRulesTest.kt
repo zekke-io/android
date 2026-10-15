@@ -65,4 +65,15 @@ class DriveRulesTest {
         assertEquals(0, daysLeft("2026-09-14T12:00:00Z", 30, now))
         assertEquals(0, daysLeft("not a date", 30, now))
     }
+
+    @Test
+    fun onlyImagesAndPdfsPreviewInTheApp() {
+        assertEquals(PreviewKind.Pdf, previewKindOf("application/pdf"))
+        assertEquals(PreviewKind.Image, previewKindOf("image/jpeg"))
+        assertEquals(PreviewKind.Image, previewKindOf("IMAGE/HEIC; charset=x"))
+        assertEquals(PreviewKind.None, previewKindOf("image/svg+xml"))
+        assertEquals(PreviewKind.None, previewKindOf("video/mp4"))
+        assertEquals(PreviewKind.None, previewKindOf("text/plain"))
+        assertEquals(PreviewKind.None, previewKindOf(null))
+    }
 }

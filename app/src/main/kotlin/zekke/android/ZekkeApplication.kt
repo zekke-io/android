@@ -7,6 +7,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import zekke.android.clients.ClientPolicyMonitor
 import zekke.android.di.coreModule
+import zekke.android.items.PlaintextFiles
 import zekke.android.platform.platformModule
 import zekke.android.session.SessionGuard
 import zekke.android.session.registerScreenOffLock
@@ -25,6 +26,10 @@ class ZekkeApplication : Application() {
         val sync = get<SyncService>()
         sync.start()
         ProcessLifecycleOwner.get().lifecycle.addObserver(sync)
+        val plaintext = get<PlaintextFiles>()
+        plaintext.sweepEverything()
+        guard.onBeforeLock(plaintext::sweepPreviews)
+        guard.onLocked(plaintext::sweepPreviews)
         registerScreenOffLock(this, guard)
     }
 }

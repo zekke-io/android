@@ -39,6 +39,7 @@ import zekke.android.feature.passwords.PasswordsServices
 import zekke.android.feature.drive.DriveServices
 import zekke.android.feature.notes.NotesServices
 import zekke.android.items.CoreDriveServices
+import zekke.android.items.PlaintextFiles
 import zekke.android.platform.FileSealedObjectCache
 import zekke.core.files.SealedObjectCache
 import java.io.File
@@ -86,7 +87,8 @@ val coreModule = module {
     single { ItemCalls(get(), get()) }
     single { FileSealedObjectCache(File(androidContext().cacheDir, "sealed-objects")) }
     factory<SealedObjectCache> { get<FileSealedObjectCache>() }
-    factory<DriveServices> { CoreDriveServices(get(), get(), get(), get(), get()) }
+    single { PlaintextFiles(androidContext()) }
+    factory<DriveServices> { CoreDriveServices(get(), get(), get(), get(), get(), get(), get()) }
     factory<NotesServices> { CoreNotesServices(get(), get(), get(), get(), get(APP_SCOPE)) }
     factory(named("notes-tabs")) { CoreFolderTabsServices(ManifestScope.NOTES, get(), get(), get()) }
     factory<VaultServices> { CoreVaultServices(get(), get(), get()) }

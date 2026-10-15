@@ -1,5 +1,8 @@
 package zekke.android.feature.drive
 
+import android.net.Uri
+import java.io.ByteArrayOutputStream
+import java.io.File
 import kotlinx.coroutines.flow.MutableSharedFlow
 import zekke.android.ui.components.ItemFailure
 import zekke.core.files.StorageUsage
@@ -31,6 +34,7 @@ class FakeDriveServices(override var canDelete: Boolean = true) : DriveServices 
     var loadFailure: ItemFailure? = null
     var usage = StorageUsage(usedBytes = 3_000, storedBytes = 2_000, quotaBytes = 10_000)
     var retentionDays = 30
+    var usageFailure: ItemFailure? = null
     var trashEntries: List<TrashEntry> = emptyList()
     var result: DriveWrite = DriveWrite.Done
     val calls = mutableListOf<String>()
@@ -39,7 +43,7 @@ class FakeDriveServices(override var canDelete: Boolean = true) : DriveServices 
 
     override suspend fun load(): DriveLoad = loadFailure?.let { DriveLoad.Failed(it) } ?: DriveLoad.Loaded(files, folders, synced)
 
-    override suspend fun usage(): UsageLoad = UsageLoad.Loaded(usage, retentionDays)
+    override suspend fun usage(): UsageLoad = usageFailure?.let { UsageLoad.Failed(it) } ?: UsageLoad.Loaded(usage, retentionDays)
 
     override suspend fun thumbnail(thumbnailId: String): ByteArray? {
         thumbnailsAsked += thumbnailId
@@ -58,7 +62,48 @@ class FakeDriveServices(override var canDelete: Boolean = true) : DriveServices 
 
     override suspend fun deleteFiles(ids: List<String>): DriveWrite = record("deleteFiles:${ids.joinToString(",")}")
 
+    override suspend fun discardUpload(id: String): DriveWrite = record("discard:$id")
+
     override suspend fun deleteFolder(id: String): DriveWrite = record("deleteFolder:$id")
+
+    var previewResult: PreviewLoad = PreviewLoad.Image(byteArrayOf(1))
+    val previewed = mutableListOf<String>()
+    val discardedPreviews = mutableListOf<File>()
+    var saveResult: DriveWrite = DriveWrite.Done
+    val saved = ByteArrayOutputStream()
+    var discardedTargets = 0
+    var shareResult: ShareLoad? = null
+    var screens = 0
+    var screensReturned = 0
+
+    override suspend fun preview(file: DriveEntry): PreviewLoad {
+        previewed += file.id
+        return previewResult
+    }
+
+    override fun discardPreview(file: File) {
+        discardedPreviews += file
+    }
+
+    override suspend fun saveTo(id: String, target: ExportTarget): DriveWrite {
+        calls += "save:$id"
+        target.open().use { it.write(byteArrayOf(9, 9)) }
+        if (saveResult is DriveWrite.Failed) target.discard()
+        return saveResult
+    }
+
+    override suspend fun shareFile(id: String): ShareLoad {
+        calls += "share:$id"
+        return shareResult ?: ShareLoad.Failed(ItemFailure.Failed)
+    }
+
+    override fun systemScreenWillOpen() {
+        screens++
+    }
+
+    override fun systemScreenReturned() {
+        screensReturned++
+    }
 
     override suspend fun trash(): TrashLoad = TrashLoad.Loaded(trashEntries)
 

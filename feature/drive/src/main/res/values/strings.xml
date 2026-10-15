@@ -42,6 +42,10 @@
     <string name="drive_action_move">Move to…</string>
     <string name="drive_action_open">Open folder</string>
     <string name="drive_action_delete">Delete</string>
+    <string name="drive_action_discard">Discard upload</string>
+    <string name="drive_retention_unknown">Checking what your account keeps in the Trash. Try again in a moment.</string>
+    <string name="drive_discard_title">Discard this upload?</string>
+    <string name="drive_discard_message">Discarding %1$s throws away an upload that never finished. Nothing was stored, so there is nothing to restore — and the space it was holding comes back at once.</string>
 
     <string name="drive_name_new_folder">New folder</string>
     <string name="drive_name_rename_folder">Rename folder</string>
@@ -111,4 +115,16 @@
     <string name="trash_purge_warning">This cannot be undone. Only this account holds the keys, so nobody — including Zekke — can bring it back.</string>
     <string name="trash_full_device_only">Only a full device can delete from the Trash for good.</string>
     <string name="trash_unnamed">Unreadable item</string>
+    <string name="drive_action_preview">Preview</string>
+    <string name="drive_action_save">Save to device</string>
+    <string name="drive_action_open_with">Open with…</string>
+    <string name="drive_export_warning">The copy you save or open with another app leaves Zekke\'s protection: it is not encrypted, and anyone who can open the place it goes to can read it.</string>
+    <string name="drive_saved">%1$s was saved. That copy is no longer protected by Zekke.</string>
+    <string name="viewer_close">Close preview</string>
+    <string name="viewer_loading">Opening the file…</string>
+    <string name="viewer_too_large">This image is too large to preview here. Save it to your phone or open it with another app.</string>
+    <string name="viewer_unreadable">This image could not be shown. Save it to your phone or open it with another app.</string>
+    <string name="viewer_pdf_unreadable">This PDF could not be shown. Save it to your phone or open it with another app.</string>
+    <string name="viewer_page">Page %1$d of %2$d</string>
+    <string name="viewer_image">%1$s</string>
 </resources>

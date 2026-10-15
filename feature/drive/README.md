@@ -17,9 +17,16 @@ delete and the Trash. The module reaches the core only through `DriveServices`, 
 | Rename | A file's name must be 1 to 255 characters with no `/`, `\` or control character, and says when the extension changes (*The file stays a JPG file. Changing the name does not convert it.*); only the sealed manifest changes, the file's key stays |
 | Move | A sheet of the folders as an indented list; a folder cannot go into itself or its own descendants, nothing offers the place the item already is |
 | Delete | Only on a **full device**, after the web app's question: to the Trash when the account keeps deleted files (for its `retention_days`), permanent when it does not |
+| Open | Preview, Save to device and Open with… on a finished file; an unfinished one can only be discarded, on any device |
 | Trash | What is waiting, newest first, with the days left; *Restore* (one, or everything), *Delete for good* and *Empty the Trash* only on a full device, after the web app's warning. A restore puts things back where they were, or at the top if their folder is gone |
 
-Not here yet: opening a file (A5.6) and uploading (A5.2 to A5.4). Selecting several files at once is not built.
+Not here yet: uploading (A5.2 to A5.4). Selecting several files at once is not built.
+
+## Opening a file
+
+A tap on a file opens its sheet. *Preview* opens an **image** (JPEG, PNG, GIF, WebP, AVIF, BMP, HEIC, up to 48 MiB) from memory, decoded at most 2048 px on the longest edge with the orientation applied, or a **PDF**, which is decrypted into a temporary file under the app's no-backup directory that `PdfRenderer` reads page by page. That file is **the one place the app writes plaintext on its own initiative**: it is deleted when the preview closes, when the ViewModel ends, before every lock and at every process start. Other kinds have no in-app preview.
+
+*Save to device* streams the decrypted file into a document made with the system picker (the picker counts as the app staying), and deletes the document if the transfer fails. *Open with…* writes one copy under `noBackupFilesDir/shared` and hands the other app a `FileProvider` URI with a temporary read grant. **Both say the copy leaves Zekke's protection.** Because leaving the app locks it, the shared copy is deleted at the next process start, not at the lock: the other app may need it after the lock.
 
 ## What `DriveServices` promises
 
@@ -27,6 +34,7 @@ Not here yet: opening a file (A5.6) and uploading (A5.2 to A5.4). Selecting seve
 | --- | --- |
 | `load()` | The live files and folders from the replica (`driveView`, `treeFoldersFromReplica`), whether the scope has finished its first pull, and the sealed-object cache pruned against the listing |
 | `usage()` | `GET /files/usage` and the account's `retention_days` |
+| `preview(file)`, `saveTo(id, target)`, `shareFile(id)` | The image's bytes or the temporary PDF; the decrypted file streamed into an output stream, or into a shared copy whose URI is returned. Each runs to its end even when the app leaves the foreground |
 | `thumbnail(id)` | The thumbnail's bytes through the core's `openPreview` and the on-disk **ciphertext** cache; `null` on any failure |
 | Writes | Each runs to its end even when the app leaves the foreground, and says why it failed in `ItemFailure`'s words |
 

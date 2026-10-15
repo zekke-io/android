@@ -3,7 +3,19 @@ package zekke.android.items
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import java.io.File
+import java.io.FileOutputStream
 import zekke.android.feature.drive.DriveEntry
+import zekke.android.feature.drive.ExportTarget
+import zekke.android.feature.drive.MAX_IMAGE_PREVIEW_BYTES
+import zekke.android.feature.drive.PreviewKind
+import zekke.android.feature.drive.PreviewLoad
+import zekke.android.feature.drive.ShareLoad
+import zekke.android.feature.drive.previewKindOf
+import zekke.android.session.SessionGuard
+import zekke.core.files.downloadBytes
+import zekke.core.files.downloadFile
+import zekke.core.files.openFile
 import zekke.android.feature.drive.DriveLoad
 import zekke.android.feature.drive.DriveServices
 import zekke.android.feature.drive.DriveWrite
@@ -15,7 +27,9 @@ import zekke.core.feed.FeedScope
 import zekke.core.feed.ItemTypes
 import zekke.core.files.DriveFile
 import zekke.core.files.ObjectStore
+import zekke.core.files.PlaintextSink
 import zekke.core.files.SealedObjectCache
+import zekke.core.files.abandonUpload
 import zekke.core.files.deleteFiles
 import zekke.core.files.driveView
 import zekke.core.files.fileRecords
@@ -42,6 +56,8 @@ class CoreDriveServices(
     private val context: ItemContext,
     private val store: ObjectStore,
     private val cache: SealedObjectCache,
+    private val plaintext: PlaintextFiles,
+    private val guard: SessionGuard,
 ) : DriveServices {
     override val canDelete: Boolean get() = context.session.isFullDevice
 
@@ -83,7 +99,70 @@ class CoreDriveServices(
 
     override suspend fun deleteFiles(ids: List<String>): DriveWrite = written { deleteFiles(context, ids) }
 
+    override suspend fun discardUpload(id: String): DriveWrite = written { abandonUpload(context, id) }
+
     override suspend fun deleteFolder(id: String): DriveWrite = written { deleteTreeFolder(context, TreeScope.FILES, id) }
+
+    override suspend fun preview(file: DriveEntry): PreviewLoad = when (previewKindOf(file.mime)) {
+        PreviewKind.None -> PreviewLoad.Failed(ItemFailure.Failed)
+        PreviewKind.Image -> if (file.sizeBytes > MAX_IMAGE_PREVIEW_BYTES) {
+            PreviewLoad.TooLarge
+        } else {
+            calls.read { downloadBytes(context, file.id, store, MAX_IMAGE_PREVIEW_BYTES).bytes }
+                .fold({ PreviewLoad.Image(it) }, { PreviewLoad.Failed(it) })
+        }
+        PreviewKind.Pdf -> {
+            val target = plaintext.newPreview()
+            calls.read {
+                FileOutputStream(target).use { out ->
+                    downloadFile(context, file.id, store, PlaintextSink { bytes, offset, length -> out.write(bytes, offset, length) })
+                }
+            }.fold(
+                { PreviewLoad.Pdf(target) },
+                {
+                    plaintext.discard(target)
+                    PreviewLoad.Failed(it)
+                },
+            )
+        }
+    }
+
+    override fun discardPreview(file: File) = plaintext.discard(file)
+
+    override suspend fun saveTo(id: String, target: ExportTarget): DriveWrite {
+        val result = calls.write {
+            target.open().use { out -> downloadFile(context, id, store, PlaintextSink { bytes, offset, length -> out.write(bytes, offset, length) }) }
+        }
+        return result.fold(
+            { DriveWrite.Done },
+            {
+                target.discard()
+                DriveWrite.Failed(it)
+            },
+        )
+    }
+
+    override suspend fun shareFile(id: String): ShareLoad {
+        var file: File? = null
+        val result = calls.write {
+            val manifest = openFile(context, id).use { it.manifest }
+            val target = plaintext.newShared(manifest.name)
+            file = target
+            FileOutputStream(target).use { out -> downloadFile(context, id, store, PlaintextSink { bytes, offset, length -> out.write(bytes, offset, length) }) }
+            plaintext.uriOf(target).toString() to manifest.mime
+        }
+        return result.fold(
+            { (uri, mime) -> ShareLoad.Ready(uri, mime) },
+            {
+                file?.let(plaintext::discard)
+                ShareLoad.Failed(it)
+            },
+        )
+    }
+
+    override fun systemScreenWillOpen() = guard.pickerWillOpen()
+
+    override fun systemScreenReturned() = guard.pickerReturned()
 
     override suspend fun trash(): TrashLoad = calls.read { listFileTrash(context) }.fold({ TrashLoad.Loaded(it) }, { TrashLoad.Failed(it) })
 

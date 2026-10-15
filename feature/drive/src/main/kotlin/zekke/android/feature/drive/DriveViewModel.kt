@@ -24,6 +24,20 @@ sealed interface DriveItem {
     data class OfFolder(val folder: TreeFolder) : DriveItem
 }
 
+sealed interface Viewing {
+    val entry: DriveEntry
+
+    data class Loading(override val entry: DriveEntry) : Viewing
+
+    class Image(override val entry: DriveEntry, val bytes: ByteArray) : Viewing
+
+    class Pdf(override val entry: DriveEntry, val file: java.io.File) : Viewing
+
+    data class TooLarge(override val entry: DriveEntry) : Viewing
+
+    data class Failed(override val entry: DriveEntry, val failure: ItemFailure) : Viewing
+}
+
 sealed interface DriveNaming {
     val name: String
 
@@ -58,7 +72,7 @@ data class DriveState(
     val files: List<DriveEntry> = emptyList(),
     val folders: List<TreeFolder> = emptyList(),
     val usage: StorageUsage? = null,
-    val retentionDays: Int = 0,
+    val retentionDays: Int? = null,
     val folderId: String? = null,
     val grid: Boolean = true,
     val failure: ItemFailure? = null,
@@ -72,6 +86,9 @@ data class DriveState(
     val confirmingPurge: List<TrashEntry>? = null,
     val thumbnails: Map<String, ByteArray> = emptyMap(),
     val canDelete: Boolean = false,
+    val viewing: Viewing? = null,
+    val saved: String? = null,
+    val share: ShareLoad.Ready? = null,
 ) {
     val path: List<TreeFolder> get() = pathTo(folders, folderId)
 
@@ -129,6 +146,79 @@ class DriveViewModel(private val services: DriveServices) : ViewModel() {
     } catch (_: Exception) {
         UsageLoad.Failed(ItemFailure.Failed)
     }
+
+    override fun onCleared() {
+        (mutableState.value.viewing as? Viewing.Pdf)?.let { services.discardPreview(it.file) }
+    }
+
+    fun preview(entry: DriveEntry) {
+        if (previewKindOf(entry.mime) == PreviewKind.None || !entry.readable || entry.r2State != "ok") return
+        mutableState.update { it.copy(viewing = Viewing.Loading(entry), acting = null) }
+        viewModelScope.launch {
+            val result = try {
+                services.preview(entry)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                PreviewLoad.Failed(ItemFailure.Failed)
+            }
+            mutableState.update { state ->
+                if ((state.viewing as? Viewing.Loading)?.entry?.id != entry.id) {
+                    (result as? PreviewLoad.Pdf)?.let { services.discardPreview(it.file) }
+                    state
+                } else {
+                    state.copy(
+                        viewing = when (result) {
+                            is PreviewLoad.Image -> Viewing.Image(entry, result.bytes)
+                            is PreviewLoad.Pdf -> Viewing.Pdf(entry, result.file)
+                            PreviewLoad.TooLarge -> Viewing.TooLarge(entry)
+                            is PreviewLoad.Failed -> Viewing.Failed(entry, result.failure)
+                        },
+                    )
+                }
+            }
+        }
+    }
+
+    fun closePreview() {
+        val viewing = mutableState.value.viewing
+        (viewing as? Viewing.Pdf)?.let { services.discardPreview(it.file) }
+        mutableState.update { it.copy(viewing = null) }
+    }
+
+    fun saveTo(entry: DriveEntry, target: ExportTarget) {
+        if (mutableState.value.busy) return
+        mutableState.update { it.copy(acting = null, saved = null) }
+        viewModelScope.launch {
+            if (write { services.saveTo(entry.id, target) }) mutableState.update { it.copy(saved = entry.name) }
+        }
+    }
+
+    fun dismissSaved() = mutableState.update { it.copy(saved = null) }
+
+    fun shareFile(entry: DriveEntry) {
+        if (mutableState.value.busy || !entry.readable || entry.r2State != "ok") return
+        mutableState.update { it.copy(acting = null, saved = null, busy = true, failure = null) }
+        viewModelScope.launch {
+            val result = try {
+                services.shareFile(entry.id)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                ShareLoad.Failed(ItemFailure.Failed)
+            }
+            when (result) {
+                is ShareLoad.Ready -> mutableState.update { it.copy(busy = false, share = result) }
+                is ShareLoad.Failed -> mutableState.update { it.copy(busy = false, failure = result.failure) }
+            }
+        }
+    }
+
+    fun shareHandled() = mutableState.update { it.copy(share = null) }
+
+    fun systemScreenWillOpen() = services.systemScreenWillOpen()
+
+    fun systemScreenReturned() = services.systemScreenReturned()
 
     fun dismissFailure() = mutableState.update { it.copy(failure = null) }
 
@@ -261,8 +351,19 @@ class DriveViewModel(private val services: DriveServices) : ViewModel() {
         }
     }
 
+    fun canDeleteItem(item: DriveItem): Boolean {
+        val state = mutableState.value
+        return when {
+            item is DriveItem.OfFile && item.file.isUnfinished -> true
+            else -> state.canDelete && state.retentionDays != null
+        }
+    }
+
     fun askDelete(item: DriveItem) {
-        if (!mutableState.value.canDelete) return
+        if (!canDeleteItem(item)) {
+            if (mutableState.value.retentionDays == null) refresh()
+            return
+        }
         mutableState.update { it.copy(deleting = item, acting = null) }
     }
 
@@ -274,7 +375,7 @@ class DriveViewModel(private val services: DriveServices) : ViewModel() {
         viewModelScope.launch {
             write {
                 when (deleting) {
-                    is DriveItem.OfFile -> services.deleteFiles(listOf(deleting.file.id))
+                    is DriveItem.OfFile -> if (deleting.file.isUnfinished) services.discardUpload(deleting.file.id) else services.deleteFiles(listOf(deleting.file.id))
                     is DriveItem.OfFolder -> services.deleteFolder(deleting.folder.id)
                 }
             }

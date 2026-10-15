@@ -253,6 +253,33 @@ class DriveViewModelTest {
     }
 
     @Test
+    fun whileWhatTheAccountKeepsIsUnknownNothingIsOfferedForDeletion() {
+        services.usageFailure = ItemFailure.Offline
+        val model = model()
+        assertNull(model.now.retentionDays)
+        assertFalse(model.canDeleteItem(DriveItem.OfFile(services.files[0])))
+        model.askDelete(DriveItem.OfFile(services.files[0]))
+        assertNull(model.now.deleting)
+        services.usageFailure = null
+        model.refresh()
+        assertEquals(30, model.now.retentionDays)
+        assertTrue(model.canDeleteItem(DriveItem.OfFile(services.files[0])))
+    }
+
+    @Test
+    fun anUnfinishedUploadIsDiscardedNotDeletedAndOnAnyDevice() {
+        val limited = FakeDriveServices(canDelete = false)
+        limited.files = listOf(entry("p", "half.bin", r2State = "pending"), entry("q"))
+        limited.usageFailure = ItemFailure.Offline
+        val model = model(limited)
+        assertTrue(model.canDeleteItem(DriveItem.OfFile(limited.files[0])))
+        assertFalse(model.canDeleteItem(DriveItem.OfFile(limited.files[1])))
+        model.askDelete(DriveItem.OfFile(limited.files[0]))
+        model.confirmDelete()
+        assertEquals(listOf("discard:p"), limited.calls)
+    }
+
+    @Test
     fun theTrashListsRestoresAndPurgesWithConfirmation() {
         services.trashEntries = listOf(trashed("t1"), trashed("t2", kind = TrashKind.FOLDER))
         val model = model()
@@ -281,5 +308,115 @@ class DriveViewModelTest {
         model.showTrash()
         model.askPurge(model.now.trash!!)
         assertNull(model.now.confirmingPurge)
+    }
+
+    private fun photo(id: String = "p1", size: Long = 1000) =
+        DriveEntry(id, "photo.jpg", "image/jpeg", size, null, null, "ok", "ok")
+
+    private fun pdf(id: String = "d1") = DriveEntry(id, "paper.pdf", "application/pdf", 5000, null, null, "ok", "ok")
+
+    @Test
+    fun anImageOpensFromMemory() {
+        val model = model()
+        model.preview(photo())
+        val viewing = model.now.viewing as Viewing.Image
+        assertEquals("p1", viewing.entry.id)
+        assertEquals(listOf("p1"), services.previewed)
+        model.closePreview()
+        assertNull(model.now.viewing)
+    }
+
+    @Test
+    fun aPdfOpensFromATemporaryFileThatIsDeletedOnClose() {
+        val file = java.io.File("preview.pdf")
+        services.previewResult = PreviewLoad.Pdf(file)
+        val model = model()
+        model.preview(pdf())
+        assertEquals(file, (model.now.viewing as Viewing.Pdf).file)
+        assertTrue(services.discardedPreviews.isEmpty())
+        model.closePreview()
+        assertEquals(listOf(file), services.discardedPreviews)
+        assertNull(model.now.viewing)
+    }
+
+    @Test
+    fun thePdfFileIsDeletedWhenTheViewModelEnds() {
+        val file = java.io.File("preview.pdf")
+        services.previewResult = PreviewLoad.Pdf(file)
+        val model = model()
+        model.preview(pdf())
+        store.clear()
+        assertEquals(listOf(file), services.discardedPreviews)
+    }
+
+    @Test
+    fun aTooLargeImageAndAFailureAreShownNotCrashed() {
+        val model = model()
+        services.previewResult = PreviewLoad.TooLarge
+        model.preview(photo(size = 99_000_000))
+        assertTrue(model.now.viewing is Viewing.TooLarge)
+        model.closePreview()
+        services.previewResult = PreviewLoad.Failed(ItemFailure.Offline)
+        model.preview(photo())
+        assertEquals(ItemFailure.Offline, (model.now.viewing as Viewing.Failed).failure)
+    }
+
+    @Test
+    fun onlyReadableFinishedImagesAndPdfsPreview() {
+        val model = model()
+        model.preview(entry("t"))
+        model.preview(photo().copy(name = null))
+        model.preview(photo().copy(r2State = "pending"))
+        assertNull(model.now.viewing)
+        assertTrue(services.previewed.isEmpty())
+    }
+
+    @Test
+    fun savingWritesThroughTheTargetAndSaysTheCopyIsUnprotected() {
+        val model = model()
+        val output = java.io.ByteArrayOutputStream()
+        var discarded = false
+        model.saveTo(photo(), ExportTarget({ output }, { discarded = true }))
+        assertEquals(listOf("save:p1"), services.calls)
+        assertEquals(listOf<Byte>(9, 9), output.toByteArray().toList())
+        assertEquals("photo.jpg", model.now.saved)
+        assertFalse(discarded)
+        model.dismissSaved()
+        assertNull(model.now.saved)
+    }
+
+    @Test
+    fun aFailedSaveDeletesWhatWasWrittenAndSaysWhy() {
+        val model = model()
+        services.saveResult = DriveWrite.Failed(ItemFailure.Offline)
+        var discarded = false
+        model.saveTo(photo(), ExportTarget({ java.io.ByteArrayOutputStream() }, { discarded = true }))
+        assertTrue(discarded)
+        assertNull(model.now.saved)
+        assertEquals(ItemFailure.Offline, model.now.failure)
+    }
+
+    @Test
+    fun sharingHandsTheUriToTheScreenOnceAndTheSystemScreenIsMarked() {
+        val model = model()
+        services.shareResult = ShareLoad.Ready("content://zekke.shared/shared/x/photo.jpg", "image/jpeg")
+        model.shareFile(photo())
+        assertTrue(model.now.share != null)
+        assertEquals(listOf("share:p1"), services.calls)
+        model.shareHandled()
+        assertNull(model.now.share)
+        model.systemScreenWillOpen()
+        model.systemScreenReturned()
+        assertEquals(1, services.screens)
+        assertEquals(1, services.screensReturned)
+    }
+
+    @Test
+    fun aFailedShareIsShown() {
+        val model = model()
+        services.shareResult = ShareLoad.Failed(ItemFailure.RateLimited(5))
+        model.shareFile(photo())
+        assertNull(model.now.share)
+        assertEquals(ItemFailure.RateLimited(5), model.now.failure)
     }
 }

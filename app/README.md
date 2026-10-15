@@ -67,6 +67,10 @@ prune).
 (leaving the app, the screen turning off, *Lock*): Notes uses it to seal an unsaved draft into the
 outbox and hold the process until the outbox has been sent.
 
+## Plaintext on disk — `PlaintextFiles`
+
+The two places the app writes plaintext by itself, both under `noBackupFilesDir`: `previews/` (the PDF a preview reads, deleted on close, before every lock and at every start) and `shared/` (the copy *Open with…* hands to another app through the `FileProvider`, whose only exposed path is `shared/`, deleted at the next start because the other app may read it after the lock). Nothing else leaves a decrypted file.
+
 ## Leaving the account
 
 | Event | Replica | Outbox |

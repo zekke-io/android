@@ -31,6 +31,7 @@ dependencies {
     implementation(libs.mobile.base)
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.activity.compose)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

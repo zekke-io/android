@@ -1,5 +1,10 @@
 package zekke.android.feature.drive
 
+import android.content.ClipData
+import android.content.Intent
+import android.provider.DocumentsContract
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.core.net.toUri
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +36,7 @@ import zekke.android.ui.theme.Zekke
 @Composable
 fun DriveSheets(state: DriveState, viewModel: DriveViewModel) {
     ActionSheet(state, viewModel)
+    ShareEffect(state, viewModel)
     NamingSheet(state, viewModel)
     MoveSheet(state, viewModel)
     DeleteDialog(state, viewModel)
@@ -36,29 +45,104 @@ fun DriveSheets(state: DriveState, viewModel: DriveViewModel) {
 @Composable
 private fun ActionSheet(state: DriveState, viewModel: DriveViewModel) {
     val item = state.acting ?: return
+    val context = LocalContext.current
+    var saving by remember { mutableStateOf<DriveEntry?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri ->
+        viewModel.systemScreenReturned()
+        val entry = saving
+        saving = null
+        if (uri != null && entry != null) {
+            val resolver = context.contentResolver
+            viewModel.saveTo(
+                entry,
+                ExportTarget(
+                    open = { resolver.openOutputStream(uri, "w") ?: error("the document cannot be written") },
+                    discard = { runCatching { DocumentsContract.deleteDocument(resolver, uri) } },
+                ),
+            )
+        } else {
+            viewModel.stopActing()
+        }
+    }
     val title = when (item) {
         is DriveItem.OfFile -> item.file.name ?: stringResource(R.string.drive_unreadable_file)
         is DriveItem.OfFolder -> item.folder.name ?: stringResource(R.string.drive_unreadable_folder)
     }
+    val openable = item is DriveItem.OfFile && item.file.readable && item.file.r2State == "ok"
+    val previewable = item is DriveItem.OfFile && openable && previewKindOf(item.file.mime) != PreviewKind.None
     FormSheet(
         title = title,
-        submitLabel = stringResource(if (item is DriveItem.OfFolder) R.string.drive_action_open else R.string.drive_action_rename),
+        submitLabel = stringResource(
+            when {
+                item is DriveItem.OfFolder -> R.string.drive_action_open
+                previewable -> R.string.drive_action_preview
+                else -> R.string.drive_action_open_with
+            },
+        ),
         onSubmit = {
             when (item) {
                 is DriveItem.OfFolder -> viewModel.openFolder(item.folder.id)
-                is DriveItem.OfFile -> viewModel.startRename(item)
+                is DriveItem.OfFile -> if (previewable) viewModel.preview(item.file) else viewModel.shareFile(item.file)
             }
         },
         onDismiss = viewModel::stopActing,
-        canSubmit = item !is DriveItem.OfFile || item.file.readable,
+        canSubmit = item is DriveItem.OfFolder || openable,
     ) {
-        if (item is DriveItem.OfFolder) {
-            ZekkeButton(stringResource(R.string.drive_action_rename), { viewModel.startRename(item) }, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
+        if (item is DriveItem.OfFile && openable) {
+            ZekkeButton(
+                stringResource(R.string.drive_action_save),
+                {
+                    saving = item.file
+                    viewModel.systemScreenWillOpen()
+                    launcher.launch(item.file.name ?: "file")
+                },
+                Modifier.fillMaxWidth(),
+                ButtonVariant.Secondary,
+            )
+            if (previewable) {
+                ZekkeButton(stringResource(R.string.drive_action_open_with), { viewModel.shareFile(item.file) }, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
+            }
+            Text(stringResource(R.string.drive_export_warning), style = MaterialTheme.typography.bodySmall, color = Zekke.palette.inkMuted)
         }
+        ZekkeButton(stringResource(R.string.drive_action_rename), { viewModel.startRename(item) }, Modifier.fillMaxWidth(), ButtonVariant.Secondary, enabled = item !is DriveItem.OfFile || item.file.readable)
         ZekkeButton(stringResource(R.string.drive_action_move), { viewModel.askMove(item) }, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
-        if (state.canDelete) {
-            ZekkeButton(stringResource(R.string.drive_action_delete), { viewModel.askDelete(item) }, Modifier.fillMaxWidth(), ButtonVariant.Danger)
+        if (viewModel.canDeleteItem(item) || (state.canDelete && state.retentionDays == null)) {
+            ZekkeButton(
+                stringResource(if (item is DriveItem.OfFile && item.file.isUnfinished) R.string.drive_action_discard else R.string.drive_action_delete),
+                { viewModel.askDelete(item) },
+                Modifier.fillMaxWidth(),
+                ButtonVariant.Danger,
+                enabled = viewModel.canDeleteItem(item),
+            )
+            if (state.canDelete && state.retentionDays == null && !(item is DriveItem.OfFile && item.file.isUnfinished)) {
+                Text(stringResource(R.string.drive_retention_unknown), style = MaterialTheme.typography.bodySmall, color = Zekke.palette.inkMuted)
+            }
         }
+    }
+}
+
+@Composable
+fun ShareEffect(state: DriveState, viewModel: DriveViewModel) {
+    val ready = state.share ?: return
+    val context = LocalContext.current
+    LaunchedEffect(ready) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            val uri = ready.uri.toUri()
+            setDataAndType(uri, ready.mime)
+            clipData = ClipData.newRawUri(null, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = Intent.createChooser(intent, null).apply {
+            clipData = intent.clipData
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        viewModel.systemScreenWillOpen()
+        try {
+            context.startActivity(chooser)
+        } catch (_: Exception) {
+            viewModel.systemScreenReturned()
+        }
+        viewModel.shareHandled()
     }
 }
 
@@ -158,9 +242,12 @@ private fun MoveSheet(state: DriveState, viewModel: DriveViewModel) {
 @Composable
 private fun DeleteDialog(state: DriveState, viewModel: DriveViewModel) {
     val item = state.deleting ?: return
-    val days = state.retentionDays
+    val days = state.retentionDays ?: 0
+    val unfinished = item is DriveItem.OfFile && item.file.isUnfinished
     val message = when (item) {
-        is DriveItem.OfFile -> {
+        is DriveItem.OfFile -> if (unfinished) {
+            stringResource(R.string.drive_discard_message, item.file.name?.let { shortFileName(it) } ?: stringResource(R.string.drive_unreadable_file))
+        } else {
             val name = item.file.name?.let { shortFileName(it) } ?: stringResource(R.string.drive_unreadable_file)
             if (days > 0) stringResource(R.string.drive_delete_file_trash, name, pluralStringResource(R.plurals.drive_days, days, days))
             else stringResource(R.string.drive_delete_file_permanent, name)
@@ -173,11 +260,23 @@ private fun DeleteDialog(state: DriveState, viewModel: DriveViewModel) {
         }
     }
     ConfirmDeleteDialog(
-        title = stringResource(if (item is DriveItem.OfFile) R.string.drive_delete_file_title else R.string.drive_delete_folder_title),
+        title = stringResource(
+            when {
+                unfinished -> R.string.drive_discard_title
+                item is DriveItem.OfFile -> R.string.drive_delete_file_title
+                else -> R.string.drive_delete_folder_title
+            },
+        ),
         message = message,
         onDismiss = viewModel::cancelDelete,
         onConfirm = viewModel::confirmDelete,
-        confirmLabel = stringResource(if (days > 0) R.string.drive_delete_confirm_trash else R.string.drive_delete_confirm_permanent),
+        confirmLabel = stringResource(
+            when {
+                unfinished -> R.string.drive_action_discard
+                days > 0 -> R.string.drive_delete_confirm_trash
+                else -> R.string.drive_delete_confirm_permanent
+            },
+        ),
         busy = state.busy,
     )
 }

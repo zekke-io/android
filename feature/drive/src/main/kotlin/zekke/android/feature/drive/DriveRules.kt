@@ -64,3 +64,20 @@ fun extensionChanged(before: String, after: String): String? {
     val now = fileExtensionOf(after.trim())
     return if (was.isEmpty() || was == now) null else was
 }
+
+enum class PreviewKind { Image, Pdf, None }
+
+private val VIEWABLE_IMAGES = setOf(
+    "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/bmp", "image/heic", "image/heif", "image/x-icon", "image/vnd.microsoft.icon",
+)
+
+fun previewKindOf(mime: String?): PreviewKind {
+    val type = mime?.lowercase()?.substringBefore(';')?.trim() ?: return PreviewKind.None
+    return when {
+        type == "application/pdf" -> PreviewKind.Pdf
+        type in VIEWABLE_IMAGES -> PreviewKind.Image
+        else -> PreviewKind.None
+    }
+}
+
+const val MAX_IMAGE_PREVIEW_BYTES = 48L * 1024 * 1024

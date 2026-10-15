@@ -46,11 +46,13 @@ fun TrashPage(state: DriveState, viewModel: DriveViewModel) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(stringResource(R.string.trash_title), style = MaterialTheme.typography.titleLarge, color = palette.ink)
-        Notice(
-            if (state.retentionDays <= 0) stringResource(R.string.trash_notice_none)
-            else pluralStringResource(R.plurals.trash_notice, state.retentionDays, state.retentionDays),
-            tone = NoticeTone.Info,
-        )
+        val retention = state.retentionDays
+        if (retention != null) {
+            Notice(
+                if (retention <= 0) stringResource(R.string.trash_notice_none) else pluralStringResource(R.plurals.trash_notice, retention, retention),
+                tone = NoticeTone.Info,
+            )
+        }
         state.failure?.let { Notice(itemFailureText(it), tone = itemFailureTone(it), onDismiss = viewModel::dismissFailure) }
         ZekkeButton(stringResource(R.string.trash_back), viewModel::hideTrash, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
         when {
@@ -81,7 +83,8 @@ fun TrashPage(state: DriveState, viewModel: DriveViewModel) {
 
 @Composable
 private fun TrashRow(entry: TrashEntry, state: DriveState, viewModel: DriveViewModel) {
-    val days = if (state.retentionDays > 0) daysLeft(entry.deletedAt, state.retentionDays) else null
+    val retention = state.retentionDays
+    val days = if (retention != null && retention > 0) daysLeft(entry.deletedAt, retention) else null
     val detail = when {
         entry.kind == TrashKind.FOLDER -> stringResource(R.string.trash_folder_detail, pluralStringResource(R.plurals.drive_files, entry.itemCount ?: 0, entry.itemCount ?: 0))
         else -> stringResource(R.string.trash_detail, stringResource(R.string.trash_kind_file), entry.sizeBytes?.let { formatBytes(it) } ?: "")

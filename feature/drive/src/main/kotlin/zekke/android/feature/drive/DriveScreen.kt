@@ -34,6 +34,7 @@ import zekke.android.ui.components.FileTile
 import zekke.android.ui.components.ItemRow
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.Notice
+import zekke.android.ui.components.NoticeTone
 import zekke.android.ui.components.StorageMeter
 import zekke.android.ui.components.StorageReading
 import zekke.android.ui.components.ZekkeButton
@@ -48,7 +49,10 @@ import zekke.core.folders.TreeFolder
 
 @Composable
 fun DriveScreen(state: DriveState, viewModel: DriveViewModel) {
-    if (state.showingTrash) {
+    val viewing = state.viewing
+    if (viewing != null) {
+        ViewerPage(viewing, viewModel)
+    } else if (state.showingTrash) {
         TrashPage(state, viewModel)
     } else {
         DriveBrowser(state, viewModel)
@@ -61,6 +65,7 @@ private fun Header(state: DriveState, viewModel: DriveViewModel) {
     val palette = Zekke.palette
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         state.failure?.let { Notice(itemFailureText(it), tone = itemFailureTone(it), onDismiss = viewModel::dismissFailure) }
+        state.saved?.let { Notice(stringResource(R.string.drive_saved, it), tone = NoticeTone.Warning, onDismiss = viewModel::dismissSaved) }
         state.usage?.let { usage ->
             StorageMeter(StorageReading(usage.storedBytes, usage.usedBytes, usage.quotaBytes))
             val held = usage.usedBytes - usage.storedBytes
