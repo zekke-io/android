@@ -22,6 +22,7 @@ import zekke.core.session.SessionState
 class CoreUnlockServices(
     private val accountServices: AccountServices,
     private val guard: SessionGuard,
+    private val onLeaving: (includeOutbox: Boolean) -> Unit = {},
 ) : UnlockServices {
     override suspend fun unlock(pin: CharArray): UnlockAttempt {
         val lockVersion = guard.lockVersion
@@ -45,6 +46,7 @@ class CoreUnlockServices(
                 accountServices.session.lock()
                 return UnlockAttempt.Interrupted
             }
+            if (outcome is UnlockOutcome.Forgotten || outcome is UnlockOutcome.Removed || outcome is UnlockOutcome.NoDevice) onLeaving(false)
             return mapUnlockOutcome(outcome)
         } finally {
             pin.fill('\u0000')
@@ -73,5 +75,6 @@ class CoreUnlockServices(
 
     override suspend fun forgetThisPhone() {
         withContext(Dispatchers.Default) { forgetThisDevice(accountServices) }
+        onLeaving(true)
     }
 }

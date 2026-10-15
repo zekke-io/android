@@ -227,21 +227,65 @@ and an `android` row in the API's `client_releases` (A8.4).
     failure after the PIN rotated leaves the person told only that it failed. Decide whether it needs
     one when Settings is built (A7.2).
 
-**Decided by default during A2, awaiting the owner's confirmation**: the scanner reads with zxing's Java
+**Decided by default during A2 and A3, awaiting the owner's confirmation**: the scanner reads with zxing's Java
 decoder (plan: zxing-cpp); it lives in `ui` (plan: `platform`) and is offered wherever the phrase is
-typed; the account's security section sits on the home screen under *Lock* until Settings exists;
+typed; the account's security section sits in Settings (it was on the home screen);
 `feature/settings` keeps its own copy of the PIN-problem wording (onboarding's is not shareable between
 feature modules) to be consolidated.
 
 ## A3 — The replica and the shell
 
-- [ ] **A3.1 The databases.** The replica and the outbox on the Android SQLite driver, in no-backup
+- [~] **A3.1 The databases.** The replica and the outbox on the Android SQLite driver, in no-backup
   storage; the core's replica and outbox tests run on the emulator.
-- [ ] **A3.2 The shell.** Passwords, Vault, Notes and Drive as tabs, Shared and Settings reached
+  **Built 2026-10-14; awaiting the owner on the wording**: `LocalDatabases` opens both on `AndroidSqliteDriver` in `noBackupFilesDir` and
+  can delete the replica alone or both (`deleteReplica`, `deleteAll`). The core's own replica and
+  outbox tests stay `jvmTest` (JDBC driver); on the emulator `LocalDatabasesTest` proves the same
+  behaviours on the Android driver: the files in no-backup storage, a replica surviving a reopen, another
+  account finding it empty, the outbox keeping its entries, and the two deletions. `CoreModuleTest`
+  opens both through Koin. A phone that leaves the account on purpose (*Remove this phone*, *I forgot
+  this phone's PIN*) loses both; one that loses its registration (forgotten, removed from another
+  device) loses only the replica, so unsent writes survive a new enrolment of the same account. The
+  task says the core's own tests run on the emulator: they still run on the JVM only, and the
+  instrumented test above stands in for them.
+- [~] **A3.2 The shell.** Passwords, Vault, Notes and Drive as tabs, Shared and Settings reached
   from them; screens draw from the replica, then catch up.
-- [ ] **A3.3 Sync.** At unlock, on returning to the foreground, after each own write, and polling
+  **Built 2026-10-14**: Home with a tile for each scope the phone holds, the section pages (their
+  title, back, *Lock*, the item count read from the replica without decrypting, the sync status) and
+  Settings (notifications, the outbox's refused changes, the account-security section, *Remove this
+  phone*). The design system's Home is a tile grid with a top bar, not tabs ("a TabView is not the
+  pattern"), so the plan's tabs are tiles: **awaiting the owner**. Missing: *Shared* (no tile until the
+  sharing screens exist), a Drive count (a thumbnail is only told from a file by decrypting the
+  manifests), and the lists themselves (A4 and A5). The Home keeps *Your account is open on this
+  phone.* and *Lock*; the account-security section and *Remove this phone* moved to Settings, where
+  A7.2 will place them.
+- [~] **A3.3 Sync.** At unlock, on returning to the foreground, after each own write, and polling
   while a screen is visible; the outbox flushed, re-wrapped at unlock, its refusals shown.
-- [ ] **A3.4 Notifications.** The in-app list, worded by kind; an unknown kind as a generic notice.
+  **Built 2026-10-14**: `SyncService` in `app`: at unlock the outbox is flushed and every held scope
+  pulled; on returning to the foreground one pull and the polling (30 seconds, doubling to 120 when
+  nothing changed); polling stops in the background and on a lock; each failure (offline, rate limited,
+  session over, failed) is kept and shown; refused outbox entries are listed in Settings with *Discard*;
+  the replica is wiped on leaving the account as in A3.1. On the emulator against the local API: a
+  secret made on the web appeared on the open Vault within one poll; one made while the phone was
+  locked appeared after the unlock; a third appeared on the open Vault without any action. Missing:
+  *after each own write* is the `syncNow()` hook, with no writer to call it until A4; the outbox's
+  re-wrap at unlock needs an entry body re-wrapped, which no core helper does and no entry exists to
+  need until A4. The stop after a lock is proven by `SyncServiceTest` and by the process ending when
+  the app leaves the foreground; the local API logs no request paths, so it is not observed on the wire.
+- [x] **A3.4 Notifications.** The in-app list, worded by kind; an unknown kind as a generic notice.
+  **Done 2026-10-14**: `feature/settings` lists the notices in the web app's words (the plan, dates in
+  the phone's locale and zone, sizes, counts, a relative age), marks the unread ones it shows as read
+  and offers *Show older*; an unknown kind is *Account notice*; a bell on Home and an entry in Settings
+  carry the unread count. The local API refuses a kind it does not know, so the generic notice is
+  proven by `NotificationCopyTest`, not on the wire. On the emulator against the local API: two notices
+  pushed through billing's route showed, worded and marked *Unread*, within one poll; reading them
+  cleared the count, and it stayed cleared after a lock and an unlock (read on the server).
+  A second pair of notices pushed later showed on a second visit, with the bell's badge and its label
+  naming the count. Tests: app 81, settings 47 (`NotificationCopyTest`, `NotificationsViewModelTest`),
+  ui 50, onboarding 40, unlock 44; instrumented `LocalDatabasesTest` 5 and `CoreModuleTest` 2; the end
+  to end script 54 checks, the A2 script (Settings now) 53, the A1.5 script 63 of 65: its two
+  failures are the old expectation that the removal call meets the 426 first, which now arrives
+  earlier (the policy block replaces the app before the person taps), so that path is covered by
+  `CoreThisPhoneServicesTest` only.
 
 ## A4 — Passwords, Vault and Notes
 

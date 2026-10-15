@@ -10,6 +10,7 @@ import zekke.android.di.coreModule
 import zekke.android.platform.platformModule
 import zekke.android.session.SessionGuard
 import zekke.android.session.registerScreenOffLock
+import zekke.android.sync.SyncService
 
 class ZekkeApplication : Application() {
     override fun onCreate() {
@@ -21,6 +22,9 @@ class ZekkeApplication : Application() {
         val guard = get<SessionGuard>()
         ProcessLifecycleOwner.get().lifecycle.addObserver(guard)
         ProcessLifecycleOwner.get().lifecycle.addObserver(get<ClientPolicyMonitor>())
+        val sync = get<SyncService>()
+        sync.start()
+        ProcessLifecycleOwner.get().lifecycle.addObserver(sync)
         registerScreenOffLock(this, guard)
     }
 }

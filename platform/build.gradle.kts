@@ -28,4 +28,5 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinx.serialization.json)
 }

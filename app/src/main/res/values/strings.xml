@@ -4,4 +4,56 @@
     <string name="home_title">Zekke</string>
     <string name="home_body">Your account is open on this phone.</string>
     <string name="home_lock">Lock</string>
+    <string name="shell_back">Back</string>
+    <string name="shell_settings">Settings</string>
+    <string name="shell_notifications">Notifications</string>
+    <string name="shell_lock_hint">Lock this phone</string>
+    <string name="section_passwords">Passwords</string>
+    <string name="section_vault">Vault</string>
+    <string name="section_notes">Notes</string>
+    <string name="section_drive">Drive</string>
+    <string name="section_passwords_description">Logins and passkeys</string>
+    <string name="section_vault_description">Secrets and recovery codes</string>
+    <string name="section_notes_description">Private notes</string>
+    <string name="section_drive_description">Encrypted files</string>
+    <plurals name="count_passwords">
+        <item quantity="one">%1$d password on this phone</item>
+        <item quantity="other">%1$d passwords on this phone</item>
+    </plurals>
+    <plurals name="count_vault">
+        <item quantity="one">%1$d secret on this phone</item>
+        <item quantity="other">%1$d secrets on this phone</item>
+    </plurals>
+    <plurals name="count_notes">
+        <item quantity="one">%1$d note on this phone</item>
+        <item quantity="other">%1$d notes on this phone</item>
+    </plurals>
+    <string name="section_drive_summary">Your files are kept encrypted and are opened from here.</string>
+    <string name="section_empty">Nothing here yet.</string>
+    <string name="sync_syncing">Updating…</string>
+    <string name="sync_up_to_date">Up to date</string>
+    <string name="sync_not_yet">Not updated yet</string>
+    <string name="sync_offline">This phone is offline. What it already holds is shown.</string>
+    <string name="sync_session_over">Your session ended. Lock this phone and unlock it again to keep it up to date.</string>
+    <string name="sync_failed">Something went wrong while updating. It will try again.</string>
+    <plurals name="outbox_waiting">
+        <item quantity="one">%1$d change is waiting to be sent.</item>
+        <item quantity="other">%1$d changes are waiting to be sent.</item>
+    </plurals>
+    <plurals name="outbox_rewrap">
+        <item quantity="one">%1$d change is waiting for the keys on this phone to catch up.</item>
+        <item quantity="other">%1$d changes are waiting for the keys on this phone to catch up.</item>
+    </plurals>
+    <string name="outbox_refused_title">Changes the server refused</string>
+    <string name="outbox_refused_summary">These changes were not saved. You can discard them.</string>
+    <string name="outbox_discard">Discard</string>
+    <string name="notifications_open">Notifications</string>
+    <plurals name="notifications_bell">
+        <item quantity="one">Notifications, %1$d unread</item>
+        <item quantity="other">Notifications, %1$d unread</item>
+    </plurals>
+    <plurals name="notifications_unread">
+        <item quantity="one">%1$d unread</item>
+        <item quantity="other">%1$d unread</item>
+    </plurals>
 </resources>

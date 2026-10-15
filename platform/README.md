@@ -7,6 +7,22 @@ The Android side of what `mobile-base` leaves to each app, bound in Koin by `pla
 | `DeviceVault` → `KeystoreDeviceVault` | Where the sealed device record lives |
 | `LocalDatabases` | The SQLite drivers of the replica and the outbox, as `replica.db` and `outbox.db` in the app's no-backup directory |
 
+## The local databases — `LocalDatabases`
+
+`replicaDriver()` and `outboxDriver()` open the core's SQLDelight schemas on `AndroidSqliteDriver`,
+as `replica.db` and `outbox.db` in `noBackupFilesDir`: neither is copied by a backup or a device
+transfer. The core's `Replica` and `Outbox` wipe themselves when they open for another account.
+
+| Call | What |
+| --- | --- |
+| `deleteReplica()` | Removes only the replica: what a phone that left the account must not keep |
+| `deleteAll()` | Removes the replica and the outbox: the phone was removed or forgotten on purpose |
+
+The outbox outlives an involuntary loss of the registration (a phone removed from another device, too
+many wrong PINs): its entries are still the person's, and the core's own account check discards them if
+another account signs in. `LocalDatabasesTest` (instrumented) proves the files live in no-backup
+storage, survive a reopen, belong to one account at a time, and are deleted as above.
+
 Later tasks add the QR scanner (A2.1), file access and the upload service (A5).
 
 ## The device vault — `KeystoreDeviceVault`

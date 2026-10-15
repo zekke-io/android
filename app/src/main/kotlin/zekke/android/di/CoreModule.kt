@@ -3,6 +3,8 @@ package zekke.android.di
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.launch
 import zekke.android.onboarding.CoreOnboardingServices
 import zekke.android.feature.settings.AccountSecurityServices
 import zekke.android.rekey.KeyRotationEvents
@@ -33,6 +35,11 @@ import zekke.core.clients.getClientPolicy
 import zekke.core.api.ClientIdentity
 import zekke.core.api.ClientPlatform
 import zekke.core.api.ZekkeApi
+import zekke.android.feature.settings.NotificationsServices
+import zekke.android.sync.CoreNotificationsServices
+import zekke.android.sync.CoreSyncBackendFactory
+import zekke.android.sync.KeystoreSyncSession
+import zekke.android.sync.SyncService
 import zekke.core.feed.Outbox
 import zekke.core.feed.Replica
 import zekke.core.files.HttpObjectStore
@@ -55,13 +62,14 @@ val coreModule = module {
     single { SessionViewModels() }
     single { SessionGuard(get(), get(MAIN_SCOPE), KillThisProcess).also { guard -> guard.onLocked(get<SessionViewModels>()::clear) } }
     factory<OnboardingServices> { CoreOnboardingServices(androidContext(), get(), get(), get(), get()) }
-    factory<UnlockServices> { CoreUnlockServices(get(), get()) }
+    factory<UnlockServices> { val sync = get<SyncService>(); CoreUnlockServices(get(), get(), sync::leaveAccount) }
     single { ThisPhoneEvents() }
     single { KeyRotationEvents() }
     factory<ThisPhoneServices> {
         val account = get<AccountServices>()
         CoreThisPhoneServices(get(), get(), { removeThisDevice(account) }, { forgetThisDevice(account) })
     }
+    factory<NotificationsServices> { CoreNotificationsServices(get()) }
     factory<AccountSecurityServices> {
         val account = get<AccountServices>()
         val api = get<ZekkeApi>()
@@ -87,5 +95,18 @@ val coreModule = module {
     single<ObjectStore> { HttpObjectStore() }
     factory { ItemContext(get(), get()) }
     factory { (userAddress: String) -> Replica(get<LocalDatabases>().replicaDriver(), userAddress) }
+    single {
+        val databases = get<LocalDatabases>()
+        SyncService(
+            session = KeystoreSyncSession(get()),
+            scope = get(APP_SCOPE),
+            factory = CoreSyncBackendFactory(get(), get(), databases, get(APP_SCOPE)),
+            wipe = { includeOutbox -> if (includeOutbox) databases.deleteAll() else databases.deleteReplica() },
+            nowEpochSeconds = { System.currentTimeMillis() / 1000 },
+        ).also { sync ->
+            val removals = get<ThisPhoneEvents>().removals
+            get<CoroutineScope>(APP_SCOPE).launch { removals.drop(1).collect { sync.leaveAccount(true) } }
+        }
+    }
     factory { (userAddress: String) -> Outbox(get<LocalDatabases>().outboxDriver(), userAddress) }
 }

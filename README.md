@@ -20,7 +20,7 @@ android/
   feature/…                  the screens, one module per area
 ```
 
-Each module has its own README: [ui](ui/README.md), [platform](platform/README.md),
+Each module has its own README: [app](app/README.md), [ui](ui/README.md), [platform](platform/README.md),
 [feature](feature/README.md).
 
 ## Dependency injection

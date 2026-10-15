@@ -47,7 +47,7 @@ adds this phone again.
 
 *Remove this phone* (the web's *Remove this browser*) is a log-out: the open session signs a self
 `device-remove`, with **no rotation**; the record and the session go and the app shows the start
-screen. Until Settings exists (A7.1) it lives on the unlocked holding screen under *Lock*, with the
+screen. It lives in the shell's Settings page, with the
 web's inline confirmation (*Remove this phone*, then *Stay signed in*).
 
 | Core result | `RemovalOutcome` | Screen |
@@ -84,7 +84,7 @@ policy says.
 | `Deprecated` with an unreadable date | `UpdateAvailable` | As available; a raw date string is never shown |
 | `Required`, or any `426` | `UpgradeRequired` | `UpgradeRequiredScreen`: *Update Zekke*, a danger notice, the current version when known, and where to update. No button |
 
-The notices show on the unlock screen and on the unlocked home screen (A7.3 moves them into About).
+The notices show on the unlock screen and on the unlocked Home page (A7.3 moves them into About).
 The blocking screen replaces every screen (`ClientGate` in `app`), except the onboarding's
 creating and recovery-kit steps. When the version becomes unsupported while unlocked, the session is locked at
 once. The update screen names a version only when it is newer than this one, and no store while the app is in none (A8.6 words it for the store).

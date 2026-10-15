@@ -6,6 +6,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -30,7 +31,12 @@ import zekke.android.platform.KeystoreDeviceVault
 import zekke.android.rekey.KeyRotationEvents
 import zekke.android.session.AppRoot
 import zekke.android.session.ClientGate
-import zekke.android.session.HomeHoldingScreen
+import zekke.android.shell.SettingsContent
+import zekke.android.shell.Shell
+import zekke.android.sync.SyncService
+import zekke.android.feature.settings.NotificationsScreen
+import zekke.android.feature.settings.NotificationsServices
+import zekke.android.feature.settings.NotificationsViewModel
 import zekke.android.session.SessionControl
 import zekke.android.session.SessionGuard
 import zekke.android.session.SessionViewModels
@@ -47,6 +53,7 @@ class MainActivity : ComponentActivity() {
     private val policy: ClientPolicyMonitor by inject()
     private val events: ThisPhoneEvents by inject()
     private val rotations: KeyRotationEvents by inject()
+    private val sync: SyncService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
@@ -95,20 +102,34 @@ class MainActivity : ComponentActivity() {
                                 val removalState by removal.state.collectAsStateWithLifecycle()
                                 val security = viewModel { AccountSecurityViewModel(this@MainActivity.get()) }
                                 val securityState by security.state.collectAsStateWithLifecycle()
-                                HomeHoldingScreen(
+                                val syncStatus by sync.status.collectAsStateWithLifecycle()
+                                val notifications = viewModel { NotificationsViewModel(this@MainActivity.get<NotificationsServices>(), sync::unreadChanged) }
+                                val notificationsState by notifications.state.collectAsStateWithLifecycle()
+                                val versionNotices: @Composable () -> Unit = {
+                                    VersionNotice(versionStatus, policy::dismissUpdateAvailable)
+                                    UnlockSessionNotices(
+                                        unlockState,
+                                        unlock::dismissChainProblem,
+                                        unlock::dismissRewrapIssue,
+                                    )
+                                }
+                                Shell(
+                                    status = syncStatus,
                                     onLock = guard::lockNow,
-                                    notices = {
-                                        VersionNotice(versionStatus, policy::dismissUpdateAvailable)
-                                        UnlockSessionNotices(
-                                            unlockState,
-                                            unlock::dismissChainProblem,
-                                            unlock::dismissRewrapIssue,
+                                    notices = versionNotices,
+                                    settings = { openNotifications ->
+                                        SettingsContent(
+                                            status = syncStatus,
+                                            onOpenNotifications = openNotifications,
+                                            onDiscard = sync::discardRefused,
+                                            notices = {},
+                                            account = {
+                                                AccountSecuritySection(securityState, security)
+                                                RemoveThisPhoneSection(removalState, removal)
+                                            },
                                         )
                                     },
-                                    actions = {
-                                        AccountSecuritySection(securityState, security)
-                                        RemoveThisPhoneSection(removalState, removal)
-                                    },
+                                    notifications = { NotificationsScreen(notificationsState, notifications) },
                                 )
                                 AccountSecuritySheet(securityState, security)
                             },

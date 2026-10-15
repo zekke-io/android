@@ -55,4 +55,62 @@
     <string name="security_pin_descending">That PIN counts down. Choose a less predictable one.</string>
     <string name="security_pin_mismatch">Those PINs do not match.</string>
     <string name="security_current_pin_incomplete">Type your current account PIN: 6 digits.</string>
+
+    <string name="notif_title">Notifications</string>
+    <string name="notif_empty">Nothing new. Notices about your plan and your storage appear here.</string>
+    <string name="notif_load_more">Show older</string>
+    <string name="notif_loading">Loading…</string>
+    <string name="notif_failed">Notifications could not be loaded. Try again in a moment.</string>
+    <string name="notif_offline">This phone is offline. Try again when it is back online.</string>
+    <string name="notif_try_again">Try again</string>
+    <string name="notif_unread_marker">Unread</string>
+    <string name="notif_your_plan">your plan</string>
+    <string name="notif_until">until %1$s</string>
+    <string name="notif_unknown_title">Account notice</string>
+    <string name="notif_unknown_body">Something changed on your account. Update the app to read the details.</string>
+    <string name="notif_purchase_title">%1$s is active</string>
+    <string name="notif_purchase_body">Thank you. Your payment went through and %1$s is yours%2$s.</string>
+    <string name="notif_renewed_title">%1$s renewed</string>
+    <string name="notif_renewed_body">Your subscription renewed%1$s.</string>
+    <string name="notif_failed_title">A payment failed</string>
+    <string name="notif_failed_body">Your card could not be charged for %1$s. It will be tried again; you can update it from Manage subscription. Nothing changes until the time you paid for ends.</string>
+    <string name="notif_refunded_title">A payment was refunded</string>
+    <string name="notif_refunded_body">A payment for %1$s was refunded, and the time it paid for was removed from your plan.</string>
+    <plurals name="notif_expiring_title">
+        <item quantity="one">%1$s ends in %2$d day</item>
+        <item quantity="other">%1$s ends in %2$d days</item>
+    </plurals>
+    <string name="notif_expiring_title_soon">%1$s ends soon</string>
+    <string name="notif_expiring_body">Renew to keep your storage and features. When it ends, your files stay readable for 14 days, then the Drive is cut down to the free plan.</string>
+    <string name="notif_deadline_default">in 14 days</string>
+    <string name="notif_deadline_on">on %1$s</string>
+    <string name="notif_grace_smaller_title">Your Drive is larger than %1$s allows</string>
+    <string name="notif_grace_smaller_body">Everything stays readable, and you can download or delete anything. New uploads stop, and %1$s the most recent uploads are deleted until the Drive fits %2$s. Choose a larger plan, or delete files yourself.</string>
+    <string name="notif_grace_ended_title">%1$s has ended</string>
+    <string name="notif_grace_ended_title_unknown">Your plan has ended</string>
+    <string name="notif_grace_ended_body">Your files are safe for now: everything stays readable and you can download or delete anything. New uploads stop above the free plan, and the Drive is cut down to it %1$s. Renewing restores everything.</string>
+    <plurals name="notif_countdown_title">
+        <item quantity="one">Files will be deleted in %1$d day</item>
+        <item quantity="other">Files will be deleted in %1$d days</item>
+    </plurals>
+    <string name="notif_countdown_title_soon">Files will be deleted soon</string>
+    <string name="notif_countdown_body_unknown">Your files and the images in your documents take more than your plan allows.</string>
+    <string name="notif_countdown_body_over">Your files and the images in your documents take %1$s more than your plan allows.</string>
+    <string name="notif_countdown_body_tail">Renew, or download and delete files yourself, before the most recent uploads are deleted for good. Images in documents are never deleted, but they count, so only files can make room.</string>
+    <string name="notif_deleted_title">Files were deleted</string>
+    <plurals name="notif_deleted_files">
+        <item quantity="one">%1$d file was</item>
+        <item quantity="other">%1$d files were</item>
+    </plurals>
+    <string name="notif_deleted_files_unknown">Files were</string>
+    <string name="notif_deleted_size">(%1$s)</string>
+    <string name="notif_deleted_body">%1$s deleted%2$s so your Drive fits your plan. Everything else is untouched.</string>
+    <string name="notif_just_now">Just now</string>
+    <string name="notif_minutes_ago">%1$d min ago</string>
+    <string name="notif_hours_ago">%1$d h ago</string>
+    <string name="notif_yesterday">Yesterday</string>
+    <plurals name="notif_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
 </resources>

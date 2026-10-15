@@ -12,8 +12,13 @@ class LocalDatabases(private val context: Context) {
 
     fun outboxDriver(): SqlDriver = AndroidSqliteDriver(outboxSchema, context, path(OUTBOX_FILE))
 
+    fun deleteReplica() {
+        context.deleteDatabase(path(REPLICA_FILE))
+    }
+
     fun deleteAll() {
-        listOf(REPLICA_FILE, OUTBOX_FILE).forEach { context.deleteDatabase(path(it)) }
+        deleteReplica()
+        context.deleteDatabase(path(OUTBOX_FILE))
     }
 
     private fun path(name: String): String = File(context.noBackupFilesDir, name).path

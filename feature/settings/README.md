@@ -2,20 +2,42 @@
 
 What the account settings will hold (the username, the mode, the devices, the plan, notifications:
 tasks A7), starting with the part that only the recovery phrase can do: **turning Paranoid mode on**
-and **changing the account PIN**. Until the Settings screen exists (A7.2) the section lives on the
-unlocked home screen under *Lock*, as *Remove this phone* does; it moves to Settings → Account without
-changing module. The module reaches the core only through `AccountSecurityServices`, which `app`
+and **changing the account PIN**. The section lives in the shell's Settings page, with *Remove this phone*; A7.2 gives it its place
+under Account. The module reaches the core only through `AccountSecurityServices`, which `app`
 implements (`CoreAccountSecurityServices`), so the screens and the ViewModel are tested with a fake and
 no network.
 
+## Notifications
+
+`NotificationsScreen` is the in-app list of the notices the server writes about the plan and the
+storage: opened from Home's bell or from Settings, it reads the first page, **marks the unread ones it
+shows as read** (they stay marked *Unread* on this visit) and offers *Show older* while the server has
+more. Each notice is worded by its kind, in the web app's words, with the plan's name and the dates in
+the phone's locale and zone, sizes in KiB/MiB/GiB, and a relative age (*Just now*, *5 min ago*,
+*Yesterday*, then a date).
+
+| Kind | Title |
+| --- | --- |
+| `purchase_succeeded`, `subscription_renewed` | *Premium 1 is active*, *Premium 1 renewed* |
+| `payment_failed`, `refunded` | *A payment failed*, *A payment was refunded* |
+| `expiring` | *Premium 1 ends in 7 days* |
+| `grace_started` | *Your Drive is larger than Free allows*, or *Premium 1 has ended* |
+| `data_loss_countdown`, `data_deleted` | *Files will be deleted in 3 days*, *Files were deleted* |
+| any other kind | *Account notice*: *Something changed on your account. Update the app to read the details.* A newer server never drops a notice from an older app |
+
+A parameter of the wrong type is ignored and its clause left out, never shown raw. No key is needed:
+the list works whenever the session is open. Failures keep the web app's split: offline, rate
+limited with the server's wait, or *Notifications could not be loaded*, each with *Try again*.
+`NotificationsServices` (`CoreNotificationsServices` in `app`) is `load(cursor)` and `markRead(ids)`.
+
 ## The section and the sheet
 
-`AccountSecuritySection` is what the home screen draws: while the mode loads nothing; a *Try again*
+`AccountSecuritySection` is what Settings draws: while the mode loads nothing; a *Try again*
 when it could not be read; on a **Standard** account *Paranoid mode*, what it adds and *Turn on Paranoid
 mode…*; on a **Paranoid** account *Paranoid mode is on*, what it needs, the one-way notice and *Change
 the account PIN…*. A finished change leaves a success notice, with how many devices were signed out.
 
-`AccountSecuritySheet` is the flow, a `FormSheet` over the home screen (*Cancel* closes it and forgets
+`AccountSecuritySheet` is the flow, a `FormSheet` over Settings (*Cancel* closes it and forgets
 the phrase; it cannot be closed while the change is running):
 
 | Step | What the person does |
@@ -68,3 +90,5 @@ ended (the ViewModel cleared, the flow closed) changes nothing.
 | --- | --- |
 | `AccountSecurityViewModelTest` | The mode loaded once, unreadable and retried; the flows' first steps; the checksum before the PINs; a weak PIN, a mismatch and a missing current PIN refused before anything is sent; both calls with what they send and everything zeroed after; every outcome's next step with the phrase kept or forgotten; refusals counted; closing, not while working; a late result after the ViewModel ends |
 | `AccountSecurityScreensTest` (Robolectric) | The section for each mode; the way through the warning, the phrase and the PINs with each button enabled only when it should be; the finished notice with the number of devices; the wait advice after two refusals; the mismatch on the phrase step; the unfinished notice staying on the home screen |
+| `NotificationsViewModelTest` | The first page loaded once and its unread notices marked read; the unread count keeping what is not on the page; *Show older* appending with its cursor; each failure kept apart and *Try again*; a throwing service as a failure; a failed mark leaving the notices unread |
+| `NotificationCopyTest` (Robolectric) | The title and body of every kind with the plan name, dates, sizes and counts; a missing or wrongly typed parameter leaving its clause out; an unknown kind as the generic notice; every known kind worded; the relative age, then a date; the byte format and the badge cap |
