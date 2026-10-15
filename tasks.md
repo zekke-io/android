@@ -6,6 +6,34 @@ Kotlin core any more: `mobile-base` has every core milestone in code. A task is 
 
 States: `[ ]` open, `[~]` under way, `[x]` done.
 
+
+## Awaiting the owner
+
+Decisions taken by default and not yet confirmed; each is recorded where it was taken.
+
+- **Home tiles instead of tabs** (the design system's Home is a tile grid, A3.2).
+- **The A3.1 substitute**: the core's own replica and outbox tests still run on the JVM only; an
+  instrumented test on the Android driver stands in for them.
+- **The A2 defaults**: zxing's Java decoder instead of zxing-cpp; the scanner in `ui`; the account's
+  security section in Settings; `feature/settings`' own PIN-problem wording.
+- **Writes go straight to the server, not through the outbox** the plan describes (Passwords, Vault,
+  Drive); Notes drafts are the one thing queued, at the moment of a lock.
+- **New shared pieces**: `feature:tabs`, and in `ui` `TabStrip`, `TopBar`, `NoteSurface`, `PageTile`,
+  `FileTile`, `ItemFailure`. `../design-system` is **not in any git repository**: `TopBar.md`,
+  `Tabs.md`, `NoteSurface.md`, `PageTile.md` and `FileTile.md` exist only on disk.
+- **The file-kind glyphs** are not in the design system's assets, so every file shows the Drive glyph.
+- **Coil replaced by `ImageDecoder`** for image previews (no new dependency).
+- **Open with…** leaves one plaintext copy under `noBackupFilesDir/shared` until the next process start,
+  because the other app may read it after the lock (R3's tension).
+- **The background-upload contradiction**: the plan says both that uploads run in the background and that
+  a lock pauses them; leaving the app locks it, so no service can keep an upload going. No foreground
+  service or job was built (A5.2 is `[~]`).
+- **A note draft whose save failed offline is lost at the idle lock** (the 15-minute lock comes from the
+  core's timer, which the pre-lock flush does not see).
+- **Not built**: multi-select in the Drive and Notes grids; opening documents (the core does not read them).
+- **Soft-keyboard typing in Notes** is unproven (the end-to-end scripts inject text); a real phone is
+  needed (A8.2).
+
 ## Decisions the tasks assume
 
 These are open questions with a default. A task that depends on one says so; none blocks starting.
@@ -359,7 +387,7 @@ feature modules) to be consolidated.
   a folder, a file inside it and a photo with a thumbnail made on the web show on the phone, the
   thumbnail file is not listed, and the thumbnail was fetched and cached as ciphertext. The app blocks
   screenshots, so the thumbnail's picture is proven by the cache, not by pixels.
-- [x] **A5.2 Picking and uploading.** The photo picker and the Storage Access Framework, no storage
+- [~] **A5.2 Picking and uploading.** The photo picker and the Storage Access Framework, no storage
   permission; the upload as a user-initiated data transfer (a `dataSync` foreground service below
   Android 14) with a notification naming nothing; a `429` pauses, `507` is never retried.
   **Done 2026-10-15, with a deviation awaiting the owner**: the photo picker and the system document

@@ -24,6 +24,8 @@ interface UploadSources {
     fun keepReadable(uri: String): Boolean
 
     fun release(uri: String)
+
+    fun releaseAll()
 }
 
 class ContentUploadSources(private val resolver: ContentResolver) : UploadSources {
@@ -64,6 +66,10 @@ class ContentUploadSources(private val resolver: ContentResolver) : UploadSource
         true
     } catch (_: Exception) {
         false
+    }
+
+    override fun releaseAll() {
+        resolver.persistedUriPermissions.forEach { release(it.uri.toString()) }
     }
 
     override fun release(uri: String) {

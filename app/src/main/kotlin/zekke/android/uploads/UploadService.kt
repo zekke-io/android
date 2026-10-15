@@ -4,6 +4,7 @@ import java.io.FileNotFoundException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,8 +25,6 @@ const val OFFLINE_RETRY_MILLIS = 30_000L
 const val DEFAULT_CREATION_PAUSE_SECONDS = 30L
 
 interface UploadRunner {
-    suspend fun exists(id: String): Boolean
-
     suspend fun run(entry: UploadEntry, source: UploadSource, thumbnail: ByteArray?, onProgress: (Int, Boolean) -> Unit)
 
     suspend fun abandon(id: String)
@@ -57,6 +56,7 @@ class UploadService(
 ) {
     private val mutableItems = MutableStateFlow<List<UploadItem>>(emptyList())
     private var worker: Job? = null
+    private var currentId: String? = null
 
     val items: StateFlow<List<UploadItem>> = mutableItems.asStateFlow()
 
@@ -102,12 +102,12 @@ class UploadService(
             return
         }
         update(id, UploadStatus.Uploading)
+        currentId = id
         transferStarted()
         var failure: Classified? = null
         try {
             val source = sources.open(entry)
-            val resuming = runner.exists(id)
-            val thumbnail = if (resuming) null else thumbnails.make(entry.uri, entry.mime)
+            val thumbnail = thumbnails.make(entry.uri, entry.mime)
             runner.run(entry, source, thumbnail) { percent, finishing ->
                 update(id, if (finishing) UploadStatus.Finishing else UploadStatus.Uploading, percent)
             }
@@ -120,6 +120,7 @@ class UploadService(
         } catch (error: Exception) {
             failure = classifyUploadFailure(error)
         } finally {
+            currentId = null
             transferFinished()
         }
         val outcome = failure ?: return
@@ -175,9 +176,12 @@ class UploadService(
 
     suspend fun cancel(id: String) {
         val entry = store.load().firstOrNull { it.id == id }
-        val restart = worker?.isActive == true
-        worker?.cancel()
-        worker = null
+        val running = worker
+        val wasRunning = currentId == id && running?.isActive == true
+        if (wasRunning) {
+            running?.cancelAndJoin()
+            worker = null
+        }
         mutableItems.update { list -> list.filterNot { it.id == id } }
         store.remove(id)
         entry?.let { sources.release(it.uri) }
@@ -185,6 +189,9 @@ class UploadService(
             runner.abandon(id)
         } catch (_: Exception) {
         }
-        if (restart) launchWorker()
+        if (wasRunning) mutableItems.update { list ->
+            list.map { if (it.status == UploadStatus.Uploading || it.status == UploadStatus.Finishing) it.copy(status = UploadStatus.Waiting, percent = 0) else it }
+        }
+        launchWorker()
     }
 }

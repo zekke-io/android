@@ -153,6 +153,7 @@ val coreModule = module {
             factory = CoreSyncBackendFactory(get(), get(), databases, get(APP_SCOPE), get()),
             wipe = { includeOutbox ->
                 get<FileSealedObjectCache>().clear()
+                get<UploadSources>().releaseAll()
                 get<UploadStore>().clear()
                 if (includeOutbox) databases.deleteAll() else databases.deleteReplica()
             },

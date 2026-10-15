@@ -44,18 +44,17 @@ class UploadServiceTest {
         }.also { openFails?.let { throw it } }
         override fun keepReadable(uri: String): Boolean { kept += uri; return true }
         override fun release(uri: String) { released += uri }
+        override fun releaseAll() { released += "all" }
     }
 
     private class FakeRunner : UploadRunner {
         val ran = mutableListOf<String>()
         val thumbnailsSeen = mutableListOf<ByteArray?>()
         val abandoned = mutableListOf<String>()
-        var existing = false
         var failure: Exception? = null
         var gate: CompletableDeferred<Unit>? = null
         var steps = listOf(30 to false, 100 to false)
         var progressSeen = mutableListOf<Int>()
-        override suspend fun exists(id: String) = existing
         override suspend fun run(entry: UploadEntry, source: UploadSource, thumbnail: ByteArray?, onProgress: (Int, Boolean) -> Unit) {
             ran += entry.id
             thumbnailsSeen += thumbnail
@@ -163,12 +162,12 @@ class UploadServiceTest {
     }
 
     @Test
-    fun aResumedUploadSendsNoNewThumbnail() {
-        runner.existing = true
+    fun theThumbnailIsAlwaysOfferedBecauseTheCoreKeepsTheOneTheStoredRowReferences() {
         begin()
         pick()
-        assertEquals(listOf<ByteArray?>(null), runner.thumbnailsSeen)
-        assertTrue(thumbnails.asked.isEmpty())
+        assertEquals(1, runner.thumbnailsSeen.size)
+        assertTrue(runner.thumbnailsSeen.single() != null)
+        assertEquals(listOf("content://a"), thumbnails.asked)
     }
 
     @Test
@@ -304,5 +303,41 @@ class UploadServiceTest {
             service.cancel("up-1")
             after()
         }
+    }
+
+    @Test
+    fun discardingAWaitingUploadWhileAnotherRunsNeverStallsTheQueue() {
+        runner.gate = CompletableDeferred()
+        begin()
+        sources.infos["content://a"] = SourceInfo("a", "text/plain", 1)
+        sources.infos["content://b"] = SourceInfo("b", "text/plain", 1)
+        service.enqueue(listOf("content://a", "content://b"), null)
+        scope.runCurrent()
+        assertEquals(listOf("up-1"), runner.ran)
+        scope.launch { service.cancel("up-1") }
+        scope.runCurrent()
+        assertEquals(listOf("up-1", "up-2"), runner.ran)
+        runner.gate!!.complete(Unit)
+        scope.runCurrent()
+        assertTrue(service.items.value.isEmpty())
+        assertTrue(store.entries.isEmpty())
+        assertEquals(starts, finishes)
+    }
+
+    @Test
+    fun cancellingAnUploadThatIsNotTheRunningOneLeavesTheRunningOneAlone() {
+        runner.gate = CompletableDeferred()
+        begin()
+        sources.infos["content://a"] = SourceInfo("a", "text/plain", 1)
+        sources.infos["content://b"] = SourceInfo("b", "text/plain", 1)
+        service.enqueue(listOf("content://a", "content://b"), null)
+        scope.runCurrent()
+        scope.launch { service.cancel("up-2") }
+        scope.runCurrent()
+        assertEquals(listOf("up-1"), runner.ran)
+        assertEquals(listOf(UploadStatus.Uploading), statuses)
+        runner.gate!!.complete(Unit)
+        scope.runCurrent()
+        assertTrue(service.items.value.isEmpty())
     }
 }

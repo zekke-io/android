@@ -3,14 +3,11 @@ package zekke.android.uploads
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import zekke.android.sync.SyncService
-import zekke.core.feed.FeedScope
-import zekke.core.feed.ItemTypes
 import zekke.core.files.ObjectStore
 import zekke.core.files.UploadOptions
 import zekke.core.files.UploadPhase
 import zekke.core.files.UploadSource
 import zekke.core.files.abandonUpload
-import zekke.core.files.fileRecords
 import zekke.core.files.uploadToDrive
 import zekke.core.items.ItemContext
 
@@ -19,11 +16,6 @@ class CoreUploadRunner(
     private val context: ItemContext,
     private val store: ObjectStore,
 ) : UploadRunner {
-    override suspend fun exists(id: String): Boolean {
-        val replica = sync.replica() ?: return false
-        return fileRecords(replica.items(FeedScope.FILES, ItemTypes.FILE)).any { it.id == id }
-    }
-
     override suspend fun run(entry: UploadEntry, source: UploadSource, thumbnail: ByteArray?, onProgress: (Int, Boolean) -> Unit) {
         withContext(Dispatchers.Default) {
             uploadToDrive(
