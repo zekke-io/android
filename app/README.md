@@ -48,6 +48,16 @@ ones, listed in Settings with *Discard*. The item re-wrap pass stays the unlock 
 `Feed`); `SyncSession` is what it needs from the keystore. Both are small interfaces so
 `SyncServiceTest` runs without the native library.
 
+## Item calls — `items`
+
+`ItemCalls` runs what a screen asks of the core: **reads** off the main thread; **writes** with the
+process held, not cancelled by the screen, and locking at once if the app ended up in the background.
+Every failure becomes an `ItemFailure` of `ui`: offline, rate limited, keys changed, too large, scope
+not held, gone, failed; a `401` renews the device's sign-in and says *Your session was renewed. Try
+that again.* as the web app does (`DeviceRemovedException` is *signed out*). The services of each
+section (`CorePasswordsServices`) are built on it and ask `SyncService` for the replica, so the screens
+read the same connection the sync writes; after a write they call `syncNow()`.
+
 ## Leaving the account
 
 | Event | Replica | Outbox |

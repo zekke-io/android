@@ -34,6 +34,9 @@ import zekke.android.session.ClientGate
 import zekke.android.shell.SettingsContent
 import zekke.android.shell.Shell
 import zekke.android.sync.SyncService
+import zekke.android.feature.passwords.PasswordsScreen
+import zekke.android.feature.passwords.PasswordsServices
+import zekke.android.feature.passwords.PasswordsViewModel
 import zekke.android.feature.settings.NotificationsScreen
 import zekke.android.feature.settings.NotificationsServices
 import zekke.android.feature.settings.NotificationsViewModel
@@ -130,6 +133,11 @@ class MainActivity : ComponentActivity() {
                                         )
                                     },
                                     notifications = { NotificationsScreen(notificationsState, notifications) },
+                                    passwords = {
+                                        val passwordsModel = viewModel { PasswordsViewModel(this@MainActivity.get<PasswordsServices>()) }
+                                        val passwordsState by passwordsModel.state.collectAsStateWithLifecycle()
+                                        PasswordsScreen(passwordsState, passwordsModel)
+                                    },
                                 )
                                 AccountSecuritySheet(securityState, security)
                             },

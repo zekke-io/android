@@ -8,7 +8,7 @@ ViewModel holds plaintext only for what is on screen. Every string is a resource
 | --- | --- | --- |
 | `onboarding` | The start screen, creating an account, adding the phone with the phrase, the recovery kit | A1.1–A1.3, A2.1, A2.2 |
 | `unlock` | The PIN, its outcomes, removing this phone, the client policy | A1.4, A1.5 |
-| `passwords` | The password list and everything done to a credential | A4.1 |
+| `passwords` | The password list and everything done to a credential ([README](passwords/README.md)) | A4.1 |
 | `vault` | Secrets and their tabs | A4.2 |
 | `notes` | The note grid and the editor | A4.3 |
 | `drive` | Folders, files, uploads, previews, the Trash | A5 |
@@ -19,5 +19,5 @@ ViewModel holds plaintext only for what is on screen. Every string is a resource
 ([its README](onboarding/README.md)). `unlock` handles the PIN and account restoration outcomes,
 removing this phone and the client policy ([its README](unlock/README.md)). `settings` holds, until
 A7, the account's security: turning Paranoid mode on and changing the account PIN
-([its README](settings/README.md)). The other modules are empty, wired into the app, waiting for
+([its README](settings/README.md)). `passwords` holds the password list ([its README](passwords/README.md)). The other modules are empty, wired into the app, waiting for
 their tasks.

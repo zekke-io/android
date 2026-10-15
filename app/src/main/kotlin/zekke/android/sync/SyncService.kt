@@ -17,7 +17,9 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import zekke.core.feed.FeedScope
 import zekke.core.feed.OutboxEntry
+import zekke.core.feed.Outbox
 import zekke.core.feed.OutboxState
+import zekke.core.feed.Replica
 import zekke.core.session.SessionState
 
 data class SyncStatus(
@@ -80,6 +82,15 @@ class SyncService(
         stopPolling()
     }
 
+    fun replica(): Replica? = backend?.replica
+
+    fun outboxQueue(): Outbox? = backend?.outboxQueue
+
+    fun resetScope(feedScope: FeedScope) {
+        backend?.replica?.reset(feedScope)
+        syncNow()
+    }
+
     fun syncNow() {
         scope.launch { pulse(deep = false) }
     }
@@ -116,7 +127,7 @@ class SyncService(
         }
         if (!opened) return
         refreshOutbox()
-        pulse(deep = true)
+        scope.launch { pulse(deep = true) }
         if (foreground) startPolling()
     }
 

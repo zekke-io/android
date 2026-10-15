@@ -35,7 +35,10 @@ import zekke.core.clients.getClientPolicy
 import zekke.core.api.ClientIdentity
 import zekke.core.api.ClientPlatform
 import zekke.core.api.ZekkeApi
+import zekke.android.feature.passwords.PasswordsServices
 import zekke.android.feature.settings.NotificationsServices
+import zekke.android.items.CorePasswordsServices
+import zekke.android.items.ItemCalls
 import zekke.android.sync.CoreNotificationsServices
 import zekke.android.sync.CoreSyncBackendFactory
 import zekke.android.sync.KeystoreSyncSession
@@ -69,6 +72,8 @@ val coreModule = module {
         val account = get<AccountServices>()
         CoreThisPhoneServices(get(), get(), { removeThisDevice(account) }, { forgetThisDevice(account) })
     }
+    single { ItemCalls(get(), get()) }
+    factory<PasswordsServices> { CorePasswordsServices(get(), get(), get()) }
     factory<NotificationsServices> { CoreNotificationsServices(get()) }
     factory<AccountSecurityServices> {
         val account = get<AccountServices>()
@@ -100,7 +105,7 @@ val coreModule = module {
         SyncService(
             session = KeystoreSyncSession(get()),
             scope = get(APP_SCOPE),
-            factory = CoreSyncBackendFactory(get(), get(), databases, get(APP_SCOPE)),
+            factory = CoreSyncBackendFactory(get(), get(), databases, get(APP_SCOPE), get()),
             wipe = { includeOutbox -> if (includeOutbox) databases.deleteAll() else databases.deleteReplica() },
             nowEpochSeconds = { System.currentTimeMillis() / 1000 },
         ).also { sync ->

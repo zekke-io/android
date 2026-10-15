@@ -2,7 +2,9 @@ package zekke.android.sync
 
 import kotlinx.coroutines.flow.Flow
 import zekke.core.feed.FeedScope
+import zekke.core.feed.Outbox
 import zekke.core.feed.OutboxEntry
+import zekke.core.feed.Replica
 
 data class SectionCounts(val passwords: Int = 0, val vault: Int = 0, val notes: Int = 0)
 
@@ -20,6 +22,10 @@ data class PulseResult(val changed: Boolean, val failure: SyncFailure? = null)
 
 interface SyncBackend {
     val changes: Flow<FeedScope>
+
+    val replica: Replica? get() = null
+
+    val outboxQueue: Outbox? get() = null
 
     suspend fun pulse(deep: Boolean): PulseResult
 

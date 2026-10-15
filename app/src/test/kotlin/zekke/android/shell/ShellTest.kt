@@ -37,6 +37,7 @@ class ShellTest {
                 Text("settings body", Modifier.clickable { openNotifications() })
             },
             notifications = { Text("notifications body") },
+            passwords = { Text("passwords body") },
         )
     }
 
@@ -62,11 +63,20 @@ class ShellTest {
 
     @Test
     fun aSectionShowsItsCountAndGoesBackToHome() {
-        show(SyncStatus(active = true, heldScopes = held, counts = SectionCounts(passwords = 3), lastSyncEpochSeconds = 1))
-        compose.onNodeWithText("Passwords").performClick()
-        compose.onNodeWithText("3 passwords on this phone").assertExists()
+        show(SyncStatus(active = true, heldScopes = held, counts = SectionCounts(vault = 3), lastSyncEpochSeconds = 1))
+        compose.onNodeWithText("Vault").performClick()
+        compose.onNodeWithText("3 secrets on this phone").assertExists()
         compose.onNodeWithText("Up to date").assertExists()
         compose.onNodeWithText("Your account is open on this phone.").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithText("Your account is open on this phone.").assertExists()
+    }
+
+    @Test
+    fun thePasswordsTileOpensThePasswordsScreenUnderItsBar() {
+        show(SyncStatus(active = true, heldScopes = held))
+        compose.onNodeWithText("Passwords").performClick()
+        compose.onNodeWithText("passwords body").assertExists()
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithText("Your account is open on this phone.").assertExists()
     }

@@ -6,6 +6,7 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -37,6 +38,7 @@ import zekke.android.ui.components.AppTile
 import zekke.android.feature.settings.notificationBadge
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.StatusBadge
+import zekke.android.ui.components.TopBar
 import zekke.android.ui.components.Tone
 import zekke.android.ui.components.ZekkeButton
 import zekke.android.ui.components.ZekkeIconButton
@@ -68,6 +70,7 @@ fun Shell(
     notices: @Composable () -> Unit,
     settings: @Composable (openNotifications: () -> Unit) -> Unit,
     notifications: @Composable () -> Unit,
+    passwords: @Composable () -> Unit = {},
 ) {
     var destination by rememberSaveable { mutableStateOf(Destination.Home) }
     var notificationsFrom by rememberSaveable { mutableStateOf(Destination.Home) }
@@ -98,6 +101,13 @@ fun Shell(
                 onBack = { destination = notificationsFrom },
                 onLock = onLock,
             ) { notifications() }
+            Destination.Passwords -> ShellPage(
+                title = stringResource(R.string.section_passwords),
+                onBack = { destination = Destination.Home },
+                onLock = onLock,
+                scrollable = false,
+                header = { if (status.failure != null || status.outboxPending > 0 || status.outboxWaiting > 0) SyncStatusView(status) },
+            ) { passwords() }
             else -> {
                 val section = SECTIONS.first { it.destination == destination }
                 ShellPage(stringResource(section.title), { destination = Destination.Home }, onLock) {
@@ -166,22 +176,35 @@ private fun HomeScreen(
 }
 
 @Composable
-private fun ShellPage(title: String, onBack: () -> Unit, onLock: () -> Unit, content: @Composable () -> Unit) {
-    val palette = Zekke.palette
-    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        ZekkeIconButton(zekke.android.ui.R.drawable.ic_arrow_left, hint = stringResource(R.string.shell_back), onClick = onBack)
-        Text(
-            title,
-            style = MaterialTheme.typography.titleLarge,
-            color = palette.ink,
-            modifier = Modifier.weight(1f).padding(horizontal = 8.dp).semantics { heading() },
-        )
-        ZekkeIconButton(zekke.android.ui.R.drawable.ic_lock_session, hint = stringResource(R.string.shell_lock_hint), label = stringResource(R.string.home_lock), onClick = onLock)
+private fun ShellPage(
+    title: String,
+    onBack: () -> Unit,
+    onLock: () -> Unit,
+    scrollable: Boolean = true,
+    header: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    TopBar(
+        title = title,
+        onBack = onBack,
+        actions = {
+            ZekkeIconButton(
+                zekke.android.ui.R.drawable.ic_lock_session,
+                hint = stringResource(R.string.shell_lock_hint),
+                label = stringResource(R.string.home_lock),
+                onClick = onLock,
+            )
+        },
+    )
+    if (scrollable) {
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) { content() }
+    } else {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) { header() }
+        Box(Modifier.fillMaxSize()) { content() }
     }
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) { content() }
 }
 
 @Composable

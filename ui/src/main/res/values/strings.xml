@@ -41,4 +41,13 @@
     <string name="scanner_blocked">Camera access is off for Zekke. Turn it on in the phone’s settings, or type the words instead.</string>
     <string name="scanner_open_settings">Open settings</string>
     <string name="scanner_unavailable">The camera could not be started. Type the words instead.</string>
+    <string name="top_bar_back">Back</string>
+    <string name="item_failure_offline">This phone is offline. Nothing was changed. Try again when it is back online.</string>
+    <string name="item_failure_session_over">This phone was signed out. Unlock it again to carry on.</string>
+    <string name="item_failure_session_renewed">Your session was renewed. Try that again.</string>
+    <string name="item_failure_stale_keys">Your keys changed on another device while this was being saved. Nothing was saved. Try again.</string>
+    <string name="item_failure_too_large">That is larger than one item can hold.</string>
+    <string name="item_failure_scope_missing">This phone cannot open that kind of item. Open it from a device that holds it.</string>
+    <string name="item_failure_not_found">That item no longer exists.</string>
+    <string name="item_failure_failed">Something went wrong. Please try again.</string>
 </resources>

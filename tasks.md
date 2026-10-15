@@ -267,9 +267,8 @@ feature modules) to be consolidated.
   the replica is wiped on leaving the account as in A3.1. On the emulator against the local API: a
   secret made on the web appeared on the open Vault within one poll; one made while the phone was
   locked appeared after the unlock; a third appeared on the open Vault without any action. Missing:
-  *after each own write* is the `syncNow()` hook, with no writer to call it until A4; the outbox's
-  re-wrap at unlock needs an entry body re-wrapped, which no core helper does and no entry exists to
-  need until A4. The stop after a lock is proven by `SyncServiceTest` and by the process ending when
+  *after each own write* is `syncNow()`, called by the passwords writes; the outbox is re-wrapped at
+  unlock, though no screen queues into it yet. The stop after a lock is proven by `SyncServiceTest` and by the process ending when
   the app leaves the foreground; the local API logs no request paths, so it is not observed on the wire.
 - [x] **A3.4 Notifications.** The in-app list, worded by kind; an unknown kind as a generic notice.
   **Done 2026-10-14**: `feature/settings` lists the notices in the web app's words (the plan, dates in
@@ -289,8 +288,23 @@ feature modules) to be consolidated.
 
 ## A4 — Passwords, Vault and Notes
 
-- [ ] **A4.1 Passwords.** Search, view, copy, add, edit (an append), delete, Recently deleted with
+- [x] **A4.1 Passwords.** Search, view, copy, add, edit (an append), delete, Recently deleted with
   restore and purge, Previous passwords.
+  **Done 2026-10-15**: `feature:passwords` (the list from the replica, search, copy through the sensitive
+  clipboard, one sheet to add and edit with the keyboard's Next through its five fields, delete behind
+  the web app's question, Recently deleted with restore and permanent deletion on a full device,
+  Previous passwords) over the core's credential calls, with `ItemFailure` words shared in `ui`, a
+  `TopBar` moved into `ui`, and a session renewed after a `401`. Edits start from the credential's own
+  payload, so the extension's fields survive. On the emulator against the local API (54 checks): a
+  credential made on the web shows without its password; one added on the phone with the keyboard's
+  Enter opens on the web; an edit is a second revision there and keeps the field the phone does not
+  show; delete, restore and purge each read from the web. Writes go straight to the server, not
+  through the outbox (so *offline* is said, never silently queued); the phone's own purge resets the
+  passwords scope of its replica, because the server writes no feed tombstone for a prune, so **a purge
+  made on another device still reaches the phone only when its replica is reset** (the core's known
+  gap). Also finished here: the outbox is re-wrapped at the first pull after an unlock
+  (`rewrapStaleEntries`), a cancelled pull is rethrown, and the deep pull no longer holds the unlock
+  collector. Tests: passwords 25, app 83, ui 50, settings 47, onboarding 40, unlock 44.
 - [ ] **A4.2 Vault.** The tabs, secrets as name and value, the value masked until revealed, copy with
   clearing, Recently deleted, restore, purge, tab edits.
 - [ ] **A4.3 Notes.** The spaces, the grid of tiles, the WYSIWYG editor over the core's note format,

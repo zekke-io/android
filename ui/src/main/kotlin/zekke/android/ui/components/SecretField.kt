@@ -28,6 +28,8 @@ fun SecretField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     singleLine: Boolean = true,
+    imeAction: ImeAction = ImeAction.Default,
+    onImeAction: () -> Unit = {},
 ) {
     var revealed by rememberSaveable { mutableStateOf(false) }
     val masked = !revealed
@@ -40,7 +42,8 @@ fun SecretField(
                 enabled = enabled,
                 singleLine = singleLine,
                 visualTransformation = if (masked) PasswordVisualTransformation() else VisualTransformation.None,
-                keyboardOptions = privateKeyboard(if (masked) KeyboardType.Password else KeyboardType.Text),
+                keyboardOptions = privateKeyboard(if (masked) KeyboardType.Password else KeyboardType.Text).copy(imeAction = imeAction),
+                keyboardActions = KeyboardActions(onAny = { onImeAction() }),
                 trailingIcon = {
                     TextButton(onClick = { revealed = !revealed }) {
                         Text(stringResource(if (masked) R.string.secret_show else R.string.secret_hide))

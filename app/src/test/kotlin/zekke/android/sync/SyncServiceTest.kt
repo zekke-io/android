@@ -192,6 +192,14 @@ class SyncServiceTest {
     }
 
     @Test
+    fun resettingAScopePullsAgain() {
+        unlock()
+        service.resetScope(FeedScope.PASSWORDS)
+        scope.runCurrent()
+        assertEquals(2, backends[0].pulses)
+    }
+
+    @Test
     fun aFailureIsShownAndKeepsTheLastGoodTime() {
         unlock()
         clock = 200L

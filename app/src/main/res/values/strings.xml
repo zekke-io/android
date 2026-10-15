@@ -4,7 +4,6 @@
     <string name="home_title">Zekke</string>
     <string name="home_body">Your account is open on this phone.</string>
     <string name="home_lock">Lock</string>
-    <string name="shell_back">Back</string>
     <string name="shell_settings">Settings</string>
     <string name="shell_notifications">Notifications</string>
     <string name="shell_lock_hint">Lock this phone</string>

@@ -28,6 +28,7 @@ import zekke.android.ui.components.StatusBadge
 import zekke.android.ui.components.StorageMeter
 import zekke.android.ui.components.StorageReading
 import zekke.android.ui.components.Tone
+import zekke.android.ui.components.TopBar
 import zekke.android.ui.components.ZekkeButton
 import zekke.android.ui.components.ZekkeIconButton
 import zekke.android.ui.components.ZekkeIconToggleButton
@@ -51,6 +52,11 @@ fun ComponentGallery() {
             ZekkeIconButton(R.drawable.ic_trash, hint = "Delete", label = "Delete Bank PIN", onClick = {}, tone = IconButtonTone.Danger)
             StatusBadge("Draft", Tone.Neutral)
         }
+        TopBar(
+            title = "Passwords",
+            onBack = {},
+            actions = { ZekkeIconButton(R.drawable.ic_lock_session, hint = "Lock", onClick = {}) },
+        )
         SegmentedControl(
             segments = listOf(Segment(false, "Standard"), Segment(true, "Paranoid")),
             selected = false,

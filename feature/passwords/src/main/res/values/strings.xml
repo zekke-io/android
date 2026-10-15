@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="passwords_search">Search passwords</string>
+    <string name="passwords_empty">No passwords saved yet. Add your first one below — the server never sees the site you saved it for.</string>
+    <string name="passwords_no_match">No password matches that search.</string>
+    <string name="passwords_unreadable">Unreadable credential</string>
+    <string name="passwords_add">Add a password</string>
+    <string name="passwords_recently_deleted">Recently deleted</string>
+    <string name="passwords_masked">••••••••</string>
+    <string name="passwords_copy">Copy password</string>
+    <string name="passwords_loading">Loading passwords</string>
+
+    <string name="password_form_add_title">Add a password</string>
+    <string name="password_form_add_subtitle">Site, username and password are encrypted on this phone before they are stored.</string>
+    <string name="password_form_add_submit">Add password</string>
+    <string name="password_form_edit_title">Edit password</string>
+    <string name="password_form_edit_subtitle">Saving writes a new revision. The previous one is kept until you prune it.</string>
+    <string name="password_form_edit_submit">Save revision</string>
+    <string name="password_form_saving">Saving…</string>
+    <string name="password_field_site">Site</string>
+    <string name="password_field_username">Username</string>
+    <string name="password_field_password">Password</string>
+    <string name="password_field_note">Note</string>
+    <string name="password_field_urls">Also used on</string>
+    <string name="password_field_urls_hint">Other addresses this login works on, separated by commas.</string>
+    <string name="password_field_match">Offer it on</string>
+    <string name="password_match_domain">Any address of the same site</string>
+    <string name="password_match_host">Only these exact addresses</string>
+    <string name="password_delete">Delete</string>
+    <string name="password_show_previous">Show previous passwords</string>
+    <string name="password_previous_title">Previous passwords</string>
+    <string name="password_previous_none">No previous passwords.</string>
+
+    <string name="password_delete_title">Delete this password?</string>
+    <string name="password_delete_message">It disappears from every device, including your browser extensions. Its history is kept, so it can be restored from Recently deleted until it is deleted permanently.</string>
+    <string name="password_delete_message_not_full">It disappears from every device, including your browser extensions. Its history is kept, so it can be restored from Recently deleted until it is deleted permanently from a full device.</string>
+    <string name="password_delete_confirm">Delete</string>
+
+    <string name="deleted_title">Recently deleted</string>
+    <string name="deleted_subtitle">A deleted password keeps its history until it is deleted permanently, so it can be brought back.</string>
+    <string name="deleted_none">Nothing has been deleted.</string>
+    <string name="deleted_when">Deleted %1$s</string>
+    <string name="deleted_restore">Restore</string>
+    <string name="deleted_purge_one">Delete permanently</string>
+    <string name="deleted_purge_all">Delete all permanently</string>
+    <string name="deleted_close">Close</string>
+    <string name="purge_title_one">Delete this password permanently?</string>
+    <plurals name="purge_title_many">
+        <item quantity="other">Delete %1$d passwords permanently?</item>
+    </plurals>
+    <string name="purge_message">Deleting permanently erases every saved version of it, its previous passwords included, from every device. It cannot be undone: only this account holds the key, so nobody — including Zekke — can bring it back.</string>
+    <string name="purge_confirm">Delete permanently</string>
+    <string name="purge_working">Deleting…</string>
+</resources>
