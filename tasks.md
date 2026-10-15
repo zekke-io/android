@@ -337,7 +337,9 @@ feature modules) to be consolidated.
   markers; bold, two size steps and a ticked checklist made on the phone read on the web as
   `- [x] {{18}}**hello world**{{/}}`; a note made while a tab is open is filed there; text typed
   one second before leaving the app is on the web after the next unlock; delete reads from the web.
-  Not built: the web app's multi-select delete from the grid; a formatting key with an empty
+  **Unverified**: typing on a real soft keyboard (the end-to-end scripts inject text and key events, which
+  bypass the keyboard's composition); the note editor keeps the keyboard's composition range, but only
+  a person typing on a phone can prove it (A8.2). Not built: the web app's multi-select delete from the grid; a formatting key with an empty
   selection (bold and italic do nothing, size applies to the line). A note whose first save is in
   flight at the moment of leaving can lose what was typed after it. Tests: notes 28, vault 20, tabs 17,
   passwords 25, app 87, ui 50, settings 47, onboarding 40, unlock 44; core 327.

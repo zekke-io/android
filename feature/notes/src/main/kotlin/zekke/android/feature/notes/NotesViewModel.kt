@@ -38,6 +38,7 @@ data class NoteEditorState(
     val id: String,
     val document: NoteDocument,
     val selection: TextRange = TextRange.Zero,
+    val composition: TextRange? = null,
     val saved: String? = null,
     val saving: Boolean = false,
     val unreadable: Boolean = false,
@@ -47,7 +48,7 @@ data class NoteEditorState(
 ) {
     val draft: String get() = document.toNote()
 
-    val value: TextFieldValue get() = TextFieldValue(document.plain, selection)
+    val value: TextFieldValue get() = TextFieldValue(document.plain, selection, composition)
 
     val charactersLeft: Int get() = noteCharactersLeft(draft)
 
@@ -143,7 +144,11 @@ class NotesViewModel(
         if (current.unreadable) return@editor current
         val next = current.document.edit(value.text)
         val limit = next.plain.length
-        current.copy(document = next, selection = TextRange(value.selection.start.coerceIn(0, limit), value.selection.end.coerceIn(0, limit)))
+        current.copy(
+            document = next,
+            selection = TextRange(value.selection.start.coerceIn(0, limit), value.selection.end.coerceIn(0, limit)),
+            composition = if (next.plain == value.text) value.composition else null,
+        )
     }
 
     fun toggleBold() = format { doc, range -> doc.toggleStyle(range.min, range.max, InlineStyle.BOLD) }

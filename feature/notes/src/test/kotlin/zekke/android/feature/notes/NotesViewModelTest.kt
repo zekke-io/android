@@ -102,6 +102,18 @@ class NotesViewModelTest {
     }
 
     @Test
+    fun theKeyboardsCompositionSurvivesAnOrdinaryEditAndIsDroppedWhenTheModelRewritesTheText() {
+        val model = model()
+        model.startNew()
+        model.valueChanged(TextFieldValue("hel", TextRange(3), TextRange(0, 3)))
+        assertEquals(TextRange(0, 3), model.state.value.editor!!.value.composition)
+        model.lineType(NoteLineCommand.TOPIC)
+        model.valueChanged(TextFieldValue("hel\n", TextRange(4)))
+        model.valueChanged(TextFieldValue("hel\n\n", TextRange(5), TextRange(5, 5)))
+        assertNull(model.state.value.editor!!.value.composition)
+    }
+
+    @Test
     fun anEmptyNoteIsNeverSaved() {
         val model = model()
         model.startNew()
