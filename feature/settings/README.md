@@ -132,3 +132,14 @@ the history may have been tampered with, and then no removal is offered.
 `DevicesViewModelTest` covers the order of the list, who may remove whom, rename and its failures, the phrase
 (checksum, one removal at a time, forgotten on cancel) and every removal outcome; `DevicesScreensTest`
 (Robolectric) draws the list, the sheets and the limited device.
+
+## Security, plan and about
+
+- **Security** — *Lock after* (1, 5, 15, 30 or 60 minutes), saved and applied at once; and *This phone’s
+  PIN*: two PIN fields, the same refusals (length, repeats, sequences, mismatch) as the other PIN screens,
+  no recovery phrase because the phone is already unlocked. `SecurityViewModelTest` covers the choices, every
+  refusal, every failure kept with the fields, one change at a time and the unexpected exception.
+- **Plan** — read from the account: the plan's name, *Paid until*, a card renewal note, the grace end and
+  what happens after it, the storage meter and the Trash's retention. Nothing is bought here.
+  `PlanAndAboutTest` (Robolectric) draws the free, paid and grace plans and a failed read.
+- **About** — the version and whatever notices the app gives it (the client policy's update notice).

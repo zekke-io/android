@@ -84,7 +84,7 @@ policy says.
 | `Deprecated` with an unreadable date | `UpdateAvailable` | As available; a raw date string is never shown |
 | `Required`, or any `426` | `UpgradeRequired` | `UpgradeRequiredScreen`: *Update Zekke*, a danger notice, the current version when known, and where to update. No button |
 
-The notices show on the unlock screen and on the unlocked Home page (A7.3 moves them into About).
+The notices show on the unlock screen and in Settings → About (the unlocked Home no longer shows the version notice; its chain and re-wrap notices stay).
 The blocking screen replaces every screen (`ClientGate` in `app`), except the onboarding's
 creating and recovery-kit steps. When the version becomes unsupported while unlocked, the session is locked at
 once. The update screen names a version only when it is newer than this one, and no store while the app is in none (A8.6 words it for the store).

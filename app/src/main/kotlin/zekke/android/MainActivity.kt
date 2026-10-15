@@ -21,7 +21,14 @@ import zekke.android.clients.ClientPolicyMonitor
 import zekke.android.feature.onboarding.OnboardingStep
 import zekke.android.feature.onboarding.OnboardingViewModel
 import zekke.android.feature.settings.AccountSecuritySection
+import zekke.android.feature.settings.AboutScreen
 import zekke.android.feature.settings.DevicesScreen
+import zekke.android.feature.settings.PlanScreen
+import zekke.android.feature.settings.PlanServices
+import zekke.android.feature.settings.PlanViewModel
+import zekke.android.feature.settings.SecurityScreen
+import zekke.android.feature.settings.SecurityServices
+import zekke.android.feature.settings.SecurityViewModel
 import zekke.android.feature.settings.DevicesServices
 import zekke.android.feature.settings.DevicesViewModel
 import zekke.android.feature.settings.ExtensionLinkServices
@@ -142,7 +149,6 @@ class MainActivity : ComponentActivity() {
                                 val notifications = viewModel { NotificationsViewModel(this@MainActivity.get<NotificationsServices>(), sync::unreadChanged) }
                                 val notificationsState by notifications.state.collectAsStateWithLifecycle()
                                 val versionNotices: @Composable () -> Unit = {
-                                    VersionNotice(versionStatus, policy::dismissUpdateAvailable)
                                     UnlockSessionNotices(
                                         unlockState,
                                         unlock::dismissChainProblem,
@@ -209,6 +215,19 @@ class MainActivity : ComponentActivity() {
                                         },
                                         Destination.SettingsAccount to {
                                             AccountSecuritySection(securityState, security)
+                                        },
+                                        Destination.SettingsSecurity to {
+                                            val securityModel = viewModel { SecurityViewModel(this@MainActivity.get<SecurityServices>()) }
+                                            val pinState by securityModel.state.collectAsStateWithLifecycle()
+                                            SecurityScreen(pinState, securityModel)
+                                        },
+                                        Destination.SettingsPlan to {
+                                            val planModel = viewModel { PlanViewModel(this@MainActivity.get<PlanServices>()) }
+                                            val planState by planModel.state.collectAsStateWithLifecycle()
+                                            PlanScreen(planState, planModel)
+                                        },
+                                        Destination.SettingsAbout to {
+                                            AboutScreen(BuildConfig.VERSION_NAME) { VersionNotice(versionStatus, policy::dismissUpdateAvailable) }
                                         },
                                     ),
                                     notifications = { NotificationsScreen(notificationsState, notifications) },

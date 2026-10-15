@@ -45,11 +45,14 @@ import zekke.android.ui.components.ZekkeIconButton
 import zekke.android.ui.theme.Zekke
 import zekke.core.feed.FeedScope
 
-enum class Destination { Home, Passwords, Vault, Notes, Drive, Shared, Settings, SettingsDevices, SettingsAccount, Notifications }
+enum class Destination { Home, Passwords, Vault, Notes, Drive, Shared, Settings, SettingsDevices, SettingsAccount, SettingsSecurity, SettingsPlan, SettingsAbout, Notifications }
 
 private val SETTINGS_PAGES = mapOf(
     Destination.SettingsDevices to R.string.settings_devices,
     Destination.SettingsAccount to R.string.settings_account,
+    Destination.SettingsSecurity to R.string.settings_security,
+    Destination.SettingsPlan to R.string.settings_plan,
+    Destination.SettingsAbout to R.string.settings_about,
 )
 
 private class Section(
@@ -107,7 +110,7 @@ fun Shell(
                 onBack = { destination = Destination.Home },
                 onLock = onLock,
             ) { settings(openNotifications) { destination = it } }
-            Destination.SettingsDevices, Destination.SettingsAccount -> ShellPage(
+            Destination.SettingsDevices, Destination.SettingsAccount, Destination.SettingsSecurity, Destination.SettingsPlan, Destination.SettingsAbout -> ShellPage(
                 title = stringResource(SETTINGS_PAGES.getValue(destination)),
                 onBack = { destination = Destination.Settings },
                 onLock = onLock,

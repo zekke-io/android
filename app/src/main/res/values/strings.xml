@@ -15,6 +15,12 @@
     <string name="settings_devices_meta">This phone, the others, the extension</string>
     <string name="settings_account">Account</string>
     <string name="settings_account_meta">Security mode and how it protects the account</string>
+    <string name="settings_security">Security</string>
+    <string name="settings_security_meta">When this phone locks and its PIN</string>
+    <string name="settings_plan">Plan</string>
+    <string name="settings_plan_meta">What the account has</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_meta">Version and updates</string>
     <string name="section_shared">Shared</string>
     <string name="section_shared_description">Sent and received</string>
     <string name="section_passwords_description">Logins and passkeys</string>

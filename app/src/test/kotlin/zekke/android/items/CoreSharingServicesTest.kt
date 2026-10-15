@@ -76,4 +76,18 @@ class CoreSharingServicesTest {
         )
         assertEquals(zekke.android.feature.settings.DeviceRemoval.Failed, removalOutcomeOf(IllegalStateException()))
     }
+
+    @Test
+    fun everyDevicePinFailureIsTyped() {
+        assertEquals(zekke.android.feature.settings.DevicePinChange.Offline, devicePinOutcomeOf(zekke.core.api.NetworkError("/x")))
+        assertEquals(zekke.android.feature.settings.DevicePinChange.Failed, devicePinOutcomeOf(IllegalStateException()))
+    }
+
+    @Test
+    fun theAccountsPlanBecomesWhatTheScreenShows() {
+        val account = zekke.core.users.AccountRecord("a", "name", "u", false, 7, "2026-01-01T00:00:00Z", null)
+        val free = planInfoOf(account)
+        assertEquals("free", free.code)
+        assertEquals(7, free.retentionDays)
+    }
 }

@@ -60,6 +60,13 @@ import zekke.android.items.CoreFolderTabsServices
 import zekke.android.items.CoreVaultServices
 import zekke.core.folders.ManifestScope
 import zekke.android.feature.settings.DevicesServices
+import zekke.android.feature.settings.PlanServices
+import zekke.android.feature.settings.SecurityServices
+import zekke.android.items.CorePlanServices
+import zekke.android.items.CoreSecurityServices
+import zekke.android.session.FileIdleTimeoutStore
+import zekke.android.session.IdleTimeoutStore
+import zekke.android.session.idleDurationOf
 import zekke.android.feature.settings.ExtensionLinkServices
 import zekke.android.items.CoreDevicesServices
 import zekke.android.feature.settings.NotificationsServices
@@ -85,7 +92,8 @@ val coreModule = module {
     single<CoroutineScope>(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
     single { ClientIdentity(ClientPlatform.ANDROID, BuildConfig.VERSION_NAME) }
     single { ZekkeApi(baseUrl = BuildConfig.API_BASE_URL, clientIdentity = get()) }
-    single { SessionKeystore(timerScope = get(APP_SCOPE)) }
+    single<IdleTimeoutStore> { FileIdleTimeoutStore(File(androidContext().noBackupFilesDir, "idle-timeout.txt")) }
+    single { SessionKeystore(idleTimeout = idleDurationOf(get<IdleTimeoutStore>().minutes()), timerScope = get(APP_SCOPE)) }
     single { AccountServices(get(), get(), get()) }
     single<CoroutineScope>(MAIN_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate) }
     single<SessionControl> { KeystoreSessionControl(get()) }
@@ -128,6 +136,8 @@ val coreModule = module {
     factory<PasswordsServices> { CorePasswordsServices(get(), get(), get()) }
     single { SharingService(get()) }
     factory<SharingServices> { CoreSharingServices(get(), get(), get(), get(), get(), get()) }
+    factory<SecurityServices> { CoreSecurityServices(get(), get(), get()) }
+    factory<PlanServices> { CorePlanServices(get(), get()) }
     factory<DevicesServices> { CoreDevicesServices(get(), get(), get(), get(), get(), get()) }
     factory<ExtensionLinkServices> { CoreExtensionLinkServices(get(), get(), get()) }
     factory<NotificationsServices> { CoreNotificationsServices(get()) }

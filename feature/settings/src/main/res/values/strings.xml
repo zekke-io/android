@@ -157,4 +157,31 @@
     <string name="devices_remove_submit">Remove it</string>
     <string name="devices_removing">Removing…</string>
     <string name="devices_removed">The device was removed. Every key it held has changed.</string>
+    <string name="idle_title">Lock after</string>
+    <string name="idle_summary">This phone locks itself after this long without being used, on top of locking when you leave Zekke. It applies now.</string>
+    <plurals name="idle_minutes">
+        <item quantity="one">%1$d min</item>
+        <item quantity="other">%1$d min</item>
+    </plurals>
+    <string name="device_pin_title">This phone’s PIN</string>
+    <string name="device_pin_summary">It unlocks this phone only. Changing it needs no recovery phrase, because this phone is already unlocked.</string>
+    <string name="device_pin_new">New PIN</string>
+    <string name="device_pin_confirm">Confirm new PIN</string>
+    <string name="device_pin_submit">Change this phone’s PIN</string>
+    <string name="device_pin_changing">Changing it…</string>
+    <string name="device_pin_done">This phone’s PIN has changed.</string>
+    <string name="plan_title">Your plan</string>
+    <string name="plan_paid_until">Paid until %1$s.</string>
+    <string name="plan_renews">Your card subscription renews on its own. Change or cancel it from the web app.</string>
+    <string name="plan_grace">Your plan has ended. Your files stay readable until %1$s, and you are warned every day.</string>
+    <string name="plan_grace_soon">the end of the grace period</string>
+    <string name="plan_data_loss">After that, the most recent uploads are deleted until your Drive fits the free plan. Documents, notes, secrets and passwords are never deleted.</string>
+    <string name="plan_trash_none">Deleted items are not kept.</string>
+    <plurals name="plan_trash_days">
+        <item quantity="one">Deleted items are kept for %1$d day.</item>
+        <item quantity="other">Deleted items are kept for %1$d days.</item>
+    </plurals>
+    <string name="plan_read_only">Plans are bought and managed in the web app. This app shows what the account has.</string>
+    <string name="about_app">Zekke for Android</string>
+    <string name="about_version">Version %1$s</string>
 </resources>

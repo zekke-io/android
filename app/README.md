@@ -17,7 +17,7 @@ tiles; a section is a page with a back button, its title and *Lock*. `BackHandle
 | Passwords, Vault, Notes | How many items the replica holds, then the sync status. The lists arrive with A4 |
 | Shared | [`feature:sharing`](../feature/sharing/README.md): the tile shows when any of the vault, notes or files scopes is held |
 | Drive | The sync status; Drive has no count, because telling a thumbnail from a file needs the manifests decrypted |
-| Settings | An index: the notifications entry with the unread count, the outbox's refused changes with *Discard*, then rows that open their own pages — *Devices* (the list, the browser extension, *Remove this phone*) and *Account* (the security mode) |
+| Settings | An index: the notifications entry with the unread count, the outbox's refused changes with *Discard*, then rows that open their own pages — *Devices* (the list, the browser extension, *Remove this phone*) and *Account* (the security mode), *Security* (idle lock and device PIN), *Plan* and *About* |
 | Notifications | `feature:settings`' list, opened from Home or Settings |
 
 Counts and statuses are read from the replica without decrypting anything, and refresh when the feed

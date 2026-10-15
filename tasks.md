@@ -11,6 +11,8 @@ States: `[ ]` open, `[~]` under way, `[x]` done.
 
 Decisions taken by default and not yet confirmed; each is recorded where it was taken.
 
+- **The idle-lock choices** (1, 5, 15, 30, 60 minutes; 15 by default) are this app's own: the web app has no
+  such setting to copy (A7.3).
 - **A6.4 by hand with the real extension.** The linking is verified end to end against a scripted extension
   (same API calls and fingerprint construction); linking the phone to the actual browser extension build,
   once, is left to the owner.
@@ -535,8 +537,20 @@ feature modules) to be consolidated.
   a newer key generation and it still opened; a phrase that fails its checksum removed nothing.
 - [ ] **A7.2 Account.** The username, the mode, deleting the account with the phrase (and the account
   PIN on Paranoid) with `retention_days` stated.
-- [ ] **A7.3 Plan, security and about.** The plan read-only, the idle timeout, changing the device
+- [x] **A7.3 Plan, security and about.** The plan read-only, the idle timeout, changing the device
   PIN, the version and the client policy.
+  **Done 2026-10-15**: three more Settings pages. *Plan*: the plan's name, what it is paid until (or the
+  grace end with what happens after), the storage meter, how long deleted items are kept, and that plans are
+  bought on the web; read from the account. *Security*: *Lock after* with 1, 5, 15, 30 or 60 minutes,
+  applied to the running session at once (the core's new `changeIdleTimeout`) and kept in a file under
+  `noBackupFilesDir` that is read before the first unlock; and *This phone’s PIN*, two PIN fields and the
+  same refusals as the other PIN screens, the process held, no recovery phrase. *About*: the version and the
+  client policy's notice, which moved there from Home (the chain and re-wrap notices stay on Home). On the
+  emulator against the local API (37 checks): the free plan, then the paid plan after a web change, with the
+  trash retention; the version; the PIN changed, the old one refused and the new one opening; the idle
+  window set to one minute, the stored file read back, the phone locking itself after it and still
+  locked, with the choice kept, after a restart. **The web has no idle-lock setting**: the five choices are
+  this app's own decision, recorded under *Awaiting the owner*.
 
 ## A8 — The first release
 

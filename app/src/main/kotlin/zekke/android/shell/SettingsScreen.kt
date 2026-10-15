@@ -67,5 +67,23 @@ fun SettingsContent(
             icon = zekke.android.ui.R.drawable.ic_settings,
             onClick = { onOpen(Destination.SettingsAccount) },
         )
+        ItemRow(
+            title = stringResource(R.string.settings_security),
+            meta = stringResource(R.string.settings_security_meta),
+            icon = zekke.android.ui.R.drawable.ic_lock_session,
+            onClick = { onOpen(Destination.SettingsSecurity) },
+        )
+        ItemRow(
+            title = stringResource(R.string.settings_plan),
+            meta = stringResource(R.string.settings_plan_meta),
+            icon = zekke.android.ui.R.drawable.ic_chart,
+            onClick = { onOpen(Destination.SettingsPlan) },
+        )
+        ItemRow(
+            title = stringResource(R.string.settings_about),
+            meta = stringResource(R.string.settings_about_meta),
+            icon = zekke.android.ui.R.drawable.ic_info,
+            onClick = { onOpen(Destination.SettingsAbout) },
+        )
     }
 }
