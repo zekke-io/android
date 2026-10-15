@@ -44,7 +44,7 @@ fun alarmTone(alarm: TrustAlarm): NoticeTone = if (alarm.danger) NoticeTone.Dang
 
 @Composable
 fun ConnectionsScreen(state: ConnectionsState, viewModel: ConnectionsViewModel, modifier: Modifier = Modifier) {
-    LaunchedEffect(Unit) { viewModel.refresh() }
+    LaunchedEffect(Unit) { viewModel.opened() }
     Column(
         modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),

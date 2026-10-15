@@ -1,7 +1,9 @@
 package zekke.android.items
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import zekke.android.feature.sharing.InviteOutcome
 import zekke.android.feature.sharing.TrustAlarm
@@ -27,5 +29,13 @@ class CoreSharingServicesTest {
     @Test
     fun anythingElseIsLeftToTheGenericFailure() {
         assertNull(inviteOutcomeOf(IllegalStateException()))
+    }
+
+    @Test
+    fun everyKeptChangingConflictIsOneConflict() {
+        assertTrue(isKeptChanging(zekke.core.folders.FoldersKeptChangingException()))
+        assertTrue(isKeptChanging(zekke.core.sharing.AddressBookKeptChangingException()))
+        assertTrue(isKeptChanging(zekke.core.sharing.SharedFoldersKeptChangingException()))
+        assertFalse(isKeptChanging(IllegalStateException()))
     }
 }

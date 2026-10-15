@@ -63,6 +63,11 @@ class ConnectionsViewModel(private val services: SharingServices) : ViewModel() 
 
     private var refreshes = 0
 
+    fun opened() {
+        mutableState.update { it.copy(invited = null, inviteProblem = null) }
+        refresh()
+    }
+
     fun refresh() {
         val attempt = ++refreshes
         viewModelScope.launch {

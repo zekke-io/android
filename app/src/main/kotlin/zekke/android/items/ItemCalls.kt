@@ -13,9 +13,14 @@ import zekke.core.account.renewSignIn
 import zekke.core.api.ApiError
 import zekke.core.api.NetworkError
 import zekke.core.folders.FoldersKeptChangingException
+import zekke.core.sharing.AddressBookKeptChangingException
+import zekke.core.sharing.SharedFoldersKeptChangingException
 import zekke.core.items.ItemTooLargeException
 import zekke.core.session.ScopeNotHeldException
 import zekke.core.session.SessionLockedException
+
+fun isKeptChanging(error: Exception): Boolean =
+    error is FoldersKeptChangingException || error is AddressBookKeptChangingException || error is SharedFoldersKeptChangingException
 
 sealed interface ItemResult<out T> {
     data class Done<T>(val value: T) : ItemResult<T>
@@ -54,7 +59,7 @@ class ItemCalls(
         error is ItemTooLargeException -> ItemFailure.TooLarge
         error is ScopeNotHeldException -> ItemFailure.ScopeMissing
         error is SessionLockedException -> ItemFailure.SessionOver
-        error is FoldersKeptChangingException -> ItemFailure.Conflict
+        isKeptChanging(error) -> ItemFailure.Conflict
         error is ApiError -> apiFailureOf(error)
         else -> ItemFailure.Failed
     }

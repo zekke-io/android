@@ -67,6 +67,19 @@ class ConnectionsViewModelTest {
     }
 
     @Test
+    fun openingThePageClearsTheLastInvitationNoticeAndReadsAgain() {
+        val model = model()
+        model.usernameChanged("bob")
+        model.invite()
+        assertEquals("bob", model.state.value.invited)
+        val before = services.loads
+        model.opened()
+        assertNull(model.state.value.invited)
+        assertNull(model.state.value.inviteProblem)
+        assertEquals(before + 1, services.loads)
+    }
+
+    @Test
     fun noConnectionAwaitingMeIsChecked() {
         services.items = listOf(bob)
         model()

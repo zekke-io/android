@@ -1,6 +1,8 @@
 package zekke.android.feature.sharing
 
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -210,11 +212,25 @@ class ConnectionsScreensTest {
     }
 
     @Test
-    fun openingThePageAgainReadsTheConnectionsAgain() {
-        show()
-        val before = services.loads
-        model.refresh()
-        assertEquals(before + 1, services.loads)
+    fun leavingAndOpeningThePageAgainShowsWhatChangedMeanwhile() {
+        services.items = listOf(connection("1", "ann"))
+        model = ConnectionsViewModel(services)
+        var visible by mutableStateOf(true)
+        compose.setContent {
+            ZekkeTheme {
+                val state by model.state.collectAsState()
+                if (visible) ConnectionsScreen(state, model)
+            }
+        }
+        text("ann").assertExists()
+        text("Their username").performTextInput("bob")
+        text("Send invitation").performClick()
+        text("Invitation sent to bob.").assertExists()
+        compose.runOnIdle { visible = false }
+        services.items = listOf(connection("1", "ann"), connection("2", "cat"))
+        compose.runOnIdle { visible = true }
+        text("cat").assertExists()
+        assertEquals(0, compose.onAllNodesWithTextCount("Invitation sent to bob."))
     }
 
     @Test

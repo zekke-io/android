@@ -11,6 +11,10 @@ scopes. It holds *Connections* (the web's Settings → Sharing tab).
 
 ## Connections
 
+The page reads the connections **when it enters composition** (`ConnectionsViewModel.opened()`), not when
+the ViewModel is created: the ViewModel lives with the activity until a lock, so a page opened again
+must not show the list it left. Opening also clears the last invitation notice and refusal.
+
 | Part | Behaviour |
 | --- | --- |
 | *Invite someone* | A username, sent with the keyboard's *Send* or the button. The one sentence on re-sharing (*Anything you send can be copied by the person you send it to…*) sits here and nowhere else |
@@ -53,4 +57,4 @@ can skip the check.
 | --- | --- |
 | `SharingPolicyTest` | Every core trust state is an alarm or none; which alarms are danger; the standing of a record; the groups; the fingerprint of each trust |
 | `ConnectionsViewModelTest` | The load, the trust check and the silent catch-up; a failed check shown as nothing; an older check never overwriting a newer load; one invitation at a time; every refusal; the review waiting for the fingerprint and blocked by every alarm; accepting and declining and their failures; the nickname; the disconnect confirmation; a limited device; an unexpected exception |
-| `ConnectionsScreensTest` (Robolectric) | The invite form and the keyboard's *Send*; each refusal's words; *Do not send* and each alarm's sentence; the review and its disabled accept; accepting and declining; the nickname; the disconnect confirmation; a limited device offered no disconnect |
+| `ConnectionsScreensTest` (Robolectric) | A page left and opened again shows what changed meanwhile and no old notice; the invite form and the keyboard's *Send*; each refusal's words; *Do not send* and each alarm's sentence; the review and its disabled accept; accepting and declining; the nickname; the disconnect confirmation; a limited device offered no disconnect |

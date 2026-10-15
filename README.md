@@ -40,6 +40,7 @@ Koin, started once in `ZekkeApplication` with `platformModule` and `coreModule`
 | `ThisPhoneEvents` | One for the process: counts the phone's removals, so `MainActivity` looks for the device record again |
 | `ClientPolicyMonitor` | One for the process, over `ZekkeApi.upgradeRequired` and `getClientPolicy`: read at the first `ON_START` of the process, again when the app returns to the foreground after 15 minutes, and after any `426` |
 | `ObjectStore` | One `HttpObjectStore`, for the drive's presigned URLs |
+| `SharingService` | One for the process, built on the first use after an unlock: it registers its own lock listener, which forgets the published keys, the connections, the address book and the friendships' folders at every lock, so no copy of them outlives a session |
 | `ItemContext` | A new one per use, over the same API and session |
 | `Replica`, `Outbox` | Built with the account's `user_address` as a parameter, on the platform's no-backup databases; their lifetime per session is task A3.1's |
 

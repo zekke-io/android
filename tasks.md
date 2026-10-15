@@ -471,8 +471,8 @@ feature modules) to be consolidated.
   on the web; an invitation from the web reviewed on the phone with both fingerprints equal to the web's
   `ownRootFingerprint`, then accepted; a nickname read back from the address book on the web; a disconnect
   that removes the other side. Not exercised on a device: the danger states (covered by unit tests, since
-  they need a root key that changes). The connections ViewModel lives with the activity, so the page reads
-  the list again each time it opens.
+  they need a root key that changes). The connections ViewModel lives with the activity until a lock, so the
+  page reads the list again each time it opens.
 - [ ] **A6.2 The Shared space.** One folder per friendship, both directions, the friendship's
   folders, opening, *Copy to my account*, re-establishing in the background.
 - [ ] **A6.3 Sending.** From each tab, trust checked first, filed into a folder in the same gesture.
