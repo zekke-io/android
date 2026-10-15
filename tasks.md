@@ -14,6 +14,9 @@ Decisions taken by default and not yet confirmed; each is recorded where it was 
 - **A7.2's wrong-account-PIN refusal on a device.** Deleting the account with a wrong PIN left the account
   intact but showed no notice in five emulator runs (the instrumentation could see no text, the log no
   error); the unit tests show the notice. Worth one look by hand on a Paranoid throwaway account.
+- **A8.1, A8.2, A8.4, A8.5, A8.6** (the first release): the measurements and the arm64 run need real phones,
+  the `client_releases` row is production SQL, the keys are the owner's and the listing waits for R1; each is
+  described under A8.
 - **The idle-lock choices** (1, 5, 15, 30, 60 minutes; 15 by default) are this app's own: the web app has no
   such setting to copy (A7.3).
 - **A6.4 by hand with the real extension.** The linking is verified end to end against a scripted extension
@@ -578,7 +581,13 @@ feature modules) to be consolidated.
 
 - [ ] **A8.1 Low-end measurements.** The time of an unlock, a 1 GiB upload's memory, the first pull
   of a large account, on a real low-end phone and a recent one; recorded in the README.
+  **Blocked on hardware (the owner)**: the numbers mean something only on physical phones; the x86_64
+  emulator under KVM says nothing about a low-end arm64 CPU. The emulator runs of the 150 MiB upload and
+  the end-to-end flows prove the paths work, not how fast or how lean they are.
 - [ ] **A8.2 The core on an arm64 phone.** The core's tests on a physical device.
+  **Blocked on hardware (the owner)**: the core's own tests still run on the JVM, and the instrumented
+  test on the emulator stands in for them (see A3.1); the native library is built for arm64 but has never
+  run on an arm64 device here.
 - [x] **A8.3 The security checklist.** Every item of "what the phone must never leak", the manifest's
   permissions, the network config, the backup rules, the dependency list.
   **Done 2026-10-15** on the release APK (merged manifest, packaged XML and dex read with `aapt2` and
@@ -588,6 +597,15 @@ feature modules) to be consolidated.
   `uploads.json` keeps queued uploads' names and URIs in plaintext until they finish; the release's API
   address still defaults to the test host.
 - [ ] **A8.4 The client policy row.** An `android` row in `client_releases` before the first release.
+  **An operator's SQL on the production database (the owner)**, as the clients domain's README says:
+  `INSERT INTO client_releases (platform, min_supported, latest) VALUES ('android', '0.1.0', '0.1.0') ON
+  CONFLICT (platform) DO NOTHING;`. Until it exists nothing is refused and no update is announced. The app's
+  side (the update screen, the notices in *About*, the `426` handling) is built and was exercised against a
+  local policy.
 - [ ] **A8.5 Reproducible builds.** Our own upload and signing keys, each release's SHA-256
   published.
+  **The owner's**: the upload and signing keys must be made and kept by the owner; nothing here should hold
+  them. The release build is unsigned and its dependencies are verified by hash; whether the build is
+  byte-reproducible has not been tried.
 - [ ] **A8.6 The store listing.** Requires R1 decided.
+  **Blocked on the owner's decision R1** (the distribution and the listing's wording).
