@@ -211,4 +211,50 @@ class SessionGuardTest {
         scope.runCurrent()
         assertEquals(1, session.locks)
     }
+
+    @Test
+    fun aListenerRunsBeforeTheSessionLocksAndCanKeepTheProcessAlive() {
+        foreground()
+        val seen = mutableListOf<SessionState>()
+        var release: (() -> Unit)? = null
+        guard.onBeforeLock {
+            seen += session.state.value
+            release = guard.holdProcess()
+        }
+        background()
+        assertEquals(listOf(SessionState.UNLOCKED), seen)
+        assertEquals(1, session.locks)
+        assertEquals(0, terminations)
+        release!!()
+        assertEquals(1, terminations)
+    }
+
+    @Test
+    fun aFailingListenerNeverStopsTheLock() {
+        foreground()
+        guard.onBeforeLock { error("boom") }
+        guard.lockNow()
+        assertEquals(1, session.locks)
+    }
+
+    @Test
+    fun noListenerRunsWhenTheSessionIsAlreadyLocked() {
+        foreground()
+        var calls = 0
+        guard.onBeforeLock { calls++ }
+        session.lock()
+        scope.runCurrent()
+        guard.lockNow()
+        assertEquals(0, calls)
+    }
+
+    @Test
+    fun aRemovedListenerIsNotCalled() {
+        foreground()
+        var calls = 0
+        val remove = guard.onBeforeLock { calls++ }
+        remove()
+        guard.lockNow()
+        assertEquals(0, calls)
+    }
 }

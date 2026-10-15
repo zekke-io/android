@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notes_nouns_one">note</string>
+    <string name="notes_nouns_many">notes</string>
+    <string name="notes_empty_all">No notes yet. Add your first one below — it is encrypted here before it leaves this phone.</string>
+    <string name="notes_empty_tab">This tab is empty. Add a note while the tab is open, or move one into it.</string>
+    <string name="notes_untitled">Untitled note</string>
+    <string name="notes_unreadable">Unreadable note</string>
+    <plurals name="notes_count">
+        <item quantity="one">%1$d note</item>
+        <item quantity="other">%1$d notes</item>
+    </plurals>
+    <string name="notes_add">Add a note</string>
+    <string name="notes_back">Back to notes</string>
+    <string name="notes_delete">Delete</string>
+    <string name="notes_delete_title">Delete this note?</string>
+    <string name="notes_delete_message">Deleting this note is permanent, and it also removes it from anyone who was set to inherit it.</string>
+    <string name="notes_delete_confirm">Delete note</string>
+    <string name="notes_body">Note body</string>
+    <string name="notes_placeholder">Write your note. The first line becomes its name.</string>
+    <string name="notes_unreadable_notice">This note cannot be decrypted with this account\'s keys. Its contents are not shown, and saving is disabled so nothing overwrites them.</string>
+    <string name="notes_toolbar">Formatting</string>
+    <string name="notes_tool_title">Title</string>
+    <string name="notes_tool_topic">Topic</string>
+    <string name="notes_tool_task">Checklist</string>
+    <string name="notes_tool_bold">Bold</string>
+    <string name="notes_tool_italic">Italic</string>
+    <string name="notes_tool_smaller">Smaller text</string>
+    <string name="notes_tool_larger">Larger text</string>
+    <string name="notes_state_emptied">Nothing to save — use Delete to remove this note</string>
+    <string name="notes_state_over_limit">Too long to save</string>
+    <string name="notes_state_saving">Saving…</string>
+    <string name="notes_state_saved">Saved</string>
+    <string name="notes_state_editing">Unsaved changes</string>
+    <string name="notes_chars_left">%1$s characters left</string>
+    <string name="notes_chars_over">%1$s characters over the limit</string>
+</resources>

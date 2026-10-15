@@ -89,6 +89,8 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | `StorageMeter`, `StorageReading`, `formatBytes` | The web app's storage bar: stored bytes solid over reservations, *Free* counting unfinished uploads. `formatBytes` is the web app's (binary units, one decimal) |
 | `Block` | A title, a subtitle, header actions and content, **with no panel**: whitespace separates blocks, as on the web |
 | `ItemRow` | A 64 dp row: lead icon on `brandTint`, a one-line title, metadata (in `MonoStyle` for a masked value), trailing actions, a divider |
+| `PageTile` | A note as a 3:4 sheet in a grid: its first characters at 9 px, its title and its date beneath |
+| `NoteSurface`, `SurfaceLine`, `SurfaceSpan` | The note's writing surface: one private text field for the whole note, bold, italic and sizes drawn on their ranges, a title as a heading, a bullet or a checkbox in a gutter beside each topic or task line (the box ticks through `onToggleTask`). Plain data in, so it knows nothing of the note format |
 | `TabStrip`, `TabItem` | The section's own tabs: a scrolling row of pills with their counts, the open one in `brandTint`, a trailing *New tab*, and a long press (with its accessibility label) to rename or delete; the main tab is not manageable. Plain data only: it knows nothing of folders |
 | `TopBar` | The section page's bar: the back arrow (none on Home), the title as a one-line heading, and the trailing actions (*Lock* always among them) |
 | `AppTile` | A Home tile: a feature mark on a `surface` square with 22% corners, its label below, pressed to 95%; `description` is the click label TalkBack reads |

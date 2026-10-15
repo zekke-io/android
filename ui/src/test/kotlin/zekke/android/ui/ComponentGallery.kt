@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import zekke.android.ui.components.AppTile
 import zekke.android.ui.components.Block
@@ -22,6 +23,11 @@ import zekke.android.ui.components.IconButtonTone
 import zekke.android.ui.components.ItemRow
 import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
+import zekke.android.ui.components.NoteSurface
+import zekke.android.ui.components.SurfaceLine
+import zekke.android.ui.components.SurfaceLineKind
+import zekke.android.ui.components.SurfaceSpan
+import zekke.android.ui.components.PageTile
 import zekke.android.ui.components.Segment
 import zekke.android.ui.components.SegmentedControl
 import zekke.android.ui.components.StatusBadge
@@ -58,6 +64,22 @@ fun ComponentGallery() {
             title = "Passwords",
             onBack = {},
             actions = { ZekkeIconButton(R.drawable.ic_lock_session, hint = "Lock", onClick = {}) },
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            PageTile("Shopping list", "Shopping\n• fruit\n☐ milk\n☑ bread", "Oct 14, 2026", onClick = {}, modifier = Modifier.width(120.dp))
+            PageTile("Untitled note", "plain text of a note that is longer than the sheet can show", "Oct 13, 2026", onClick = {}, modifier = Modifier.width(120.dp))
+        }
+        NoteSurface(
+            value = TextFieldValue("Shopping\nfruit\nmilk\nbread"),
+            onValueChange = {},
+            lines = listOf(
+                SurfaceLine(SurfaceLineKind.Title, false, 0),
+                SurfaceLine(SurfaceLineKind.Topic, false, 9),
+                SurfaceLine(SurfaceLineKind.Task, false, 15),
+                SurfaceLine(SurfaceLineKind.Task, true, 20),
+            ),
+            spans = listOf(SurfaceSpan(9, 14, bold = true, italic = false, size = null), SurfaceSpan(20, 25, bold = false, italic = true, size = 18)),
+            onToggleTask = {},
         )
         TabStrip(
             tabs = listOf(TabItem("home", "Home", 4, manageable = false), TabItem("w", "Work", 2), TabItem("b", "Bank", 0)),

@@ -53,4 +53,6 @@
     <string name="item_failure_failed">Something went wrong. Please try again.</string>
     <string name="tab_strip_new">New tab</string>
     <string name="tab_strip_manage">Rename or delete</string>
+    <string name="note_task_done">Done</string>
+    <string name="note_task_open">Not done</string>
 </resources>

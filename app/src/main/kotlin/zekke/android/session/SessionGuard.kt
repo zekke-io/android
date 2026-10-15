@@ -25,6 +25,7 @@ class SessionGuard(
     private var holds = 0
     @Volatile private var currentLockVersion = 0L
     private val lockListeners = mutableListOf<() -> Unit>()
+    private val beforeLockListeners = mutableListOf<() -> Unit>()
 
     val isInForeground: Boolean get() = foreground
 
@@ -48,6 +49,11 @@ class SessionGuard(
                 previous = state
             }
         }
+    }
+
+    fun onBeforeLock(listener: () -> Unit): () -> Unit {
+        beforeLockListeners += listener
+        return { beforeLockListeners -= listener }
     }
 
     fun onLocked(listener: () -> Unit): () -> Unit {
@@ -118,6 +124,9 @@ class SessionGuard(
     }
 
     private fun lockAndEnd() {
+        if (session.state.value == SessionState.UNLOCKED) {
+            beforeLockListeners.toList().forEach { runCatching(it) }
+        }
         currentLockVersion++
         session.lock()
         endIfIdle()

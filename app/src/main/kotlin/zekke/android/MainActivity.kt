@@ -36,6 +36,9 @@ import zekke.android.shell.Shell
 import zekke.android.sync.SyncService
 import org.koin.core.qualifier.named
 import zekke.android.feature.passwords.PasswordsScreen
+import zekke.android.feature.notes.NotesScreen
+import zekke.android.feature.notes.NotesServices
+import zekke.android.feature.notes.NotesViewModel
 import zekke.android.feature.vault.VaultScreen
 import zekke.android.feature.vault.VaultServices
 import zekke.android.feature.vault.VaultViewModel
@@ -134,6 +137,13 @@ class MainActivity : ComponentActivity() {
                                     val vaultState by vaultModel.state.collectAsStateWithLifecycle()
                                     VaultScreen(vaultState, vaultModel)
                                 }
+                                val notesPage: @Composable () -> Unit = {
+                                    val notesModel = viewModel {
+                                        NotesViewModel(this@MainActivity.get<NotesServices>(), this@MainActivity.get<CoreFolderTabsServices>(named("notes-tabs")))
+                                    }
+                                    val notesState by notesModel.state.collectAsStateWithLifecycle()
+                                    NotesScreen(notesState, notesModel)
+                                }
                                 Shell(
                                     status = syncStatus,
                                     onLock = guard::lockNow,
@@ -151,7 +161,7 @@ class MainActivity : ComponentActivity() {
                                         )
                                     },
                                     notifications = { NotificationsScreen(notificationsState, notifications) },
-                                    listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage),
+                                    listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage, Destination.Notes to notesPage),
                                 )
                                 AccountSecuritySheet(securityState, security)
                             },

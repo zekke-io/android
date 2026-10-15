@@ -63,6 +63,10 @@ it caches the decrypted tab names, so it is never a process-wide singleton. A pu
 feed tombstone, so no scope reset is needed there (Passwords needs one: the server writes none for a
 prune).
 
+`SessionGuard.onBeforeLock` runs listeners while the session is still unlocked, in every lock path
+(leaving the app, the screen turning off, *Lock*): Notes uses it to seal an unsaved draft into the
+outbox and hold the process until the outbox has been sent.
+
 ## Leaving the account
 
 | Event | Replica | Outbox |

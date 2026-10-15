@@ -321,9 +321,30 @@ feature modules) to be consolidated.
   Tests: vault 20, tabs 17, passwords 25, app 83, ui 50, settings 47, onboarding 40, unlock 44.
   **Awaiting the owner**: the new `feature:tabs` module and `ui` `TabStrip`; writes go straight to the
   server instead of through the outbox the plan describes (offline is said, never silently queued).
-- [ ] **A4.3 Notes.** The spaces, the grid of tiles, the WYSIWYG editor over the core's note format,
+- [x] **A4.3 Notes.** The spaces, the grid of tiles, the WYSIWYG editor over the core's note format,
   autosave after two seconds, the character counter.
-- [ ] **A4.4 Against the web app.** Every item written here reads in the web app and the reverse.
+  **Done 2026-10-15**: `feature:notes` (the grid of `PageTile`s over the replica, the tab strip of
+  `feature:tabs` for the spaces, the editor, delete on a full device), `ui` `NoteSurface` (one private
+  text field for the whole note, so a selection can span lines and a split or a merge of lines is an
+  ordinary text change; bullets and checkboxes drawn in a gutter) and `PageTile`, and in `mobile-base`
+  the editing model `NoteDocument` (a type, a tick and a style per character; edits found by common
+  prefix and suffix; bold, italic and size over a range; the line commands; Enter on an empty topic or
+  task ends the list), 20 tests. Autosave two seconds after the last change, one save at a time, a
+  counter, the web app's labels. **Leaving the app**: `SessionGuard.onBeforeLock` lets
+  `CoreNotesServices` seal the unsaved text into the outbox and hold the process until it is sent, so
+  what was typed in the last two seconds is not lost. On the emulator against the local API (51
+  checks): a note made on the web (a title, a topic, a done task, bold, a size run) shows with no
+  markers; bold, two size steps and a ticked checklist made on the phone read on the web as
+  `- [x] {{18}}**hello world**{{/}}`; a note made while a tab is open is filed there; text typed
+  one second before leaving the app is on the web after the next unlock; delete reads from the web.
+  Not built: the web app's multi-select delete from the grid; a formatting key with an empty
+  selection (bold and italic do nothing, size applies to the line). A note whose first save is in
+  flight at the moment of leaving can lose what was typed after it. Tests: notes 28, vault 20, tabs 17,
+  passwords 25, app 87, ui 50, settings 47, onboarding 40, unlock 44; core 327.
+- [x] **A4.4 Against the web app.** Every item written here reads in the web app and the reverse.
+  **Done 2026-10-15**: each of the three end-to-end scripts reads what the phone wrote through the
+  web app's own libraries and the reverse (a credential with the extension's extra field kept through a
+  phone edit; secrets and notes filed in tabs; the note markers byte for byte), 54 + 78 + 51 checks.
 
 ## A5 — Drive
 

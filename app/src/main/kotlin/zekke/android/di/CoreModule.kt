@@ -36,7 +36,9 @@ import zekke.core.api.ClientIdentity
 import zekke.core.api.ClientPlatform
 import zekke.core.api.ZekkeApi
 import zekke.android.feature.passwords.PasswordsServices
+import zekke.android.feature.notes.NotesServices
 import zekke.android.feature.vault.VaultServices
+import zekke.android.items.CoreNotesServices
 import zekke.android.items.CoreFolderTabsServices
 import zekke.android.items.CoreVaultServices
 import zekke.core.folders.ManifestScope
@@ -77,6 +79,8 @@ val coreModule = module {
         CoreThisPhoneServices(get(), get(), { removeThisDevice(account) }, { forgetThisDevice(account) })
     }
     single { ItemCalls(get(), get()) }
+    factory<NotesServices> { CoreNotesServices(get(), get(), get(), get(), get(APP_SCOPE)) }
+    factory(named("notes-tabs")) { CoreFolderTabsServices(ManifestScope.NOTES, get(), get(), get()) }
     factory<VaultServices> { CoreVaultServices(get(), get(), get()) }
     factory(named("secrets-tabs")) { CoreFolderTabsServices(ManifestScope.SECRETS, get(), get(), get()) }
     factory<PasswordsServices> { CorePasswordsServices(get(), get(), get()) }
