@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="drive_root">Drive</string>
+    <string name="drive_up">Up one folder</string>
+    <string name="drive_new_folder">New folder</string>
+    <string name="drive_trash">Trash</string>
+    <string name="drive_grid">Show as a grid</string>
+    <string name="drive_list">Show as a list</string>
+    <string name="drive_more">More</string>
+    <string name="drive_more_for">More · %1$s</string>
+    <string name="drive_empty">This folder is empty.</string>
+    <string name="drive_unreadable_file">Unreadable file</string>
+    <string name="drive_unreadable_folder">Unreadable folder</string>
+    <string name="drive_unfinished">This upload never finished, so the file is not in your vault.</string>
+    <string name="drive_missing">This file is being repaired. It cannot be opened right now.</string>
+    <string name="drive_second_copy_pending">Saved. A second copy is made within a minute.</string>
+    <string name="drive_second_copy_failed">Saved. The second copy has not been made.</string>
+    <plurals name="drive_files">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
+    <plurals name="drive_folders">
+        <item quantity="one">%1$d folder</item>
+        <item quantity="other">%1$d folders</item>
+    </plurals>
+    <string name="drive_contents">%1$s, %2$s</string>
+    <string name="drive_held_by_uploads">%1$s held by unfinished uploads</string>
+    <string name="drive_kind_image">Image</string>
+    <string name="drive_kind_video">Video</string>
+    <string name="drive_kind_audio">Audio</string>
+    <string name="drive_kind_pdf">PDF document</string>
+    <string name="drive_kind_archive">Archive</string>
+    <string name="drive_kind_document">Document</string>
+    <string name="drive_kind_sheet">Spreadsheet</string>
+    <string name="drive_kind_slides">Presentation</string>
+    <string name="drive_kind_code">Code</string>
+    <string name="drive_kind_text">Text</string>
+    <string name="drive_kind_other">File</string>
+    <string name="drive_type_with_extension">%1$s · %2$s</string>
+
+    <string name="drive_action_rename">Rename</string>
+    <string name="drive_action_move">Move to…</string>
+    <string name="drive_action_open">Open folder</string>
+    <string name="drive_action_delete">Delete</string>
+
+    <string name="drive_name_new_folder">New folder</string>
+    <string name="drive_name_rename_folder">Rename folder</string>
+    <string name="drive_name_rename_file">Rename file</string>
+    <string name="drive_name_field_folder">Folder name</string>
+    <string name="drive_name_field_file">File name</string>
+    <string name="drive_name_create">Create folder</string>
+    <string name="drive_name_save">Rename</string>
+    <string name="drive_name_working">Working…</string>
+    <string name="drive_name_empty_file">A file needs a name.</string>
+    <string name="drive_name_too_long_file">A file name is at most 255 characters.</string>
+    <string name="drive_name_separator">A file name cannot contain / or \\.</string>
+    <string name="drive_name_control">A file name cannot contain line breaks or other control characters.</string>
+    <string name="drive_name_empty_folder">Give the folder a name.</string>
+    <plurals name="drive_name_too_long_folder">
+        <item quantity="one">A folder name is at most %1$d character.</item>
+        <item quantity="other">A folder name is at most %1$d characters.</item>
+    </plurals>
+    <string name="drive_name_clash">There is already a folder called “%1$s” here.</string>
+    <string name="drive_extension_note">The file stays a %1$s file. Changing the name does not convert it.</string>
+
+    <string name="drive_move_title">Move to…</string>
+    <string name="drive_move_submit">Move here</string>
+    <string name="drive_move_top">Top of the Drive</string>
+
+    <string name="drive_delete_file_title">Delete this file?</string>
+    <string name="drive_delete_folder_title">Delete this folder?</string>
+    <string name="drive_delete_confirm_trash">Move to Trash</string>
+    <string name="drive_delete_confirm_permanent">Delete permanently</string>
+    <plurals name="drive_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="drive_delete_file_trash">%1$s goes to the Trash, where you can restore it for %2$s. After that it is deleted for good. Its space is freed now, while it waits in the Trash.</string>
+    <string name="drive_delete_file_permanent">Deleting %1$s is permanent. Only this account holds the key, so nobody — including Zekke — can restore it. Space from a deleted file returns within a minute, once both copies are removed.</string>
+    <string name="drive_delete_folder_trash">“%1$s” goes to the Trash with %2$s. You can restore it, whole, for %3$s; after that it is deleted for good.</string>
+    <string name="drive_delete_folder_permanent">Deleting “%1$s” also deletes %2$s, permanently.</string>
+    <string name="drive_inside_files">every file in it</string>
+    <string name="drive_inside_folders">the folders inside it and every file they hold</string>
+
+    <string name="trash_title">Trash</string>
+    <string name="trash_back">Back to the Drive</string>
+    <string name="trash_empty">The Trash is empty.</string>
+    <string name="trash_restore">Restore</string>
+    <string name="trash_purge">Delete for good</string>
+    <string name="trash_restore_all">Restore everything</string>
+    <string name="trash_purge_all">Empty the Trash</string>
+    <string name="trash_working">Working…</string>
+    <string name="trash_kind_folder">Folder</string>
+    <string name="trash_kind_file">File</string>
+    <string name="trash_detail">%1$s · %2$s</string>
+    <string name="trash_folder_detail">Folder · %1$s</string>
+    <string name="trash_left_today">Deleted for good today</string>
+    <plurals name="trash_left">
+        <item quantity="one">Deleted for good in %1$d day</item>
+        <item quantity="other">Deleted for good in %1$d days</item>
+    </plurals>
+    <string name="trash_notice_none">Your account does not keep deleted documents and files: they are deleted for good shortly after you delete them, so nothing waits here.</string>
+    <plurals name="trash_notice">
+        <item quantity="one">Deleted documents and Drive files stay here for %1$d day, then are deleted for good. Restoring puts them back where they were, or at the top if their folder is gone.</item>
+        <item quantity="other">Deleted documents and Drive files stay here for %1$d days, then are deleted for good. Restoring puts them back where they were, or at the top if their folder is gone.</item>
+    </plurals>
+    <string name="trash_purge_title_one">Delete this for good?</string>
+    <plurals name="trash_purge_title_many">
+        <item quantity="other">Delete %1$d items for good?</item>
+    </plurals>
+    <string name="trash_purge_warning">This cannot be undone. Only this account holds the keys, so nobody — including Zekke — can bring it back.</string>
+    <string name="trash_full_device_only">Only a full device can delete from the Trash for good.</string>
+    <string name="trash_unnamed">Unreadable item</string>
+</resources>

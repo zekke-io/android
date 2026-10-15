@@ -71,7 +71,7 @@ outbox and hold the process until the outbox has been sent.
 
 | Event | Replica | Outbox |
 | --- | --- | --- |
-| *Remove this phone*, *I forgot this phone's PIN* | Deleted | Deleted |
+| *Remove this phone*, *I forgot this phone's PIN* | Deleted, and the Drive's sealed-object cache emptied | Deleted |
 | Unlock finds the phone forgotten or removed from another device | Deleted | Kept: the unsent writes are the person's and the core discards them if another account signs in |
 
 ## Tests

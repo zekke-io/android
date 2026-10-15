@@ -350,7 +350,15 @@ feature modules) to be consolidated.
 
 ## A5 — Drive
 
-- [ ] **A5.1 Browsing.** Folders to eight levels, grid and list, thumbnails, usage against the quota.
+- [x] **A5.1 Browsing.** Folders to eight levels, grid and list, thumbnails, usage against the quota.
+  **Done 2026-10-15**: `feature:drive` (folders and files from the replica, a path of buttons and *Up one
+  folder*, grid or list, a file's true size or why it cannot be opened, the thumbnail drawn in its tile
+  and never listed as a file, the storage meter with what unfinished uploads hold) and `ui` `FileTile`.
+  The file-kind glyphs are not in the design system's assets, so every file shows the Drive glyph and a
+  kind label is not drawn: **awaiting the owner**. On the emulator against the local API (68 checks):
+  a folder, a file inside it and a photo with a thumbnail made on the web show on the phone, the
+  thumbnail file is not listed, and the thumbnail was fetched and cached as ciphertext. The app blocks
+  screenshots, so the thumbnail's picture is proven by the cache, not by pixels.
 - [ ] **A5.2 Picking and uploading.** The photo picker and the Storage Access Framework, no storage
   permission; the upload as a user-initiated data transfer (a `dataSync` foreground service below
   Android 14) with a notification naming nothing; a `429` pauses, `507` is never retried.
@@ -358,12 +366,22 @@ feature modules) to be consolidated.
   core's same-source check before a byte is sent; a lock pauses, the next unlock resumes.
 - [ ] **A5.4 Thumbnails.** 320 px, JPEG 0.72, HEIF included, uploaded after the parent, never failing
   the upload.
-- [ ] **A5.5 The sealed-object cache.** The core's `SealedObjectCache` on disk, ciphertext only,
+- [x] **A5.5 The sealed-object cache.** The core's `SealedObjectCache` on disk, ciphertext only,
   pruned against every listing.
+  **Done 2026-10-15**: `FileSealedObjectCache` in `platform` (one file per canonical id in the app's
+  cache directory, written atomically, an id that is not a UUID never touches the disk, a half-written
+  file swept), pruned against the listing at every load, and emptied when the phone leaves the account.
+  5 unit tests; the end-to-end run saw the thumbnail's ciphertext there.
 - [ ] **A5.6 Preview and export.** Images from memory (Coil with no disk cache); PDFs through
   `PdfRenderer` with the temporary file deleted on close and on lock (R3); "Save to device" and
   "Open with…" saying the copy leaves Zekke's protection.
-- [ ] **A5.7 Rename, move, delete and the Trash.**
+- [x] **A5.7 Rename, move, delete and the Trash.**
+  **Done 2026-10-15**: new folders (depth-checked), rename of files (the web's name rules and the
+  extension note) and folders, move of a file or a folder (never into itself), delete to the Trash or
+  permanently as the account's retention says, and the Trash page (restore, restore everything, delete
+  for good, empty the Trash; the last two on a full device only). On the emulator (the same 68 checks,
+  a premium account for the Trash): each action read back from the web, including a file restored to its
+  folder and a purge. Not built: selecting several files at once.
 
 ## A6 — Sharing and the extension
 

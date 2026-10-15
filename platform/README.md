@@ -23,6 +23,15 @@ many wrong PINs): its entries are still the person's, and the core's own account
 another account signs in. `LocalDatabasesTest` (instrumented) proves the files live in no-backup
 storage, survive a reopen, belong to one account at a time, and are deleted as above.
 
+## The sealed-object cache — `FileSealedObjectCache`
+
+The core's `SealedObjectCache` on disk: **ciphertext only**, one file per drive id in the app's cache
+directory, so a thumbnail or a preview is not fetched twice. A file never changes, so its id is its
+version and nothing is revalidated. Writes go to `<id>.part` and are renamed; an id that is not a
+canonical UUID is never turned into a path; `prune(keep)` removes what the listing no longer holds and
+every half-written file; `clear()` empties it when the phone leaves the account. Tested on the JVM
+with a temporary directory.
+
 Later tasks add the QR scanner (A2.1), file access and the upload service (A5).
 
 ## The device vault — `KeystoreDeviceVault`

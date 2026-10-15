@@ -36,6 +36,9 @@ import zekke.android.shell.Shell
 import zekke.android.sync.SyncService
 import org.koin.core.qualifier.named
 import zekke.android.feature.passwords.PasswordsScreen
+import zekke.android.feature.drive.DriveScreen
+import zekke.android.feature.drive.DriveServices
+import zekke.android.feature.drive.DriveViewModel
 import zekke.android.feature.notes.NotesScreen
 import zekke.android.feature.notes.NotesServices
 import zekke.android.feature.notes.NotesViewModel
@@ -144,6 +147,11 @@ class MainActivity : ComponentActivity() {
                                     val notesState by notesModel.state.collectAsStateWithLifecycle()
                                     NotesScreen(notesState, notesModel)
                                 }
+                                val drivePage: @Composable () -> Unit = {
+                                    val driveModel = viewModel { DriveViewModel(this@MainActivity.get<DriveServices>()) }
+                                    val driveState by driveModel.state.collectAsStateWithLifecycle()
+                                    DriveScreen(driveState, driveModel)
+                                }
                                 Shell(
                                     status = syncStatus,
                                     onLock = guard::lockNow,
@@ -161,7 +169,7 @@ class MainActivity : ComponentActivity() {
                                         )
                                     },
                                     notifications = { NotificationsScreen(notificationsState, notifications) },
-                                    listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage, Destination.Notes to notesPage),
+                                    listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage, Destination.Notes to notesPage, Destination.Drive to drivePage),
                                 )
                                 AccountSecuritySheet(securityState, security)
                             },

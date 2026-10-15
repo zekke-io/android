@@ -36,7 +36,12 @@ import zekke.core.api.ClientIdentity
 import zekke.core.api.ClientPlatform
 import zekke.core.api.ZekkeApi
 import zekke.android.feature.passwords.PasswordsServices
+import zekke.android.feature.drive.DriveServices
 import zekke.android.feature.notes.NotesServices
+import zekke.android.items.CoreDriveServices
+import zekke.android.platform.FileSealedObjectCache
+import zekke.core.files.SealedObjectCache
+import java.io.File
 import zekke.android.feature.vault.VaultServices
 import zekke.android.items.CoreNotesServices
 import zekke.android.items.CoreFolderTabsServices
@@ -79,6 +84,9 @@ val coreModule = module {
         CoreThisPhoneServices(get(), get(), { removeThisDevice(account) }, { forgetThisDevice(account) })
     }
     single { ItemCalls(get(), get()) }
+    single { FileSealedObjectCache(File(androidContext().cacheDir, "sealed-objects")) }
+    factory<SealedObjectCache> { get<FileSealedObjectCache>() }
+    factory<DriveServices> { CoreDriveServices(get(), get(), get(), get(), get()) }
     factory<NotesServices> { CoreNotesServices(get(), get(), get(), get(), get(APP_SCOPE)) }
     factory(named("notes-tabs")) { CoreFolderTabsServices(ManifestScope.NOTES, get(), get(), get()) }
     factory<VaultServices> { CoreVaultServices(get(), get(), get()) }
@@ -116,7 +124,10 @@ val coreModule = module {
             session = KeystoreSyncSession(get()),
             scope = get(APP_SCOPE),
             factory = CoreSyncBackendFactory(get(), get(), databases, get(APP_SCOPE), get()),
-            wipe = { includeOutbox -> if (includeOutbox) databases.deleteAll() else databases.deleteReplica() },
+            wipe = { includeOutbox ->
+                get<FileSealedObjectCache>().clear()
+                if (includeOutbox) databases.deleteAll() else databases.deleteReplica()
+            },
             nowEpochSeconds = { System.currentTimeMillis() / 1000 },
         ).also { sync ->
             val removals = get<ThisPhoneEvents>().removals
