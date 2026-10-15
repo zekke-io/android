@@ -89,12 +89,17 @@ data class DriveState(
     val viewing: Viewing? = null,
     val saved: String? = null,
     val share: ShareLoad.Ready? = null,
+    val uploads: List<UploadItem> = emptyList(),
+    val cancelling: UploadItem? = null,
+    val choosing: UploadItem? = null,
 ) {
     val path: List<TreeFolder> get() = pathTo(folders, folderId)
 
     val subfolders: List<TreeFolder> get() = childrenOf(folders, folderId).sortedBy { it.name?.lowercase() ?: "" }
 
     val filesHere: List<DriveEntry> get() = files.filter { it.folderId == folderId }
+
+    val uploadsHere: List<UploadItem> get() = uploads.filter { it.folderId == folderId }
 
     val canCreateFolder: Boolean get() = canCreateIn(folders, folderId)
 
@@ -111,6 +116,7 @@ class DriveViewModel(private val services: DriveServices) : ViewModel() {
 
     init {
         viewModelScope.launch { services.changes.collect { refresh() } }
+        viewModelScope.launch { services.uploads.collect { items -> mutableState.update { it.copy(uploads = items) } } }
         refresh()
     }
 
@@ -191,6 +197,41 @@ class DriveViewModel(private val services: DriveServices) : ViewModel() {
         mutableState.update { it.copy(acting = null, saved = null) }
         viewModelScope.launch {
             if (write { services.saveTo(entry.id, target) }) mutableState.update { it.copy(saved = entry.name) }
+        }
+    }
+
+    fun filesPicked(uris: List<String>) {
+        if (uris.isEmpty()) return
+        services.enqueueUploads(uris, mutableState.value.folderId)
+    }
+
+    fun retryUpload(id: String) = services.retryUpload(id)
+
+    fun askChooseAgain(item: UploadItem) = mutableState.update { it.copy(choosing = item) }
+
+    fun cancelChoosing() = mutableState.update { it.copy(choosing = null) }
+
+    fun chosenAgain(uri: String) {
+        val item = mutableState.value.choosing ?: return
+        mutableState.update { it.copy(choosing = null) }
+        services.chooseFileAgain(item.id, uri)
+    }
+
+    fun askCancelUpload(item: UploadItem) = mutableState.update { it.copy(cancelling = item) }
+
+    fun keepUpload() = mutableState.update { it.copy(cancelling = null) }
+
+    fun confirmCancelUpload() {
+        val item = mutableState.value.cancelling ?: return
+        mutableState.update { it.copy(cancelling = null) }
+        viewModelScope.launch {
+            try {
+                services.cancelUpload(item.id)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+            }
+            refresh()
         }
     }
 

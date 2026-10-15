@@ -3,6 +3,7 @@ package zekke.android.feature.drive
 import android.net.Uri
 import java.io.ByteArrayOutputStream
 import java.io.File
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import zekke.android.ui.components.ItemFailure
 import zekke.core.files.StorageUsage
@@ -65,6 +66,29 @@ class FakeDriveServices(override var canDelete: Boolean = true) : DriveServices 
     override suspend fun discardUpload(id: String): DriveWrite = record("discard:$id")
 
     override suspend fun deleteFolder(id: String): DriveWrite = record("deleteFolder:$id")
+
+    val uploadItems = kotlinx.coroutines.flow.MutableStateFlow<List<UploadItem>>(emptyList())
+    override val uploads: Flow<List<UploadItem>> = uploadItems
+    val enqueued = mutableListOf<Pair<List<String>, String?>>()
+    val retried = mutableListOf<String>()
+    val reChosen = mutableListOf<Pair<String, String>>()
+    val cancelled = mutableListOf<String>()
+
+    override fun enqueueUploads(uris: List<String>, folderId: String?) {
+        enqueued += uris to folderId
+    }
+
+    override fun retryUpload(id: String) {
+        retried += id
+    }
+
+    override fun chooseFileAgain(id: String, uri: String) {
+        reChosen += id to uri
+    }
+
+    override suspend fun cancelUpload(id: String) {
+        cancelled += id
+    }
 
     var previewResult: PreviewLoad = PreviewLoad.Image(byteArrayOf(1))
     val previewed = mutableListOf<String>()

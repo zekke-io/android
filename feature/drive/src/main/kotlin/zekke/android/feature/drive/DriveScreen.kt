@@ -1,7 +1,11 @@
 package zekke.android.feature.drive
 
 import android.graphics.BitmapFactory
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -28,7 +32,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import zekke.android.ui.components.AddOption
 import zekke.android.ui.components.ButtonVariant
+import zekke.android.ui.components.FloatingAddMenu
 import zekke.android.ui.components.EmptyState
 import zekke.android.ui.components.FileTile
 import zekke.android.ui.components.ItemRow
@@ -50,14 +56,48 @@ import zekke.core.folders.TreeFolder
 @Composable
 fun DriveScreen(state: DriveState, viewModel: DriveViewModel) {
     val viewing = state.viewing
-    if (viewing != null) {
-        ViewerPage(viewing, viewModel)
-    } else if (state.showingTrash) {
-        TrashPage(state, viewModel)
-    } else {
-        DriveBrowser(state, viewModel)
+    val photos = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
+        viewModel.systemScreenReturned()
+        viewModel.filesPicked(uris.map { it.toString() })
+    }
+    val documents = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        viewModel.systemScreenReturned()
+        viewModel.filesPicked(uris.map { it.toString() })
+    }
+    val again = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        viewModel.systemScreenReturned()
+        if (uri != null) viewModel.chosenAgain(uri.toString()) else viewModel.cancelChoosing()
+    }
+    val chooseAgain: (UploadItem) -> Unit = { item ->
+        viewModel.askChooseAgain(item)
+        viewModel.systemScreenWillOpen()
+        again.launch(arrayOf("*/*"))
+    }
+    Box(Modifier.fillMaxSize()) {
+        if (viewing != null) {
+            ViewerPage(viewing, viewModel)
+        } else if (state.showingTrash) {
+            TrashPage(state, viewModel)
+        } else {
+            DriveBrowser(state, viewModel, chooseAgain)
+            FloatingAddMenu(
+                label = stringResource(R.string.drive_add),
+                options = listOf(
+                    AddOption(stringResource(R.string.drive_add_photos), zekke.android.ui.R.drawable.ic_upload) {
+                        viewModel.systemScreenWillOpen()
+                        photos.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+                    },
+                    AddOption(stringResource(R.string.drive_add_files), zekke.android.ui.R.drawable.ic_documents) {
+                        viewModel.systemScreenWillOpen()
+                        documents.launch(arrayOf("*/*"))
+                    },
+                ),
+                modifier = Modifier.align(Alignment.BottomEnd).padding(24.dp),
+            )
+        }
     }
     DriveSheets(state, viewModel)
+    UploadDialogs(state, viewModel)
 }
 
 @Composable
@@ -97,7 +137,7 @@ private fun Header(state: DriveState, viewModel: DriveViewModel) {
 }
 
 @Composable
-private fun DriveBrowser(state: DriveState, viewModel: DriveViewModel) {
+private fun DriveBrowser(state: DriveState, viewModel: DriveViewModel, chooseAgain: (UploadItem) -> Unit) {
     val folders = state.subfolders
     val files = state.filesHere
     val empty = folders.isEmpty() && files.isEmpty()
@@ -112,9 +152,11 @@ private fun DriveBrowser(state: DriveState, viewModel: DriveViewModel) {
             item(span = { GridItemSpan(maxLineSpan) }) { Header(state, viewModel) }
             if (!state.loaded || (!state.synced && empty)) {
                 item(span = { GridItemSpan(maxLineSpan) }) { LoadingIndicator() }
-            } else if (empty) {
-                item(span = { GridItemSpan(maxLineSpan) }) { EmptyState(stringResource(R.string.drive_empty), icon = zekke.android.ui.R.drawable.ic_drive) }
             } else {
+                if (state.uploadsHere.isNotEmpty()) item(span = { GridItemSpan(maxLineSpan) }) { UploadRows(state, viewModel, chooseAgain) }
+                if (empty && state.uploadsHere.isEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }) { EmptyState(stringResource(R.string.drive_empty), icon = zekke.android.ui.R.drawable.ic_drive) }
+                }
                 items(folders, key = { "folder-" + it.id }) { folder -> FolderTile(folder, state, viewModel) }
                 items(files, key = { "file-" + it.id }) { file -> FileTileOf(file, state, viewModel) }
             }
@@ -128,9 +170,11 @@ private fun DriveBrowser(state: DriveState, viewModel: DriveViewModel) {
             item { Header(state, viewModel) }
             if (!state.loaded || (!state.synced && empty)) {
                 item { LoadingIndicator() }
-            } else if (empty) {
-                item { EmptyState(stringResource(R.string.drive_empty), icon = zekke.android.ui.R.drawable.ic_drive) }
             } else {
+                if (state.uploadsHere.isNotEmpty()) item { UploadRows(state, viewModel, chooseAgain) }
+                if (empty && state.uploadsHere.isEmpty()) {
+                    item { EmptyState(stringResource(R.string.drive_empty), icon = zekke.android.ui.R.drawable.ic_drive) }
+                }
                 items(folders, key = { "folder-" + it.id }) { folder -> FolderRow(folder, state, viewModel) }
                 items(files, key = { "file-" + it.id }) { file -> FileRow(file, state, viewModel) }
             }

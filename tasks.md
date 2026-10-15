@@ -102,7 +102,7 @@ and an `android` row in the API's `client_releases` (A8.4).
   user activity), the picker exception and its maximum, and a transfer keeping the process; one
   for a lock clearing every ViewModel and remembered value. On the emulator, Home ends the process
   and the app reopens in a new one.
-  - [ ] **A5.2 calls `pickerWillOpen()`** before every picker and `transferStarted()` /
+  - [x] **A5.2 calls `pickerWillOpen()`** before every picker and `transferStarted()` /
     `transferFinished()` around every upload.
 
 ## A1 — Onboarding and unlock
@@ -359,13 +359,41 @@ feature modules) to be consolidated.
   a folder, a file inside it and a photo with a thumbnail made on the web show on the phone, the
   thumbnail file is not listed, and the thumbnail was fetched and cached as ciphertext. The app blocks
   screenshots, so the thumbnail's picture is proven by the cache, not by pixels.
-- [ ] **A5.2 Picking and uploading.** The photo picker and the Storage Access Framework, no storage
+- [x] **A5.2 Picking and uploading.** The photo picker and the Storage Access Framework, no storage
   permission; the upload as a user-initiated data transfer (a `dataSync` foreground service below
   Android 14) with a notification naming nothing; a `429` pauses, `507` is never retried.
-- [ ] **A5.3 Resuming.** The URI's read permission persisted only while its upload is unfinished; the
+  **Done 2026-10-15, with a deviation awaiting the owner**: the photo picker and the system document
+  picker (no storage permission), a queue that persists, uploads one at a time with progress on the
+  row, a `429` pausing the queue for the server's wait, a `507` stopping that upload until the person
+  asks again, offline retrying every 30 seconds. **There is no foreground service or user-initiated job,
+  because the plan contradicts itself**: it says uploads run in the background (line 117) and also
+  that they run only while unlocked and a lock pauses them (line 331), and leaving the app locks it at
+  once; sealing needs the file's key, which a lock zeroes (the core proves it: a lock during an upload
+  stops it with a typed error before another chunk is sealed). So an upload cannot outlive the app
+  whatever service holds the process; it pauses at the lock and resumes at the next unlock. The
+  transfer is still counted by `SessionGuard` (`transferStarted`/`transferFinished`) and the pickers
+  call `pickerWillOpen()`. A phone that wants uploads to carry on in the background needs the lock
+  rule changed first: **owner decision**.
+- [x] **A5.3 Resuming.** The URI's read permission persisted only while its upload is unfinished; the
   core's same-source check before a byte is sent; a lock pauses, the next unlock resumes.
-- [ ] **A5.4 Thumbnails.** 320 px, JPEG 0.72, HEIF included, uploaded after the parent, never failing
+  **Done 2026-10-15**: each queued upload is saved in `uploads.json` under no-backup storage with its id,
+  URI, name, size and folder, the document URI's read permission is persisted
+  (`takePersistableUriPermission`) and released when the upload completes or is discarded; a lock stops
+  the transfer, the next unlock reloads the queue and **replays the same file id, which is the core's resume
+  call** (the same-source check runs before a byte is sent); a file that can no longer be opened, or that
+  is not the same file, asks to *choose the file again*. Photo-picker URIs are not persistable, so after
+  the app's process ends such an upload asks for the file again. The queue and the cache are wiped when
+  the phone leaves the account. On the emulator against the local API: with the local object store
+  paused the 150 MiB upload was held, the app left (locked), the store resumed, and at the next unlock the
+  upload resumed and the web read the same bytes (sha256). Tests: `UploadServiceTest` (state machine,
+  every failure class, a lock, a reload, a file chosen again, cancel) and `UploadStoreTest`.
+- [x] **A5.4 Thumbnails.** 320 px, JPEG 0.72, HEIF included, uploaded after the parent, never failing
   the upload.
+  **Done 2026-10-15**: images the core can thumbnail (JPEG, PNG, WebP, GIF, AVIF, BMP, HEIC, HEIF) are
+  decoded with `ImageDecoder` (which applies the EXIF orientation and reads HEIF), scaled to at most 320 px
+  and written as JPEG at 0.72; the core uploads it after the parent and a failure never fails the upload;
+  a resumed upload makes no new thumbnail. On the emulator: a 300x200 JPEG with orientation 6 gave a
+  thumbnail the web reads as 200x300, upright. HEIF is not tried on the emulator.
 - [x] **A5.5 The sealed-object cache.** The core's `SealedObjectCache` on disk, ciphertext only,
   pruned against every listing.
   **Done 2026-10-15**: `FileSealedObjectCache` in `platform` (one file per canonical id in the app's

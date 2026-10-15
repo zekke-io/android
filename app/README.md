@@ -67,6 +67,10 @@ prune).
 (leaving the app, the screen turning off, *Lock*): Notes uses it to seal an unsaved draft into the
 outbox and hold the process until the outbox has been sent.
 
+## Uploads — `UploadService`
+
+One queue for the process, persisted in `uploads.json` (no-backup storage) as the file's id, URI, name, type, size and folder, and wiped when the phone leaves the account. It runs **one upload at a time, only while the session is unlocked**: a lock cancels the transfer (the core stops before sealing another chunk, with a typed error), the next unlock reloads the queue and **replays the same file id, which is the core's resume call**, so the same-source check runs before a byte is sent. A resumed upload makes no new thumbnail. Failures are classified (`classifyUploadFailure`): locked, offline (retried after 30 seconds), rate limited (the server's wait), quota full (never retried), file gone or different (asks for the file again), failed. The document URI's read permission is persisted while the upload is unfinished and released when it ends; photo-picker URIs cannot be persisted. The transfer holds the process through `SessionGuard.transferStarted`, released before any pause.
+
 ## Plaintext on disk — `PlaintextFiles`
 
 The two places the app writes plaintext by itself, both under `noBackupFilesDir`: `previews/` (the PDF a preview reads, deleted on close, before every lock and at every start) and `shared/` (the copy *Open with…* hands to another app through the `FileProvider`, whose only exposed path is `shared/`, deleted at the next start because the other app may read it after the lock). Nothing else leaves a decrypted file.

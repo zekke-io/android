@@ -419,4 +419,55 @@ class DriveViewModelTest {
         assertNull(model.now.share)
         assertEquals(ItemFailure.RateLimited(5), model.now.failure)
     }
+
+    private fun upload(id: String, status: UploadStatus, folder: String? = null, percent: Int = 0) =
+        UploadItem(id, "$id.bin", 100, folder, status, percent)
+
+    @Test
+    fun theQueueShowsOnlyTheUploadsOfTheOpenFolder() {
+        val model = model()
+        services.uploadItems.value = listOf(upload("a", UploadStatus.Uploading, null, 40), upload("b", UploadStatus.Waiting, "f2"))
+        assertEquals(listOf("a"), model.now.uploadsHere.map { it.id })
+        model.openFolder("f2")
+        assertEquals(listOf("b"), model.now.uploadsHere.map { it.id })
+    }
+
+    @Test
+    fun pickedFilesGoToTheQueueInTheOpenFolder() {
+        val model = model()
+        model.filesPicked(emptyList())
+        assertTrue(services.enqueued.isEmpty())
+        model.openFolder("f2")
+        model.filesPicked(listOf("content://a", "content://b"))
+        assertEquals(listOf(listOf("content://a", "content://b") to "f2"), services.enqueued)
+    }
+
+    @Test
+    fun anUploadIsRetriedAndDiscardedOnlyAfterAConfirmation() {
+        val model = model()
+        val item = upload("a", UploadStatus.Failed)
+        model.retryUpload("a")
+        assertEquals(listOf("a"), services.retried)
+        model.askCancelUpload(item)
+        model.keepUpload()
+        assertTrue(services.cancelled.isEmpty())
+        model.askCancelUpload(item)
+        model.confirmCancelUpload()
+        assertEquals(listOf("a"), services.cancelled)
+        assertNull(model.now.cancelling)
+    }
+
+    @Test
+    fun theFileChosenAgainGoesToTheUploadThatNeededIt() {
+        val model = model()
+        model.chosenAgain("content://ignored")
+        assertTrue(services.reChosen.isEmpty())
+        model.askChooseAgain(upload("a", UploadStatus.NeedsFile))
+        model.chosenAgain("content://new")
+        assertEquals(listOf("a" to "content://new"), services.reChosen)
+        assertNull(model.now.choosing)
+        model.askChooseAgain(upload("a", UploadStatus.NeedsFile))
+        model.cancelChoosing()
+        assertNull(model.now.choosing)
+    }
 }

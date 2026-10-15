@@ -63,10 +63,24 @@ sealed interface ShareLoad {
     data class Failed(val failure: ItemFailure) : ShareLoad
 }
 
+enum class UploadStatus { Waiting, Uploading, Finishing, Offline, RateLimited, Locked, NeedsFile, QuotaFull, Failed }
+
+data class UploadItem(
+    val id: String,
+    val name: String,
+    val sizeBytes: Long,
+    val folderId: String?,
+    val status: UploadStatus,
+    val percent: Int = 0,
+    val retryAfterSeconds: Long? = null,
+)
+
 class ExportTarget(val open: () -> OutputStream, val discard: () -> Unit)
 
 interface DriveServices {
     val canDelete: Boolean
+
+    val uploads: Flow<List<UploadItem>>
 
     val changes: Flow<Unit>
 
@@ -89,6 +103,14 @@ interface DriveServices {
     suspend fun deleteFiles(ids: List<String>): DriveWrite
 
     suspend fun discardUpload(id: String): DriveWrite
+
+    fun enqueueUploads(uris: List<String>, folderId: String?)
+
+    fun retryUpload(id: String)
+
+    fun chooseFileAgain(id: String, uri: String)
+
+    suspend fun cancelUpload(id: String)
 
     suspend fun deleteFolder(id: String): DriveWrite
 

@@ -20,7 +20,19 @@ delete and the Trash. The module reaches the core only through `DriveServices`, 
 | Open | Preview, Save to device and Open with… on a finished file; an unfinished one can only be discarded, on any device |
 | Trash | What is waiting, newest first, with the days left; *Restore* (one, or everything), *Delete for good* and *Empty the Trash* only on a full device, after the web app's warning. A restore puts things back where they were, or at the top if their folder is gone |
 
-Not here yet: uploading (A5.2 to A5.4). Selecting several files at once is not built.
+## Uploading
+
+*Upload* in the corner opens a menu: *Photos and videos* (the system photo picker) and *Files* (the system document picker). Both count as the app staying, and no storage permission is asked. The picked files join a persistent queue, and each upload shows on a row of the folder it was picked in: *Waiting to upload*, *Uploading… 37%*, *Finishing the upload…*, or why it stopped:
+
+| Status | What the row says and does |
+| --- | --- |
+| Offline | The upload tries again in 30 seconds |
+| Rate limited | *Uploads are paused for a moment. Nothing failed.* for the server's wait, then it carries on |
+| No room | *There is no room left in your storage…* with *Try again*; never retried by itself |
+| The file is gone or is not the same | *Choose the same file again to finish the upload* (system picker; the core refuses a different file) |
+| Failed | *This upload did not finish* with *Try again* |
+
+A lock stops the transfer and the next unlock resumes it from the queue. Discarding a row asks first, gives the reservation back (`abandonUpload`) and forgets the file. Selecting several files at once is not built.
 
 ## Opening a file
 

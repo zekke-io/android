@@ -40,6 +40,14 @@ import zekke.android.feature.drive.DriveServices
 import zekke.android.feature.notes.NotesServices
 import zekke.android.items.CoreDriveServices
 import zekke.android.items.PlaintextFiles
+import zekke.android.uploads.ContentUploadSources
+import zekke.android.uploads.CoreUploadRunner
+import zekke.android.uploads.FileUploadStore
+import zekke.android.uploads.ImageThumbnailMaker
+import zekke.android.uploads.UploadService
+import zekke.android.uploads.UploadSources
+import zekke.android.uploads.UploadStore
+import zekke.core.items.newItemId
 import zekke.android.platform.FileSealedObjectCache
 import zekke.core.files.SealedObjectCache
 import java.io.File
@@ -88,7 +96,24 @@ val coreModule = module {
     single { FileSealedObjectCache(File(androidContext().cacheDir, "sealed-objects")) }
     factory<SealedObjectCache> { get<FileSealedObjectCache>() }
     single { PlaintextFiles(androidContext()) }
-    factory<DriveServices> { CoreDriveServices(get(), get(), get(), get(), get(), get(), get()) }
+    single<UploadStore> { FileUploadStore(File(androidContext().noBackupFilesDir, "uploads.json")) }
+    single<UploadSources> { ContentUploadSources(androidContext().contentResolver) }
+    single {
+        val guard = get<SessionGuard>()
+        UploadService(
+            scope = get(APP_SCOPE),
+            sessionState = get<SessionControl>().state,
+            store = get(),
+            runner = CoreUploadRunner(get(), get(), get()),
+            sources = get(),
+            thumbnails = ImageThumbnailMaker(androidContext().contentResolver),
+            transferStarted = guard::transferStarted,
+            transferFinished = guard::transferFinished,
+            finished = { get<SyncService>().syncNow() },
+            newId = ::newItemId,
+        )
+    }
+    factory<DriveServices> { CoreDriveServices(get(), get(), get(), get(), get(), get(), get(), get()) }
     factory<NotesServices> { CoreNotesServices(get(), get(), get(), get(), get(APP_SCOPE)) }
     factory(named("notes-tabs")) { CoreFolderTabsServices(ManifestScope.NOTES, get(), get(), get()) }
     factory<VaultServices> { CoreVaultServices(get(), get(), get()) }
@@ -128,6 +153,7 @@ val coreModule = module {
             factory = CoreSyncBackendFactory(get(), get(), databases, get(APP_SCOPE), get()),
             wipe = { includeOutbox ->
                 get<FileSealedObjectCache>().clear()
+                get<UploadStore>().clear()
                 if (includeOutbox) databases.deleteAll() else databases.deleteReplica()
             },
             nowEpochSeconds = { System.currentTimeMillis() / 1000 },

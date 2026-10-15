@@ -12,6 +12,7 @@ import zekke.android.platform.platformModule
 import zekke.android.session.SessionGuard
 import zekke.android.session.registerScreenOffLock
 import zekke.android.sync.SyncService
+import zekke.android.uploads.UploadService
 
 class ZekkeApplication : Application() {
     override fun onCreate() {
@@ -30,6 +31,7 @@ class ZekkeApplication : Application() {
         plaintext.sweepEverything()
         guard.onBeforeLock(plaintext::sweepPreviews)
         guard.onLocked(plaintext::sweepPreviews)
+        get<UploadService>().start()
         registerScreenOffLock(this, guard)
     }
 }

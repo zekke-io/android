@@ -20,6 +20,8 @@ import zekke.android.feature.drive.DriveLoad
 import zekke.android.feature.drive.DriveServices
 import zekke.android.feature.drive.DriveWrite
 import zekke.android.feature.drive.TrashLoad
+import zekke.android.feature.drive.UploadItem
+import zekke.android.uploads.UploadService
 import zekke.android.feature.drive.UsageLoad
 import zekke.android.sync.SyncService
 import zekke.android.ui.components.ItemFailure
@@ -58,8 +60,19 @@ class CoreDriveServices(
     private val cache: SealedObjectCache,
     private val plaintext: PlaintextFiles,
     private val guard: SessionGuard,
+    private val uploadService: UploadService,
 ) : DriveServices {
     override val canDelete: Boolean get() = context.session.isFullDevice
+
+    override val uploads: Flow<List<UploadItem>> = uploadService.items
+
+    override fun enqueueUploads(uris: List<String>, folderId: String?) = uploadService.enqueue(uris, folderId)
+
+    override fun retryUpload(id: String) = uploadService.retry(id)
+
+    override fun chooseFileAgain(id: String, uri: String) = uploadService.chooseAgain(id, uri)
+
+    override suspend fun cancelUpload(id: String) = uploadService.cancel(id)
 
     override val changes: Flow<Unit> = sync.changes.filter { it == FeedScope.FILES }.map { }
 

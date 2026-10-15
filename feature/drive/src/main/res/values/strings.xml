@@ -127,4 +127,21 @@
     <string name="viewer_pdf_unreadable">This PDF could not be shown. Save it to your phone or open it with another app.</string>
     <string name="viewer_page">Page %1$d of %2$d</string>
     <string name="viewer_image">%1$s</string>
+    <string name="drive_add">Upload</string>
+    <string name="drive_add_photos">Photos and videos</string>
+    <string name="drive_add_files">Files</string>
+    <string name="upload_waiting">Waiting to upload</string>
+    <string name="upload_uploading">Uploading… %1$d%%</string>
+    <string name="upload_finishing">Finishing the upload…</string>
+    <string name="upload_offline">This phone is offline. The upload tries again in a moment.</string>
+    <string name="upload_paused">Uploads are paused for a moment. Nothing failed.</string>
+    <string name="upload_locked">Paused while this phone is locked. Unlock it to carry on.</string>
+    <string name="upload_needs_file">This phone no longer has access to the file. Choose the same file again to finish the upload.</string>
+    <string name="upload_quota_full">There is no room left in your storage for this file. Deleting a file frees its space within a minute.</string>
+    <string name="upload_failed">This upload did not finish.</string>
+    <string name="upload_retry">Try again</string>
+    <string name="upload_choose">Choose the file</string>
+    <string name="upload_discard">Discard this upload</string>
+    <string name="upload_discard_title">Discard this upload?</string>
+    <string name="upload_discard_message">Discarding %1$s throws away an upload that never finished. Nothing was stored, so there is nothing to restore — and the space it was holding comes back at once.</string>
 </resources>
