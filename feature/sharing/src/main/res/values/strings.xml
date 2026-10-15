@@ -94,4 +94,19 @@
     <string name="shared_folder_problem_into_itself">A folder cannot go inside itself or one of its own folders.</string>
     <string name="shared_folder_problem_unknown">That folder was removed in the meantime, probably by the other person.</string>
     <string name="shared_folder_problem_name">That folder name cannot be used here.</string>
+    <string name="share_title">Share this %1$s</string>
+    <string name="share_noun_secret">secret</string>
+    <string name="share_noun_note">note</string>
+    <string name="share_noun_document">document</string>
+    <string name="share_noun_file">file</string>
+    <string name="share_send_to">Send to</string>
+    <string name="share_put_in">Put it in</string>
+    <string name="share_send">Send</string>
+    <string name="share_sending">Sending…</string>
+    <string name="share_sent">Sent to %1$s.</string>
+    <string name="share_sent_not_filed">Sent to %1$s, but it could not be put in that folder, so it is at the top of your shared space.</string>
+    <string name="share_not_shared">This connection cannot carry this kind of item from this phone yet.</string>
+    <string name="share_already_sent">Already sent to</string>
+    <string name="share_nobody">Nobody yet.</string>
+    <string name="share_remove">Remove</string>
 </resources>

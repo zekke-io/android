@@ -28,9 +28,9 @@ import zekke.android.ui.theme.Zekke
 import zekke.core.folders.HOME_FOLDER_NAME
 
 @Composable
-fun SecretSheets(state: VaultState, viewModel: VaultViewModel, itemIds: List<String>) {
+fun SecretSheets(state: VaultState, viewModel: VaultViewModel, itemIds: List<String>, onShare: ((String) -> Unit)? = null) {
     AddSecretSheet(state, viewModel)
-    DetailSheet(state, viewModel, itemIds)
+    DetailSheet(state, viewModel, itemIds, onShare)
     if (state.confirmingDelete != null) {
         ConfirmDeleteDialog(
             title = stringResource(R.string.vault_delete_title),
@@ -77,7 +77,7 @@ private fun AddSecretSheet(state: VaultState, viewModel: VaultViewModel) {
 }
 
 @Composable
-private fun DetailSheet(state: VaultState, viewModel: VaultViewModel, itemIds: List<String>) {
+private fun DetailSheet(state: VaultState, viewModel: VaultViewModel, itemIds: List<String>, onShare: ((String) -> Unit)?) {
     val row = state.rows.firstOrNull { it.id == state.detail } ?: return
     val context = LocalContext.current
     val clipboard = remember(context) { SensitiveClipboard(context.applicationContext) }
@@ -105,6 +105,17 @@ private fun DetailSheet(state: VaultState, viewModel: VaultViewModel, itemIds: L
                     )
                 }
             }
+        }
+        if (onShare != null) {
+            ZekkeButton(
+                stringResource(R.string.vault_detail_share),
+                {
+                    viewModel.closeDetail()
+                    onShare(row.id)
+                },
+                Modifier.fillMaxWidth(),
+                ButtonVariant.Secondary,
+            )
         }
         if (state.canDelete) {
             ZekkeButton(stringResource(R.string.vault_detail_delete), { viewModel.askDelete(row) }, Modifier.fillMaxWidth(), ButtonVariant.Danger)

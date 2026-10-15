@@ -54,7 +54,7 @@ import zekke.core.files.R2States
 import zekke.core.folders.TreeFolder
 
 @Composable
-fun DriveScreen(state: DriveState, viewModel: DriveViewModel) {
+fun DriveScreen(state: DriveState, viewModel: DriveViewModel, onShare: ((String) -> Unit)? = null) {
     val viewing = state.viewing
     val photos = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
         viewModel.systemScreenReturned()
@@ -96,7 +96,7 @@ fun DriveScreen(state: DriveState, viewModel: DriveViewModel) {
             )
         }
     }
-    DriveSheets(state, viewModel)
+    DriveSheets(state, viewModel, onShare)
     UploadDialogs(state, viewModel)
 }
 

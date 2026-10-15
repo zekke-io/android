@@ -42,6 +42,8 @@ class VaultScreensTest {
     @get:Rule
     val compose = createComposeRule()
 
+    private var shared: String? = null
+    private var onShare: ((String) -> Unit)? = null
     private val services = FakeVaultServices()
     private val tabs = object : FolderTabsServices {
         override val canDeleteItems = true
@@ -73,7 +75,7 @@ class VaultScreensTest {
         compose.setContent {
             ZekkeTheme {
                 val state by model.state.collectAsState()
-                VaultScreen(state, model)
+                VaultScreen(state, model, onShare)
             }
         }
     }
@@ -146,5 +148,22 @@ class VaultScreensTest {
         compose.onNodeWithText("Delete this secret permanently?").assertExists()
         compose.onNodeWithText("Keep it").performClick()
         assertEquals(emptyList<List<String>>(), services.purged)
+    }
+
+    @Test
+    fun aSecretOffersShareOnlyWhenTheHostProvidesTheSlot() {
+        show()
+        compose.onNodeWithText("Wifi").performClick()
+        compose.onNodeWithText("Share").assertDoesNotExist()
+    }
+
+    @Test
+    fun shareHandsTheSecretToTheHostAndClosesTheDetail() {
+        onShare = { shared = it }
+        show()
+        compose.onNodeWithText("Wifi").performClick()
+        compose.onNodeWithText("Share").performScrollTo().performClick()
+        assertEquals("1", shared)
+        compose.onNodeWithText("Copy value").assertDoesNotExist()
     }
 }

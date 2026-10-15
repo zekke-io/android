@@ -58,11 +58,11 @@ fun formatNoteDate(iso: String, zone: ZoneId = ZoneId.systemDefault(), locale: L
 }
 
 @Composable
-fun NotesScreen(state: NotesState, viewModel: NotesViewModel) {
+fun NotesScreen(state: NotesState, viewModel: NotesViewModel, onShare: ((String) -> Unit)? = null) {
     val editor = state.editor
     if (editor != null) {
         BackHandler(onBack = viewModel::close)
-        NoteEditor(state, editor, viewModel)
+        NoteEditor(state, editor, viewModel, onShare)
     } else {
         NotesList(state, viewModel)
     }
@@ -126,7 +126,7 @@ private fun Tile(tile: NoteTile, onOpen: () -> Unit) {
 }
 
 @Composable
-private fun NoteEditor(state: NotesState, editor: NoteEditorState, viewModel: NotesViewModel) {
+private fun NoteEditor(state: NotesState, editor: NoteEditorState, viewModel: NotesViewModel, onShare: ((String) -> Unit)?) {
     val palette = Zekke.palette
     val model = surfaceModelOf(editor.document)
     val title = zekke.core.notes.noteTitle(editor.draft) ?: stringResource(R.string.notes_untitled)
@@ -139,6 +139,9 @@ private fun NoteEditor(state: NotesState, editor: NoteEditorState, viewModel: No
                 enabled = !editor.busy,
             )
             Text(title, style = MaterialTheme.typography.titleLarge, color = palette.ink, maxLines = 1, modifier = Modifier.weight(1f))
+            if (onShare != null && editor.saved != null && editor.saveState == NoteSaveState.Saved && !editor.unreadable) {
+                ZekkeButton(stringResource(R.string.notes_share), { onShare(editor.id) }, variant = ButtonVariant.Secondary, enabled = !editor.busy && !editor.saving)
+            }
             if (editor.saved != null && state.canDelete) {
                 ZekkeButton(stringResource(R.string.notes_delete), viewModel::askDelete, variant = ButtonVariant.Danger, enabled = !editor.busy && !editor.saving)
             }

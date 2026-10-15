@@ -38,6 +38,7 @@
     <string name="drive_kind_other">File</string>
     <string name="drive_type_with_extension">%1$s · %2$s</string>
 
+    <string name="drive_action_share">Share</string>
     <string name="drive_action_rename">Rename</string>
     <string name="drive_action_move">Move to…</string>
     <string name="drive_action_open">Open folder</string>

@@ -57,3 +57,7 @@ A tap on a file opens its sheet. *Preview* opens an **image** (JPEG, PNG, GIF, W
 | `DriveRulesTest` | File kinds as the web app names them; extensions; the 80-character display name; every file-name problem; the extension note; the Trash's day count |
 | `DriveViewModelTest` | The first load, a failure and a reload; folders, the path and the way up; a deleted folder sending you to the top; the view toggle; a thumbnail asked once; new folder names and the depth limit; renames of folders and files; moves refused into oneself; deletes needing a full device and a confirmation, and their failure; the Trash's restore and confirmed purge |
 | `DriveScreensTest` (Robolectric) | The grid with captions and the storage; opening a folder and going up; the empty folder; the list view; a file's actions and the Trash question with its retention; no delete on a device that is not full; the Trash page |
+
+## Sharing
+
+The screen takes an optional `onShare` slot; `app` provides it and hosts the share sheet of [`feature:sharing`](../sharing/README.md). `DriveScreensTest` covers: the optional *share* slot: offered on a finished file, not on an unfinished upload, absent without it.

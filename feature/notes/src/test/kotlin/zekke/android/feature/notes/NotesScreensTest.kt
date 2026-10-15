@@ -29,6 +29,8 @@ class NotesScreensTest {
     @get:Rule
     val compose = createComposeRule()
 
+    private var shared: String? = null
+    private var onShare: ((String) -> Unit)? = null
     private val services = FakeNotesServices()
     private val tabs = FakeNoteTabs()
     private var ids = 0
@@ -51,7 +53,7 @@ class NotesScreensTest {
         compose.setContent {
             ZekkeTheme {
                 val state by model.state.collectAsState()
-                NotesScreen(state, model)
+                NotesScreen(state, model, onShare)
             }
         }
     }
@@ -118,5 +120,30 @@ class NotesScreensTest {
         assertEquals(1, model.spans.size)
         assertEquals(7, model.spans[0].start)
         assertEquals(8, model.spans[0].end)
+    }
+
+    @Test
+    fun aSavedNoteOffersShareToTheHost() {
+        onShare = { shared = it }
+        show()
+        compose.onNodeWithText("Shopping").performClick()
+        compose.onNodeWithText("Share").performClick()
+        assertEquals("a", shared)
+    }
+
+    @Test
+    fun aNoteWithUnsavedChangesIsNotOfferedForSharing() {
+        onShare = { shared = it }
+        show()
+        compose.onNodeWithContentDescription("Add a note").performClick()
+        compose.onNodeWithContentDescription("Note body").performTextInput("hi")
+        compose.onNodeWithText("Share").assertDoesNotExist()
+    }
+
+    @Test
+    fun withoutTheSlotThereIsNoShare() {
+        show()
+        compose.onNodeWithText("Shopping").performClick()
+        compose.onNodeWithText("Share").assertDoesNotExist()
     }
 }

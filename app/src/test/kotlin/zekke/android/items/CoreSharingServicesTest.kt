@@ -38,4 +38,21 @@ class CoreSharingServicesTest {
         assertTrue(isKeptChanging(zekke.core.sharing.SharedFoldersKeptChangingException()))
         assertFalse(isKeptChanging(IllegalStateException()))
     }
+
+    @Test
+    fun aSendRefusedForTrustOrForAMissingSubKeyIsTyped() {
+        assertEquals(
+            zekke.android.feature.sharing.SendOutcome.NotTrusted(TrustAlarm.AccountChanged),
+            sendOutcomeOf(ConnectionNotTrustedException(ConnectionTrust.AccountChanged)),
+        )
+        assertEquals(
+            zekke.android.feature.sharing.SendOutcome.NotTrusted(null),
+            sendOutcomeOf(ConnectionNotTrustedException(ConnectionTrust.Unpinned("f"))),
+        )
+        assertEquals(
+            zekke.android.feature.sharing.SendOutcome.NotShared,
+            sendOutcomeOf(zekke.core.sharing.ScopeNotSharedException(zekke.core.scopes.Scope.NOTES)),
+        )
+        assertNull(sendOutcomeOf(IllegalStateException()))
+    }
 }

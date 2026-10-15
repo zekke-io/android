@@ -34,8 +34,8 @@ import zekke.android.ui.components.itemFailureTone
 import zekke.android.ui.theme.Zekke
 
 @Composable
-fun DriveSheets(state: DriveState, viewModel: DriveViewModel) {
-    ActionSheet(state, viewModel)
+fun DriveSheets(state: DriveState, viewModel: DriveViewModel, onShare: ((String) -> Unit)? = null) {
+    ActionSheet(state, viewModel, onShare)
     ShareEffect(state, viewModel)
     NamingSheet(state, viewModel)
     MoveSheet(state, viewModel)
@@ -43,7 +43,7 @@ fun DriveSheets(state: DriveState, viewModel: DriveViewModel) {
 }
 
 @Composable
-private fun ActionSheet(state: DriveState, viewModel: DriveViewModel) {
+private fun ActionSheet(state: DriveState, viewModel: DriveViewModel, onShare: ((String) -> Unit)?) {
     val item = state.acting ?: return
     val context = LocalContext.current
     var saving by remember { mutableStateOf<DriveEntry?>(null) }
@@ -103,6 +103,17 @@ private fun ActionSheet(state: DriveState, viewModel: DriveViewModel) {
                 ZekkeButton(stringResource(R.string.drive_action_open_with), { viewModel.shareFile(item.file) }, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
             }
             Text(stringResource(R.string.drive_export_warning), style = MaterialTheme.typography.bodySmall, color = Zekke.palette.inkMuted)
+        }
+        if (onShare != null && item is DriveItem.OfFile && openable) {
+            ZekkeButton(
+                stringResource(R.string.drive_action_share),
+                {
+                    viewModel.stopActing()
+                    onShare(item.file.id)
+                },
+                Modifier.fillMaxWidth(),
+                ButtonVariant.Secondary,
+            )
         }
         ZekkeButton(stringResource(R.string.drive_action_rename), { viewModel.startRename(item) }, Modifier.fillMaxWidth(), ButtonVariant.Secondary, enabled = item !is DriveItem.OfFile || item.file.readable)
         ZekkeButton(stringResource(R.string.drive_action_move), { viewModel.askMove(item) }, Modifier.fillMaxWidth(), ButtonVariant.Secondary)

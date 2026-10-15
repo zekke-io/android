@@ -19,6 +19,7 @@
     <string name="vault_field_value">Value</string>
     <string name="vault_detail_move">Move to another tab</string>
     <string name="vault_detail_move_to">Move to “%1$s”</string>
+    <string name="vault_detail_share">Share</string>
     <string name="vault_detail_delete">Delete</string>
     <string name="vault_delete_title">Delete this secret?</string>
     <string name="vault_delete_message">It disappears from every device and moves to Recently deleted, where it can be restored until you delete it permanently. Until then it stays stored, still encrypted.</string>

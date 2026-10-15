@@ -12,6 +12,7 @@
     </plurals>
     <string name="notes_add">Add a note</string>
     <string name="notes_back">Back to notes</string>
+    <string name="notes_share">Share</string>
     <string name="notes_delete">Delete</string>
     <string name="notes_delete_title">Delete this note?</string>
     <string name="notes_delete_message">Deleting this note is permanent, and it also removes it from anyone who was set to inherit it.</string>

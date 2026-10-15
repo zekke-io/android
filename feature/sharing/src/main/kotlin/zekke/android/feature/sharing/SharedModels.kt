@@ -55,6 +55,26 @@ sealed interface FolderChange {
     data class Failed(val failure: ItemFailure) : FolderChange
 }
 
+data class Recipient(val shareId: String, val username: String)
+
+sealed interface SendTargets {
+    data class Loaded(val connections: List<ConnectionItem>, val recipients: List<Recipient>) : SendTargets
+
+    data class Failed(val failure: ItemFailure) : SendTargets
+}
+
+sealed interface SendOutcome {
+    data object Sent : SendOutcome
+
+    data object SentNotFiled : SendOutcome
+
+    data class NotTrusted(val alarm: TrustAlarm?) : SendOutcome
+
+    data object NotShared : SendOutcome
+
+    data class Failed(val failure: ItemFailure) : SendOutcome
+}
+
 sealed interface CopyOutcome {
     data object Copied : CopyOutcome
 

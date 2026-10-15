@@ -44,7 +44,7 @@ import zekke.core.secrets.VaultRow
 private const val COPIED_NOTICE_MILLIS = 3_000L
 
 @Composable
-fun VaultScreen(state: VaultState, viewModel: VaultViewModel) {
+fun VaultScreen(state: VaultState, viewModel: VaultViewModel, onShare: ((String) -> Unit)? = null) {
     val context = LocalContext.current
     val clipboard = remember(context) { SensitiveClipboard(context.applicationContext) }
     var copiedFor by remember { mutableStateOf<String?>(null) }
@@ -117,7 +117,7 @@ fun VaultScreen(state: VaultState, viewModel: VaultViewModel) {
             )
         }
     }
-    SecretSheets(state, viewModel, itemIds)
+    SecretSheets(state, viewModel, itemIds, onShare)
 }
 
 @Composable

@@ -59,3 +59,7 @@ delete from the grid is not built here.
 | --- | --- |
 | `NotesViewModelTest` | The load and its failure; the id minted once; a save two seconds after the last key, the timer restarting; an empty note and an over-limit one never saved; formatting being what is saved; line commands, ticking and Enter on an empty topic; opening a note; an unreadable note untouched; one save at a time and what was typed meanwhile; a failed save and no loop; a feed change keeping the draft; *Back* saving at once; what the lock is offered; a note filed in the open tab; deleting with its conditions; a space's items deleted |
 | `NotesScreensTest` (Robolectric) | The grid with titles, *Untitled note*, *Unreadable note* and the count; the empty grid; the editor opening blank with its counter; opening a note and going back; no delete on a device that is not full; the surface model without markers |
+
+## Sharing
+
+The screen takes an optional `onShare` slot; `app` provides it and hosts the share sheet of [`feature:sharing`](../sharing/README.md). `NotesScreensTest` covers: the optional *share* slot: offered on a saved note, not on one with unsaved changes, absent without it.

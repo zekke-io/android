@@ -9,6 +9,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,6 +44,9 @@ import zekke.android.feature.drive.DriveViewModel
 import zekke.android.feature.notes.NotesScreen
 import zekke.android.feature.notes.NotesServices
 import zekke.android.feature.notes.NotesViewModel
+import zekke.android.feature.sharing.ShareSheet
+import zekke.android.feature.sharing.ShareViewModel
+import zekke.android.feature.sharing.SharedType
 import zekke.android.feature.sharing.SharedViewModel
 import zekke.android.feature.sharing.SharingScreen
 import zekke.android.feature.sharing.ConnectionsViewModel
@@ -62,6 +67,8 @@ import zekke.android.session.SessionViewModels
 import zekke.android.ui.theme.ZekkeTheme
 import zekke.android.unlock.ThisPhoneEvents
 import zekke.core.api.ClientIdentity
+
+private data class ShareTarget(val type: SharedType, val id: String)
 
 class MainActivity : ComponentActivity() {
     private val identity: ClientIdentity by inject()
@@ -110,6 +117,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             unlocked = {
+                                var shareTarget by remember { mutableStateOf<ShareTarget?>(null) }
                                 val rotationPending by rotations.pending.collectAsStateWithLifecycle()
                                 LaunchedEffect(rotationPending) {
                                     if (rotationPending) {
@@ -142,19 +150,19 @@ class MainActivity : ComponentActivity() {
                                         VaultViewModel(this@MainActivity.get<VaultServices>(), this@MainActivity.get<CoreFolderTabsServices>(named("secrets-tabs")))
                                     }
                                     val vaultState by vaultModel.state.collectAsStateWithLifecycle()
-                                    VaultScreen(vaultState, vaultModel)
+                                    VaultScreen(vaultState, vaultModel, onShare = { id -> shareTarget = ShareTarget(SharedType.Secret, id) })
                                 }
                                 val notesPage: @Composable () -> Unit = {
                                     val notesModel = viewModel {
                                         NotesViewModel(this@MainActivity.get<NotesServices>(), this@MainActivity.get<CoreFolderTabsServices>(named("notes-tabs")))
                                     }
                                     val notesState by notesModel.state.collectAsStateWithLifecycle()
-                                    NotesScreen(notesState, notesModel)
+                                    NotesScreen(notesState, notesModel, onShare = { id -> shareTarget = ShareTarget(SharedType.Note, id) })
                                 }
                                 val drivePage: @Composable () -> Unit = {
                                     val driveModel = viewModel { DriveViewModel(this@MainActivity.get<DriveServices>()) }
                                     val driveState by driveModel.state.collectAsStateWithLifecycle()
-                                    DriveScreen(driveState, driveModel)
+                                    DriveScreen(driveState, driveModel, onShare = { id -> shareTarget = ShareTarget(SharedType.File, id) })
                                 }
                                 val sharedPage: @Composable () -> Unit = {
                                     val connectionsModel = viewModel { ConnectionsViewModel(this@MainActivity.get<SharingServices>()) }
@@ -183,6 +191,13 @@ class MainActivity : ComponentActivity() {
                                     listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage, Destination.Notes to notesPage, Destination.Drive to drivePage, Destination.Shared to sharedPage),
                                 )
                                 AccountSecuritySheet(securityState, security)
+                                shareTarget?.let { target ->
+                                    val shareModel = viewModel(key = "share-${target.type}-${target.id}") {
+                                        ShareViewModel(this@MainActivity.get<SharingServices>(), target.type, target.id)
+                                    }
+                                    val shareState by shareModel.state.collectAsStateWithLifecycle()
+                                    ShareSheet(shareState, shareModel) { shareTarget = null }
+                                }
                             },
                         )
                     }

@@ -61,6 +61,31 @@ the outbound connections silently, and a slow read of another friendship never l
 
 Image and video preview, and moving a folder, are not built.
 
+## Sending
+
+Vault, Notes and Drive each take an optional `onShare: (String) -> Unit`; when `app` provides it, a
+*Share* button hands the item's id to the activity, which hosts `ShareSheet` (so the feature modules do
+not depend on this one). The button is on a secret's detail sheet, on a **saved** note's editor (never
+while it has unsaved changes: the share is of the stored note, whose key an edit keeps), and on the action
+sheet of a finished, readable file. A password cannot be shared.
+
+The sheet is the web's: *Share this secret* (*note*, *file*), the accepted connections that do not have the
+item yet, *Put it in* (that friendship's folders, only with the `sharing` scope), *Send*, and *Already
+sent to* with *Remove* on a full device. It says nothing about re-sharing; that sentence is on the invite
+form. **It does not check trust beforehand**: the core refuses inside the send, and the sheet words the
+refusal as the web does.
+
+| Outcome | Sheet |
+| --- | --- |
+| `Sent` | Success notice; the recipient moves to *Already sent to* |
+| `SentNotFiled` | The item **was** sent but could not be put in the folder: warning that it is at the top, and no second send is offered, because the recipient is now listed |
+| `NotTrusted(alarm)` | The alarm's sentence, or *has not been accepted yet* when there is none |
+| `NotShared` | The connection holds no sub-key for this kind on this side and this phone cannot derive one |
+| a typed failure | The usual notices |
+
+Sending is one write under one hold: the share, then the filing. A new `CoreSharingServices` is built for
+the sheet, so it finds a connection by asking the server again when it does not know it.
+
 ## Services
 
 | Call | Contract |
@@ -74,6 +99,8 @@ Image and video preview, and moving a folder, are not built.
 | `loadSpace(id)` | The items of one friendship with their folders: both directions with `sharing`, only what arrived without it, the invalid manifest reported rather than thrown |
 | `editFolders(id, edit)`, `resetFolders(id)` | `Done` with the new manifest, `Refused(problem)` for a refused edit (worded as the web words it), or a typed failure; a kept-changing conflict is one `Conflict` |
 | `copyToMyAccount(id, item)` | `Copied` (and the sections sync), `TooLarge`, `NoRoom` or a typed failure |
+| `sendTargets(type, itemId)`, `folderChoicesOf(id)` | Who can be sent to (accepted, not yet sent to) and who already has it; the friendship's folders, empty without `sharing` |
+| `send(id, type, itemId, folderId)`, `unshare(shareId)` | Send and file in one write; removing a share |
 | `saveTo(id, item, target)` | Streams the file into the target and discards the target on failure; the picker is announced to the session guard |
 
 ## Tests
@@ -85,4 +112,6 @@ Image and video preview, and moving a folder, are not built.
 | `SharedPolicyTest` | What can be copied and downloaded; which folder an item is in, including after its folder is deleted; the folder choices with their depth; the friendships by name |
 | `SharedViewModelTest` | The friendships and the silent catch-up; a slow read of another friendship ignored; back stepping item, folder, parent, friendships; creating, renaming and deleting folders and every refusal; one edit at a time; moving an item; the flat and the invalid space; every copy outcome; saving and discarding the target; the picker announced |
 | `SharedScreensTest` (Robolectric) | The friendships and their empty state; both directions with *Sent by you*; a secret masked then shown and copied; a note in full; a document that cannot be opened; a file's download and its warning; an unreadable item; a folder created from the keyboard, opened and left; the delete confirmation's words; moving; the flat space; the reset; the host's two sections and the missing one |
+| `ShareViewModelTest` | Who can be sent to; a failed load; choosing a connection and its folders, none without `sharing`; filing in the chosen folder and reloading; sent but not filed; every refusal keeping the choice; one send at a time; removing on a full device only; opening clean |
+| `ShareSheetTest` (Robolectric) | The title for each kind and the lists; send disabled until a choice, then filed in a folder; a refused send in the web's words; the empty state; remove offered on a full device only |
 | `ConnectionsScreensTest` (Robolectric) | A page left and opened again shows what changed meanwhile and no old notice; the invite form and the keyboard's *Send*; each refusal's words; *Do not send* and each alarm's sentence; the review and its disabled accept; accepting and declining; the nickname; the disconnect confirmation; a limited device offered no disconnect |

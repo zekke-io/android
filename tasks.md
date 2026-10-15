@@ -486,9 +486,18 @@ feature modules) to be consolidated.
   made on the phone with a note filed in it, read back on the web with `folderOf`; an item sent from the
   web shows *Sent by you* without a copy. **Not built**: preview of a shared image or video, moving a
   folder, and copying a file over 64 MiB (the core copies in memory; the phone says to download it).
-  **Not exercised end to end**: re-establishing a connection after the other account rotated its sharing
-  keys (no web step bumps that generation here; the core's own tests cover it).
-- [ ] **A6.3 Sending.** From each tab, trust checked first, filed into a folder in the same gesture.
+  Re-establishing after the other account rotated its sharing keys is exercised with A6.3.
+- [x] **A6.3 Sending.** From each tab, trust checked first, filed into a folder in the same gesture.
+  **Done 2026-10-15**: *Share* on a secret's detail, on a saved note and on a finished file opens the
+  web's sheet (the connections not yet sent to, *Put it in* with that friendship's folders, *Send*, *Already
+  sent to* with *Remove* on a full device). The core checks trust inside the send and the sheet words each
+  refusal as the web does; the share and the filing are one write, and an item sent but not filed says so.
+  Passwords cannot be shared. On the emulator against the local API (59 checks, two accounts): after the
+  other account **rotated its sharing keys on the web, opening Shared re-established the connection onto
+  generation 2** (read back on the web), and then a secret sent into a folder the other account had made, a
+  note and a file sent to the top were read back by that account with the right names and places; the sheet
+  listed the recipient under *Already sent to*, and *Remove* made the item disappear for them. Not
+  exercised on a device: a refused send (covered by unit tests, which cover every outcome).
 - [ ] **A6.4 Linking the password extension.** The code, the compared fingerprint, the link, and a
   mismatch cancelling with no retry. Checked by hand with the extension.
 

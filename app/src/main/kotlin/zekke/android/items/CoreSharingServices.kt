@@ -7,7 +7,13 @@ import kotlinx.coroutines.coroutineScope
 import zekke.android.feature.sharing.CopyOutcome
 import zekke.android.feature.sharing.ConnectionItem
 import zekke.android.feature.sharing.FolderChange
+import zekke.android.feature.sharing.FolderChoice
+import zekke.android.feature.sharing.Recipient
 import zekke.android.feature.sharing.SaveTarget
+import zekke.android.feature.sharing.SendOutcome
+import zekke.android.feature.sharing.SendTargets
+import zekke.android.feature.sharing.folderChoices
+import zekke.android.feature.sharing.friendships
 import zekke.android.feature.sharing.SharedItem
 import zekke.android.feature.sharing.SharedType
 import zekke.android.feature.sharing.SpaceLoad
@@ -33,10 +39,15 @@ import zekke.core.folders.FolderEdit
 import zekke.core.folders.FolderEditException
 import zekke.core.folders.FolderManifest
 import zekke.core.folders.FolderManifestInvalidException
+import zekke.core.folders.placeItem
 import zekke.core.scopes.Scope
 import zekke.core.scopes.ScopedItemType
 import zekke.core.sharing.ConnectionDirection
 import zekke.core.sharing.ReceivedItem
+import zekke.core.sharing.ScopeNotSharedException
+import zekke.core.sharing.deleteShare
+import zekke.core.sharing.itemTypeOf
+import zekke.core.sharing.listItemRecipients
 import zekke.core.sharing.ShareRecord
 import zekke.core.sharing.listConnectionShares
 import zekke.core.sharing.listInbox
@@ -52,6 +63,12 @@ import zekke.core.sharing.setNickname
 import zekke.core.users.MalformedUsernameException
 
 private const val INSUFFICIENT_STORAGE = 507
+
+fun sendOutcomeOf(error: Exception): SendOutcome? = when (error) {
+    is ConnectionNotTrustedException -> SendOutcome.NotTrusted(alarmOf(error.trust))
+    is ScopeNotSharedException -> SendOutcome.NotShared
+    else -> null
+}
 
 fun inviteOutcomeOf(error: Exception): InviteOutcome? = when (error) {
     is UnknownRecipientException, is MalformedUsernameException -> InviteOutcome.UnknownUsername
@@ -101,8 +118,12 @@ class CoreSharingServices(
         loaded.map { ConnectionItem(it.id, it.username, displayName(book.nicknames[it.id]), standingOf(it)) }
     }.fold({ ConnectionsLoad.Loaded(it) }, { ConnectionsLoad.Failed(it) })
 
-    private fun record(id: String): ConnectionRecord =
-        synchronized(records) { records[id] }?.let(sharing::current) ?: throw NoSuchElementException(id)
+    private suspend fun record(id: String): ConnectionRecord {
+        synchronized(records) { records[id] }?.let { return sharing.current(it) }
+        val loaded = sharing.connections()
+        synchronized(records) { loaded.forEach { records[it.id] = it } }
+        return loaded.firstOrNull { it.id == id } ?: throw NoSuchElementException(id)
+    }
 
     override suspend fun checkTrust(ids: List<String>): Map<String, TrustAlarm?> = calls.read {
         coroutineScope {
@@ -254,6 +275,47 @@ class CoreSharingServices(
             },
         )
     }
+
+    override suspend fun sendTargets(type: SharedType, itemId: String): SendTargets = calls.read {
+        val loaded = sharing.connections()
+        synchronized(records) { loaded.forEach { records[it.id] = it } }
+        val book = sharing.loadAddressBook()
+        val recipients = listItemRecipients(context, itemTypeOf(type.wire), itemId)
+        val sent = recipients.map { it.username }.toSet()
+        val connections = friendships(loaded.map { ConnectionItem(it.id, it.username, displayName(book.nicknames[it.id]), standingOf(it)) })
+            .filter { it.username !in sent }
+        SendTargets.Loaded(connections, recipients.map { Recipient(it.id, it.username) })
+    }.fold({ it }, { SendTargets.Failed(it) })
+
+    override suspend fun folderChoicesOf(connectionId: String): List<FolderChoice> {
+        if (!holdsSharing) return emptyList()
+        return calls.read { folderChoices(sharing.loadSharedFolders(record(connectionId))) }.fold({ it }, { emptyList() })
+    }
+
+    override suspend fun send(connectionId: String, type: SharedType, itemId: String, folderId: String?): SendOutcome = calls.write {
+        try {
+            val connection = record(connectionId)
+            val share = sharing.shareItemById(connection, itemTypeOf(type.wire), itemId)
+            if (folderId == null) {
+                SendOutcome.Sent
+            } else {
+                try {
+                    sharing.editSharedFolders(connection, placeItem(share.id, folderId))
+                    SendOutcome.Sent
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    SendOutcome.SentNotFiled
+                }
+            }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            sendOutcomeOf(error) ?: throw error
+        }
+    }.fold({ it }, { SendOutcome.Failed(it) })
+
+    override suspend fun unshare(shareId: String): SharingWrite = calls.write { deleteShare(context, shareId) }.written()
 
     override fun systemScreenWillOpen() = guard.pickerWillOpen()
 

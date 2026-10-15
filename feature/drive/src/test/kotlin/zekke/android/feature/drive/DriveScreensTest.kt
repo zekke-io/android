@@ -29,6 +29,8 @@ class DriveScreensTest {
     @get:Rule
     val compose = createComposeRule()
 
+    private var shared: String? = null
+    private var onShare: ((String) -> Unit)? = null
     private val services = FakeDriveServices()
     private lateinit var model: DriveViewModel
 
@@ -54,7 +56,7 @@ class DriveScreensTest {
         compose.setContent {
             ZekkeTheme {
                 val state by model.state.collectAsState()
-                DriveScreen(state, model)
+                DriveScreen(state, model, onShare)
             }
         }
     }
@@ -127,5 +129,29 @@ class DriveScreensTest {
         compose.onNodeWithText("Deleted documents and Drive files stay here for 30 days", substring = true).assertExists()
         compose.onNodeWithText("Back to the Drive").performClick()
         compose.onNodeWithText("report.pdf").assertExists()
+    }
+
+    @Test
+    fun aFinishedFileOffersShareToTheHost() {
+        onShare = { shared = it }
+        show()
+        compose.onNodeWithText("report.pdf").performClick()
+        compose.onNodeWithText("Share").performScrollTo().performClick()
+        assertEquals("a", shared)
+    }
+
+    @Test
+    fun anUnfinishedUploadIsNotOfferedForSharing() {
+        onShare = { shared = it }
+        show()
+        compose.onNodeWithText("half.bin").performClick()
+        compose.onNodeWithText("Share").assertDoesNotExist()
+    }
+
+    @Test
+    fun withoutTheSlotThereIsNoShare() {
+        show()
+        compose.onNodeWithText("report.pdf").performClick()
+        compose.onNodeWithText("Share").assertDoesNotExist()
     }
 }

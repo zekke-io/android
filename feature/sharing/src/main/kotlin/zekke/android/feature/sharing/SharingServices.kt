@@ -123,6 +123,14 @@ interface SharingServices {
 
     suspend fun saveTo(connectionId: String, item: SharedItem, target: SaveTarget): SharingWrite
 
+    suspend fun sendTargets(type: SharedType, itemId: String): SendTargets
+
+    suspend fun folderChoicesOf(connectionId: String): List<FolderChoice>
+
+    suspend fun send(connectionId: String, type: SharedType, itemId: String, folderId: String?): SendOutcome
+
+    suspend fun unshare(shareId: String): SharingWrite
+
     fun systemScreenWillOpen()
 
     fun systemScreenReturned()

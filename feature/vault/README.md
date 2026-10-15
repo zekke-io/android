@@ -36,3 +36,7 @@ Writes go straight to the server and say so when offline, as in Passwords.
 | --- | --- |
 | `VaultViewModelTest` | The first load, values hidden and the toggle; a load failure and a reload on a change; add needing a name and a value and trimming only the name; filing in the open tab and not in the main one; a failed add keeping the form and no double submit; opening a row, not an unreadable one; moving; delete needing a full device and a confirmation, and its failure; a tab's items deleted through the services; restore and purge, the placements forgotten, a failed purge |
 | `VaultScreensTest` (Robolectric) | Names shown and values masked until the toggle; the empty vault; the main tab; the add button enabled only when complete and Next to the value; a row's sheet and the delete question; no delete on a device that is not full; the deleted page with restore and a confirmed purge |
+
+## Sharing
+
+The screen takes an optional `onShare` slot; `app` provides it and hosts the share sheet of [`feature:sharing`](../sharing/README.md). `VaultScreensTest` covers: the optional *share* slot: absent without it, and it hands the secret to the host and closes the detail.

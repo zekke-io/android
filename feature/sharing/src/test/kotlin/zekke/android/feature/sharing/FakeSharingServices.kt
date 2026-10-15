@@ -154,4 +154,31 @@ class FakeSharingServices(
     override fun systemScreenReturned() {
         pickerReturned++
     }
+
+    var targets: SendTargets = SendTargets.Loaded(emptyList(), emptyList())
+    var targetsLoads = 0
+    var choicesFor: List<FolderChoice> = emptyList()
+    var sendOutcome: SendOutcome = SendOutcome.Sent
+    var sent = mutableListOf<List<Any?>>()
+    var unshared = mutableListOf<String>()
+    var unshareResult: SharingWrite = SharingWrite.Done
+
+    override suspend fun sendTargets(type: SharedType, itemId: String): SendTargets {
+        targetsLoads++
+        return targets
+    }
+
+    override suspend fun folderChoicesOf(connectionId: String): List<FolderChoice> = choicesFor
+
+    override suspend fun send(connectionId: String, type: SharedType, itemId: String, folderId: String?): SendOutcome {
+        sent += listOf(connectionId, type, itemId, folderId)
+        gate?.await()
+        return sendOutcome
+    }
+
+    override suspend fun unshare(shareId: String): SharingWrite {
+        unshared += shareId
+        gate?.await()
+        return unshareResult
+    }
 }
