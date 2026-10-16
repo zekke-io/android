@@ -80,7 +80,7 @@ fun StorageMeter(reading: StorageReading, modifier: Modifier = Modifier) {
                 .clearAndSetSemantics { contentDescription = "$used, $free" },
         ) {
             Box(Modifier.fillMaxHeight().fillMaxWidth(min(1f, reading.storedShare + reading.reservedShare)).background(palette.brandSoft))
-            Box(Modifier.fillMaxHeight().fillMaxWidth(reading.storedShare).clip(CircleShape).background(palette.brand))
+            Box(Modifier.fillMaxHeight().fillMaxWidth(reading.storedShare).clip(CircleShape).background(palette.brandMark))
         }
         Text(
             if (reading.unfinishedBytes > 0) {

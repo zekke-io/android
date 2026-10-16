@@ -62,12 +62,22 @@ class OnboardingScreensTest {
         compose.onNodeWithText("Create an account").performClick()
         compose.onNodeWithText("Create my recovery phrase").performClick()
         compose.onNodeWithText("Continue").performClick()
-        compose.runOnIdle {
-            viewModel.pinChanged("111111")
-            viewModel.confirmationChanged("111111")
-        }
-        compose.onNodeWithText("Create my account").performClick()
+        compose.onNodeWithText("Choose your 6-digit PIN").assertExists()
+        repeat(6) { compose.onNodeWithText("1").performClick() }
+        compose.onNodeWithText("Confirm your PIN").assertExists()
+        repeat(6) { compose.onNodeWithText("1").performClick() }
         compose.onNodeWithText("That PIN repeats one digit. Choose a less predictable one.").assertExists()
+    }
+
+    @Test
+    fun backOnTheConfirmationReturnsToTheFirstEntry() {
+        compose.onNodeWithText("Create an account").performClick()
+        compose.onNodeWithText("Create my recovery phrase").performClick()
+        compose.onNodeWithText("Continue").performClick()
+        repeat(6) { compose.onNodeWithText("4").performClick() }
+        compose.onNodeWithText("Confirm your PIN").assertExists()
+        compose.onNodeWithText("Back").performClick()
+        compose.onNodeWithText("Choose your 6-digit PIN").assertExists()
     }
 
     @Test

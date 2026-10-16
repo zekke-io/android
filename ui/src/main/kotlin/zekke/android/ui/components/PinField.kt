@@ -24,6 +24,8 @@ import zekke.android.ui.theme.Zekke
 
 const val PIN_LENGTH = 6
 
+private val PinBoxShape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+
 fun acceptPinInput(typed: String): String = typed.filter { it in '0'..'9' }.take(PIN_LENGTH)
 
 fun pinCompleted(previous: String, next: String): Boolean = previous.length < PIN_LENGTH && next.length == PIN_LENGTH
@@ -63,12 +65,16 @@ fun PinField(
                             Box(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
-                                    .size(width = 44.dp, height = 52.dp)
-                                    .background(palette.surface, MaterialTheme.shapes.small)
+                                    .size(width = 48.dp, height = 60.dp)
+                                    .background(palette.surface, PinBoxShape)
                                     .border(
-                                        width = if (current) 2.dp else 1.dp,
-                                        color = if (current) palette.brand else palette.lineStrong,
-                                        shape = MaterialTheme.shapes.small,
+                                        width = 2.dp,
+                                        color = when {
+                                            current -> palette.brand
+                                            filled -> palette.brandSoft
+                                            else -> palette.line
+                                        },
+                                        shape = PinBoxShape,
                                     ),
                             ) {
                                 if (filled) Box(Modifier.size(10.dp).background(palette.ink, CircleShape))

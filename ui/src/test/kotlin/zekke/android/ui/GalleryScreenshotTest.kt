@@ -71,4 +71,18 @@ class GalleryScreenshotTest {
         compose.setContent { ZekkeTheme(darkTheme = true) { ScannerGallery() } }
         compose.onRoot().captureRoboImage("src/test/screenshots/scanner-dark.png")
     }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w411dp-h1500dp-xxhdpi")
+    fun brandLight() {
+        compose.setContent { ZekkeTheme(darkTheme = false) { BrandGallery() } }
+        compose.onRoot().captureRoboImage("src/test/screenshots/brand-light.png")
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w411dp-h1500dp-xxhdpi")
+    fun brandDark() {
+        compose.setContent { ZekkeTheme(darkTheme = true) { BrandGallery() } }
+        compose.onRoot().captureRoboImage("src/test/screenshots/brand-dark.png")
+    }
 }

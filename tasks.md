@@ -11,6 +11,14 @@ States: `[ ]` open, `[~]` under way, `[x]` done.
 
 Decisions taken by default and not yet confirmed; each is recorded where it was taken.
 
+- **The new Zekke design (orange, Nunito, mascot) is applied to the theme, the shared components, the
+  sign-up steps, the lock screen and the Home header.** Not yet redrawn: the enrolment PIN step, the
+  recovery step, Home's body (storage card, recent activity, bottom navigation) and the list screens.
+  Deviations from the design, taken by default: no *Paste* button on sign-in (the phrase never passes a
+  clipboard; the word fields and the QR scan stay); no *Search*, *Activity* or *Soon* tiles (they do not
+  exist in the app); *Continue* on the recovery step still waits for the kit to be saved, not for a
+  checkbox; the dark focus ring is #A99BFF, not #6B4CF0, for contrast; the storage meter's stored fill is
+  #C2410C, for 3:1 on its track; the feature marks are an orange gradient. Not looked at on a device.
 - **A7.2's wrong-account-PIN refusal on a device.** Deleting the account with a wrong PIN left the account
   intact but showed no notice in five emulator runs (the instrumentation could see no text, the log no
   error); the unit tests show the notice. Worth one look by hand on a Paranoid throwaway account.

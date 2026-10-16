@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -39,17 +40,23 @@ import zekke.android.feature.onboarding.kit.RECOVERY_KIT_MIME_TYPE
 import zekke.android.feature.onboarding.kit.printRecoveryKit
 import zekke.android.feature.onboarding.kit.recoveryKitDocumentName
 import zekke.android.feature.onboarding.kit.saveRecoveryKit
+import zekke.android.ui.components.ButtonSize
 import zekke.android.ui.components.ButtonVariant
+import zekke.android.ui.components.Mascot
+import zekke.android.ui.components.MascotPose
+import zekke.android.ui.components.OptionCard
+import zekke.android.ui.components.PIN_LENGTH
+import zekke.android.ui.components.PinPad
+import zekke.android.ui.components.StepBar
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
-import zekke.android.ui.components.PinField
-import zekke.android.ui.components.Segment
-import zekke.android.ui.components.SegmentedControl
 import zekke.android.ui.components.ZekkeButton
 import zekke.android.ui.theme.MonoStyle
 import zekke.android.ui.theme.Zekke
 import zekke.core.pin.PinRejection
+
+private const val ONBOARDING_STEPS = 4
 
 @Composable
 fun OnboardingFlow(state: OnboardingState, viewModel: OnboardingViewModel, version: String) {
@@ -68,7 +75,7 @@ fun OnboardingFlow(state: OnboardingState, viewModel: OnboardingViewModel, versi
 }
 
 @Composable
-internal fun Page(title: String?, body: String?, footer: @Composable ColumnScope.() -> Unit = {}, content: @Composable ColumnScope.() -> Unit) {
+internal fun Page(title: String?, body: String?, footer: @Composable ColumnScope.() -> Unit = {}, step: Int? = null, content: @Composable ColumnScope.() -> Unit) {
     val palette = Zekke.palette
     Column(
         Modifier.fillMaxSize().background(palette.ground).safeDrawingPadding().imePadding(),
@@ -77,6 +84,7 @@ internal fun Page(title: String?, body: String?, footer: @Composable ColumnScope
             modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            if (step != null) StepBar(step, ONBOARDING_STEPS)
             if (title != null) {
                 Text(title, style = MaterialTheme.typography.headlineMedium, color = palette.ink, modifier = Modifier.semantics { heading() })
             }
@@ -100,8 +108,8 @@ private fun StartStep(version: String, onCreate: () -> Unit, onEnrol: () -> Unit
         title = null,
         body = null,
         footer = {
-            ZekkeButton(stringResource(R.string.start_create), onCreate, Modifier.fillMaxWidth(), ButtonVariant.Accent)
-            ZekkeButton(stringResource(R.string.start_enrol), onEnrol, Modifier.fillMaxWidth(), ButtonVariant.Ghost)
+            ZekkeButton(stringResource(R.string.start_create), onCreate, Modifier.fillMaxWidth(), ButtonVariant.Accent, size = ButtonSize.Large)
+            ZekkeButton(stringResource(R.string.start_enrol), onEnrol, Modifier.fillMaxWidth(), ButtonVariant.Secondary, size = ButtonSize.Large)
             Text(
                 stringResource(R.string.start_version, version),
                 style = MaterialTheme.typography.bodySmall,
@@ -111,14 +119,22 @@ private fun StartStep(version: String, onCreate: () -> Unit, onEnrol: () -> Unit
             )
         },
     ) {
-        Spacer(Modifier.height(96.dp))
+        Spacer(Modifier.height(48.dp))
+        Mascot(MascotPose.Closed, Modifier.align(Alignment.CenterHorizontally).size(180.dp))
         Text(
             stringResource(R.string.start_title),
             style = MaterialTheme.typography.displaySmall,
             color = palette.ink,
-            modifier = Modifier.semantics { heading() },
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().semantics { heading() },
         )
-        Text(stringResource(R.string.start_tagline), style = MaterialTheme.typography.bodyLarge, color = palette.inkSoft)
+        Text(
+            stringResource(R.string.start_tagline),
+            style = MaterialTheme.typography.bodyLarge,
+            color = palette.inkSoft,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
@@ -147,14 +163,16 @@ private fun PhraseStep(wordCount: Int, onWordCount: (Int) -> Unit, onContinue: (
         title = stringResource(R.string.phrase_title),
         body = stringResource(R.string.phrase_body),
         footer = { BackAndContinue(stringResource(R.string.phrase_create), onContinue, onBack) },
+        step = 1,
     ) {
-        SegmentedControl(
-            segments = listOf(12, 24).map { Segment(it, pluralStringResource(R.plurals.phrase_words, it, it)) },
-            selected = wordCount,
-            onSelect = onWordCount,
-            label = stringResource(R.string.phrase_length),
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-        )
+        listOf(12 to R.string.phrase_option_12, 24 to R.string.phrase_option_24).forEach { (count, description) ->
+            OptionCard(
+                title = pluralStringResource(R.plurals.phrase_words, count, count),
+                description = stringResource(description),
+                selected = wordCount == count,
+                onSelect = { onWordCount(count) },
+            )
+        }
     }
 }
 
@@ -165,32 +183,25 @@ private fun ModeStep(paranoid: Boolean, onMode: (Boolean) -> Unit, onContinue: (
         title = stringResource(R.string.mode_title),
         body = null,
         footer = { BackAndContinue(stringResource(R.string.continue_label), onContinue, onBack) },
+        step = 2,
     ) {
-        SegmentedControl(
-            segments = listOf(Segment(false, stringResource(R.string.mode_standard)), Segment(true, stringResource(R.string.mode_paranoid))),
-            selected = paranoid,
-            onSelect = onMode,
-            label = stringResource(R.string.mode_label),
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+        OptionCard(
+            title = stringResource(R.string.mode_standard),
+            description = stringResource(R.string.mode_standard_summary),
+            selected = !paranoid,
+            onSelect = { onMode(false) },
         )
-        Column(
-            Modifier.fillMaxWidth()
-                .background(palette.surface, MaterialTheme.shapes.large)
-                .border(1.dp, palette.line, MaterialTheme.shapes.large)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(
-                stringResource(if (paranoid) R.string.mode_paranoid_summary else R.string.mode_standard_summary),
-                style = MaterialTheme.typography.titleSmall,
-                color = palette.ink,
-            )
-            Text(
-                stringResource(if (paranoid) R.string.mode_paranoid_tradeoff else R.string.mode_standard_tradeoff),
-                style = MaterialTheme.typography.bodyMedium,
-                color = palette.inkMuted,
-            )
-        }
+        OptionCard(
+            title = stringResource(R.string.mode_paranoid),
+            description = stringResource(R.string.mode_paranoid_summary),
+            selected = paranoid,
+            onSelect = { onMode(true) },
+        )
+        Text(
+            stringResource(if (paranoid) R.string.mode_paranoid_tradeoff else R.string.mode_standard_tradeoff),
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.inkSoft,
+        )
         if (paranoid) Notice(stringResource(R.string.mode_one_way), tone = NoticeTone.Warning)
     }
 }
@@ -219,25 +230,42 @@ fun failureText(failure: CreationFailure): String = when (failure) {
 
 @Composable
 private fun PinStep(state: OnboardingState, viewModel: OnboardingViewModel) {
+    val confirming = state.pin.length == PIN_LENGTH
     Page(
-        title = stringResource(R.string.pin_title),
-        body = stringResource(R.string.pin_subtitle),
-        footer = { BackAndContinue(stringResource(R.string.pin_create), viewModel::submitPin, viewModel::back) },
+        title = stringResource(if (confirming) R.string.pin_confirm_title else R.string.pin_title),
+        body = stringResource(if (confirming) R.string.pin_confirm_subtitle else R.string.pin_subtitle),
+        footer = {
+            ZekkeButton(
+                stringResource(R.string.back),
+                {
+                    if (confirming) {
+                        viewModel.pinChanged("")
+                        viewModel.confirmationChanged("")
+                    } else {
+                        viewModel.back()
+                    }
+                },
+                Modifier.fillMaxWidth(),
+                ButtonVariant.Secondary,
+            )
+        },
+        step = if (confirming) 4 else 3,
     ) {
-        if (state.paranoid) Notice(stringResource(R.string.mode_one_way), tone = NoticeTone.Warning)
-        PinField(
-            value = state.pin,
-            onValueChange = viewModel::pinChanged,
-            label = stringResource(R.string.pin_label),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        PinField(
-            value = state.confirmation,
-            onValueChange = viewModel::confirmationChanged,
-            label = stringResource(R.string.pin_confirm_label),
-            modifier = Modifier.fillMaxWidth(),
-            onComplete = { viewModel.submitPin() },
-        )
+        if (state.paranoid && !confirming) Notice(stringResource(R.string.mode_one_way), tone = NoticeTone.Warning)
+        if (confirming) {
+            PinPad(
+                value = state.confirmation,
+                onValueChange = viewModel::confirmationChanged,
+                label = stringResource(R.string.pin_confirm_label),
+                onComplete = { viewModel.submitPin() },
+            )
+        } else {
+            PinPad(
+                value = state.pin,
+                onValueChange = viewModel::pinChanged,
+                label = stringResource(R.string.pin_label),
+            )
+        }
         state.pinProblem?.let { Notice(pinProblemText(it), tone = NoticeTone.Danger) }
         state.failure?.let { Notice(failureText(it), tone = NoticeTone.Danger) }
     }

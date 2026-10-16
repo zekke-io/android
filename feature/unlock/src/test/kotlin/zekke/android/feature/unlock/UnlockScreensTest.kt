@@ -5,11 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -46,6 +44,8 @@ class UnlockScreensTest {
         Dispatchers.resetMain()
     }
 
+    private fun tapPin(digits: String) = digits.forEach { composeRule.onNodeWithText(it.toString()).performClick() }
+
     private fun showUnlockScreen() {
         composeRule.setContent {
             val state by viewModel.state.collectAsState()
@@ -60,13 +60,13 @@ class UnlockScreensTest {
         services.nextOutcome = UnlockAttempt.WrongPin(2)
         showUnlockScreen()
 
-        composeRule.onNodeWithContentDescription("PIN").performTextInput("482913")
+        tapPin("482913")
         composeRule.waitForIdle()
 
         assertEquals(listOf("482913"), services.receivedPins)
         composeRule.onNodeWithText(
             "Wrong PIN. 2 attempts left. When none are left, this phone forgets your account, and you will need your recovery phrase to add it again.",
-        ).assertIsDisplayed()
+        ).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -96,7 +96,7 @@ class UnlockScreensTest {
         services.nextOutcome = UnlockAttempt.Removed
         showUnlockScreen()
 
-        composeRule.onNodeWithContentDescription("PIN").performTextInput("482913")
+        tapPin("482913")
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(
@@ -109,11 +109,12 @@ class UnlockScreensTest {
     fun forgettingThePhoneNeedsConfirmationAndSaysItStaysListed() {
         showUnlockScreen()
 
-        composeRule.onNodeWithText("I forgot this phone’s PIN").performClick()
+        composeRule.onNodeWithText("I forgot this phone’s PIN").performScrollTo().performClick()
         composeRule.onNodeWithText(
             "stays in your list of devices until you remove it",
             substring = true,
-        ).assertIsDisplayed()
+        ).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Forget this phone").performScrollTo()
         composeRule.onNodeWithText("Forget this phone").performClick()
         composeRule.waitForIdle()
 

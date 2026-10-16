@@ -3,9 +3,8 @@ package zekke.android.feature.unlock
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
@@ -32,8 +31,7 @@ class UnlockFlowDeviceTest {
             }
         }
 
-        composeRule.onNodeWithContentDescription(context.getString(R.string.unlock_pin_label))
-            .performTextInput("123456")
+        "123456".forEach { composeRule.onNodeWithText(it.toString()).performClick() }
 
         composeRule.waitUntil(timeoutMillis = 5_000) { services.receivedPin != null }
         assertEquals("123456", services.receivedPin)

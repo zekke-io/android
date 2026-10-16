@@ -4,7 +4,27 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="@color/zekke_on_primary"
-        android:pathData="M38,38h32v6L46,66h24v6H38v-6l24,-22H38z" />
+    <group android:translateX="2.8" android:translateY="2.8" android:scaleX="0.2" android:scaleY="0.2">
+        <path
+            android:fillColor="#FFF4E8"
+            android:pathData="M106,256 a150,150 0 1,0 300,0 a150,150 0 1,0 -300,0 z" />
+        <group>
+            <clip-path android:pathData="M106,256 a150,150 0 1,0 300,0 a150,150 0 1,0 -300,0 z" />
+        <path
+            android:fillColor="#FFB066"
+            android:pathData="M90 190 Q256 252 422 190 L422 228 Q256 290 90 228 Z" />
+        <path
+            android:fillColor="#FFB066"
+            android:pathData="M90 254 Q256 316 422 254 L422 292 Q256 354 90 292 Z" />
+        <path
+            android:fillColor="#FFB066"
+            android:pathData="M90 318 Q256 380 422 318 L422 356 Q256 418 90 356 Z" />
+        </group>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="14"
+            android:strokeAlpha="0.7"
+            android:strokeLineCap="round"
+            android:pathData="M168 176 Q196 138 252 126" />
+    </group>
 </vector>

@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -36,7 +37,7 @@ private const val ANALYSIS_HEIGHT = 720
 @Composable
 fun QrScannerFrame(modifier: Modifier = Modifier) {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Box(Modifier.size(260.dp).border(3.dp, Zekke.palette.onGradient, MaterialTheme.shapes.large))
+        Box(Modifier.size(260.dp).border(3.dp, Color.White, MaterialTheme.shapes.large))
     }
 }
 

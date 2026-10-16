@@ -7,22 +7,27 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
-import zekke.android.ui.components.PinField
+import zekke.android.ui.components.Mascot
+import zekke.android.ui.components.MascotPose
+import zekke.android.ui.components.PinPad
 import zekke.android.ui.components.ZekkeButton
 import zekke.android.ui.components.rateLimitedMessage
 import zekke.android.ui.theme.Zekke
@@ -44,11 +49,13 @@ fun UnlockFlow(
             .padding(horizontal = 24.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        Mascot(MascotPose.Closed, Modifier.align(Alignment.CenterHorizontally).size(96.dp))
         Text(
             stringResource(R.string.unlock_title),
             style = MaterialTheme.typography.headlineMedium,
             color = palette.ink,
-            modifier = Modifier.semantics { heading() },
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().semantics { heading() },
         )
         versionNotice()
         if (state.registrationLost != null) {
@@ -67,14 +74,15 @@ fun UnlockFlow(
                 stringResource(R.string.unlock_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = palette.inkSoft,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
             )
-            PinField(
+            PinPad(
                 value = viewModel.pinValue(),
                 onValueChange = viewModel::pinChanged,
                 label = stringResource(R.string.unlock_pin_label),
                 enabled = !state.busy,
                 onComplete = { viewModel.submitPin() },
-                modifier = Modifier.fillMaxWidth(),
             )
             state.feedback?.let { feedback ->
                 Notice(

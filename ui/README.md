@@ -7,44 +7,34 @@ the QR scanner, and the activity result API for the camera permission.
 
 ## Where the look comes from
 
-**The web app as people see it**: the tokens of `web-app/src/app/globals.css`, which the prose of
-`web-app/design/DESIGN.md` confirms. (The YAML header of `DESIGN.md` is a generated Material palette
-that the web app does not use, and is not a source.)
+The Zekke design: a warm orange on cream with a violet zero-knowledge accent, Nunito type and the
+armadillo mascot, from the Zekke App design and written down in `design-system/README.md`.
 
-| Token | Light (the web app's) | Dark (derived here) |
+| Token | Light | Dark |
 | --- | --- | --- |
-| `brand` | `#4F46E5` (brand-600, its buttons) | `#818CF8` (brand-400) |
-| `brandText` | `#4338CA` (brand-700) | `#A5B4FC` (brand-300) |
-| `brandTint` / `brandTintLine` | `#EEF2FF` / `#E0E7FF` | `#1E1B4B` / `#312E81` |
-| `accent` | `#8B5CF6` | `#A78BFA` |
-| `ground` / `surface` / `raised` | `#F9FAFB` / `#FFFFFF` / `#F9FAFB` | `#111827` / `#1F2937` / `#273244` |
-| `line` / `lineStrong` | `#E5E7EB` / `#D1D5DB` | `#374151` / `#4B5563` |
-| `ink` / `inkSoft` / `inkMuted` / `inkFaint` | `#1F2937` / `#4B5563` / `#6B7280` / `#9CA3AF` | `#F9FAFB` / `#D1D5DB` / `#9CA3AF` / `#6B7280` |
-| `success` text / background / line | `#047857` / `#ECFDF5` / `#A7F3D0` | `#34D399` / `#022C22` / `#065F46` |
-| `warning` | `#B45309` / `#FFFBEB` / `#FDE68A` | `#FBBF24` / `#451A03` / `#92400E` |
-| `danger` | `#B91C1C` / `#FEF2F2` / `#FECACA` | `#F87171` / `#450A0A` / `#991B1B` |
-| folders, file kinds | the web app's | their lighter steps |
-| `brandMark` | `#6366F1` (brand-500: the logo, the active icon, the spinner) | `#818CF8` |
-| `brandSoft` | `#C7D2FE` (the storage bar's reservations) | `#312E81`, so the stored bytes on top keep 3:1 |
-| `gradientStart` → `gradientEnd`, `onGradient` | `#6366F1` → `#8B5CF6`, white: the action gradient, `actionGradient` | the same |
-| `focusRing` | `#6366F1` | `#A5B4FC` |
-| `scrim` | `#1F2937` at 40%, behind sheets | black at 60% |
-| `folderShine`, `folderEdge` | `#C7D2FE`, `#6366F1` | the same |
-
-**The web app has no dark theme.** The dark palette is derived from the same families (Tailwind's
-gray and indigo, one step lighter for anything drawn on a dark ground), and it ships: `ZekkeTheme`
-follows the system setting. The window behind Compose follows it too (`app`'s `values-night`
-theme draws `ground`), so a dark phone never flashes white at launch.
+| `brand` | `#FF7A1A` (buttons; text on it is `onBrand`, ink) | `#FF7A1A` |
+| `brandStrong` | `#E8590C` (pressed) | `#FF9A4A` |
+| `brandText` | `#9A3412` | `#FFB066` |
+| `brandTint` / `brandSoft` | `#FFE3C7` | `#3A2E54` / `#4A3C66` |
+| `brandMark` | `#C2410C` (marks that need 3:1 on `brandSoft`: the stored bytes) | `#FF7A1A` |
+| `accent` | `#6B4CF0` (violet: selected borders on dark, details) | `#8C73FF` |
+| `focusRing` | `#6B4CF0` | `#A99BFF` |
+| `ground` / `surface` / `raised` | `#FFF4E8` / `#FFFFFF` / `#FFE3C7` | `#1C1428` / `#2B2140` / `#3A2E54` |
+| `line` / `lineStrong` | `#F2DCC6` / `#F2D2AE` | `#4A3C66` / `#5B4B7E` |
+| `ink` / `inkSoft` / `inkMuted` / `inkFaint` | `#2A1608` / `#4A2E1A` / `#6B4A32` / `#8A6A52` | `#FFF4E8` / `#DCCFE6` / `#B9AACB` / `#8F7FA6` |
+| `warning` | the inverted block: `#FFF4E8` on `#2A1608` | `#2A1608` on `#FFB066` |
+| `success`, `danger` | accessible trios | their lighter steps |
+| folders, file kinds | orange folder; red, blue, green, teal … file hues | their lighter steps |
+| `strongBorder` | `ink`: the 3 dp border of secondary buttons and the chosen option card | `accent` |
 
 `ZekkePalette` holds every token, reached in a composable as `Zekke.palette`; `colorScheme()` maps
-it onto Material 3's roles, so Material components take the right colours by themselves.
+it onto Material 3's roles, so Material components take the right colours by themselves. The window
+behind Compose follows the theme (`app`'s `values-night` draws `ground`), so a dark phone never
+flashes light at launch.
 
 **Every text colour reads at WCAG AA** (4.5:1) on the grounds it is used on, in both themes, and
-every mark that carries meaning (the brand mark on its tint, the focus ring, the stored bytes over
-the reservations) at 3:1; `PaletteContrastTest` checks each pair. **The one exception is the action
-gradient**: white on its `#6366F1` end is 4.47:1 and on its `#8B5CF6` end 4.23:1, exactly as the
-web app draws it. It carries one short semibold label (*Create account*) or the `+` glyph, and is
-not tested as body text.
+every mark that carries meaning (the stored bytes over the reservations, the focus ring) at 3:1;
+`PaletteContrastTest` checks each pair. White is never text on `brand` (2.6:1): text on orange is ink.
 
 These tokens are the Zekke design system's (`design-system/tokens.json` in the workspace); its
 `platforms.md` maps each one to the field here, and each component here has its guidelines in its
@@ -52,17 +42,17 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 
 ## Type and shape
 
-- **Inter** for everything, **JetBrains Mono** for codes, fingerprints and ids (`MonoStyle`), as in
-  the web app. Both are bundled in `res/font` (Inter as its variable font, one file for every
-  weight), so no font is fetched at run time; their licences (SIL OFL 1.1) are in `licenses/`.
-  The files are Inter 4.1's `InterVariable.ttf` (SHA-256 `4989b125…d0ccaf`) and JetBrains Mono
-  2.304's `JetBrainsMono-Regular.ttf` (SHA-256 `a0bf60ef…98d138f`), from their projects' release
-  archives.
-- **The scale** is the web app's: 28/34 bold, 22/28 and 18/24 semibold for headings, 15/20 semibold
-  for card titles, 14/20 body, 13/18 compact, 11/14 semibold captions. Body text gains 15/22 as
-  `bodyLarge` for reading on a phone.
-- **Shapes**: 8 dp for buttons and fields, 16 dp for cards, 24 dp for sheets; badges are pills.
-- **Touch**: every button is at least 48 dp tall.
+- **Nunito** for everything (variable font, Black for headings and buttons, ExtraBold for titles,
+  SemiBold for body), **JetBrains Mono** for codes, fingerprints and ids (`MonoStyle`). Both are
+  bundled in `res/font`, so no font is fetched at run time; their licences (SIL OFL 1.1) are in
+  `licenses/`. The files are Nunito's variable font from the Google Fonts repository (SHA-256
+  `bb55a5ca…1e85207`) and JetBrains Mono 2.304's `JetBrainsMono-Regular.ttf` (SHA-256
+  `a0bf60ef…98d138f`).
+- **The scale**: 34/37 black hero, 28 and 22 black for headings, 17/24 semibold reading text, 15/21
+  body, 13/18 compact, 16 black on buttons, 11 captions.
+- **Shapes**: buttons are pills; 16 dp for PIN boxes and tags, 20 dp for inputs and keypad keys,
+  24 dp for cards and option cards, 28 dp for sheets.
+- **Touch**: every button is at least 48 dp tall; the main call to action is 58 dp.
 
 ## Components
 
@@ -74,10 +64,14 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | `PhraseEntry`, `PhraseEntryFields` | The recovery phrase typed one word per field: the 12 or 24 choice, the BIP-39 suggestions under the focused field, the Next key moving to the next word's own field, the checksum asked for by the consumer, a scanned phrase accepted whatever its case and spacing. The words are `CharArray`s outside the screen's state, zeroed when forgotten |
 | `PhraseScanSheet`, `QrScanner`, `QrScannerFrame`, `QrDecoder` | Scanning the kit: a full-screen dialog that explains the camera before asking, handles a refusal and a permanent refusal (*Open settings*), reads one QR code with CameraX and zxing's Java decoder, keeps no frame and stops at the first code. A scanned text goes to `PhraseEntry.acceptScanned`; what is not a 12 or 24-word phrase is refused there |
 | `PinField` | Six boxes, digits only, masked; `onComplete` fires once, on the sixth digit |
+| `PinPad`, `padPressed` | The same boxes over the app's own 3 × 4 numeric keypad, so the system keyboard never sees a PIN; `onComplete` fires on the sixth digit |
+| `Mascot`, `MascotPose` | The armadillo as a vector drawable: closed (cream on orange), open, open as an app icon |
+| `StepBar` | Four segments showing the step of a flow, announced as *Step N of M* |
+| `OptionCard` | A choice among two or three, a 3 dp bordered card with a radio ring, a title, a description and an optional tag; the whole card is the target |
 | `ItemFailure`, `itemFailureText`, `itemFailureTone` | The outcomes of an item call and the web app's sentence for each (offline, rate limited, session ended or renewed, keys changed, too large, scope missing, gone, changed elsewhere, failed), shared by the passwords, vault and notes screens |
 | `rateLimitedMessage`, `waitDescription` | The web app's sentence for a `429` and its wait (*in a moment*, *in 45 seconds*, *in about 2 minutes*, rounded up), so every screen says it the same way |
 | `CopyButton` | Copies through `SensitiveClipboard` and says *Copied — clears in 30 s* |
-| `ZekkeButton` | The web app's variants: primary, secondary, ghost, danger, and accent (the action gradient, onboarding only) |
+| `ZekkeButton` | Pill buttons: primary, secondary (3 dp strong outline), ghost, danger (outlined), and accent (onboarding); `ButtonSize.Large` is the 58 dp call to action |
 | `StatusBadge` | Neutral, brand, success, warning and danger pills, always on one line |
 | `CheckboxRow` | One option to tick as a whole 48 dp row, a `Role.Checkbox` target with a title and an optional detail (mono for a value) |
 | `SegmentedControl` | Two or three exclusive options in a pill track, the chosen one in `brand`; each segment is a radio button for TalkBack |

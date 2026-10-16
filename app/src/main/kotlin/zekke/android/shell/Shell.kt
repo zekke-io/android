@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -35,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import zekke.android.R
 import zekke.android.sync.SyncStatus
 import zekke.android.ui.components.AppTile
+import zekke.android.ui.components.Mascot
+import zekke.android.ui.components.MascotPose
 import zekke.android.feature.settings.notificationBadge
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.StatusBadge
@@ -155,7 +158,8 @@ private fun HomeScreen(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Mascot(MascotPose.OpenAppIcon, Modifier.size(44.dp))
             Text(
                 stringResource(R.string.home_title),
                 style = MaterialTheme.typography.headlineMedium,

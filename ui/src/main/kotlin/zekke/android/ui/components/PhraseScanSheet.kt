@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -70,7 +71,7 @@ fun PhraseScanSheet(entry: PhraseEntry, scan: PhraseScan, onClose: () -> Unit) {
                 Text(
                     stringResource(R.string.scanner_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = palette.onGradient,
+                    color = Color.White,
                     textAlign = TextAlign.Center,
                 )
                 if (!granted || access == CameraAccess.Unavailable) {
@@ -78,7 +79,7 @@ fun PhraseScanSheet(entry: PhraseEntry, scan: PhraseScan, onClose: () -> Unit) {
                         Text(
                             stringResource(accessMessage(granted, access)),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = palette.onGradient,
+                            color = Color.White,
                             textAlign = TextAlign.Center,
                         )
                         if (access == CameraAccess.Blocked) {
@@ -106,7 +107,7 @@ fun PhraseScanSheet(entry: PhraseEntry, scan: PhraseScan, onClose: () -> Unit) {
                     Text(
                         stringResource(R.string.scanner_hint),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = palette.onGradient,
+                        color = Color.White,
                         textAlign = TextAlign.Center,
                     )
                 }

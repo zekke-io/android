@@ -39,7 +39,7 @@ class PaletteContrastTest {
         "brand mark on its tint" to (palette.brandMark to palette.brandTint),
         "focus ring on ground" to (palette.focusRing to palette.ground),
         "focus ring on surface" to (palette.focusRing to palette.surface),
-        "stored bytes on the reservation" to (palette.brand to palette.brandSoft),
+        "stored bytes on the reservation" to (palette.brandMark to palette.brandSoft),
     )
 
     @Test
