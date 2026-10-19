@@ -31,6 +31,9 @@ import zekke.android.ui.components.FileKind
 import zekke.android.ui.components.FileKindIcon
 import zekke.android.ui.components.fileKindOf
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.verticalScroll
+import zekke.android.ui.components.StorageWarning
+import zekke.android.ui.components.ProvideTopBarActions
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -50,11 +53,9 @@ import zekke.android.ui.components.ItemRow
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.Notice
 import zekke.android.ui.components.NoticeTone
-import zekke.android.ui.components.StorageMeter
 import zekke.android.ui.components.StorageReading
 import zekke.android.ui.components.ZekkeButton
 import zekke.android.ui.components.ZekkeIconButton
-import zekke.android.ui.components.ZekkeIconToggleButton
 import zekke.android.ui.components.formatBytes
 import zekke.android.ui.components.itemFailureText
 import zekke.android.ui.components.itemFailureTone
@@ -87,11 +88,15 @@ fun DriveScreen(state: DriveState, viewModel: DriveViewModel, onShare: ((String)
             ViewerPage(viewing, viewModel)
         } else if (state.showingTrash) {
             TrashPage(state, viewModel)
+        } else if (state.showingUploads) {
+            UploadsPage(state, viewModel, chooseAgain)
         } else {
+            BrowserActions(state, viewModel)
             DriveBrowser(state, viewModel, chooseAgain)
             FloatingAddMenu(
                 label = stringResource(R.string.drive_add),
-                options = listOf(
+                options = listOfNotNull(
+                    if (state.canCreateFolder) AddOption(stringResource(R.string.drive_new_folder), zekke.android.ui.R.drawable.ic_folder_plus, viewModel::startNewFolder) else null,
                     AddOption(stringResource(R.string.drive_add_photos), zekke.android.ui.R.drawable.ic_upload) {
                         viewModel.systemScreenWillOpen()
                         photos.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
@@ -110,16 +115,56 @@ fun DriveScreen(state: DriveState, viewModel: DriveViewModel, onShare: ((String)
 }
 
 @Composable
+private fun BrowserActions(state: DriveState, viewModel: DriveViewModel) {
+    ProvideTopBarActions {
+        ZekkeIconButton(
+            zekke.android.ui.R.drawable.ic_action_uploads,
+            hint = stringResource(R.string.drive_uploads),
+            onClick = viewModel::showUploads,
+            iconSize = 24.dp,
+            dot = state.uploads.isNotEmpty(),
+        )
+        ZekkeIconButton(
+            if (state.grid) zekke.android.ui.R.drawable.ic_action_list else zekke.android.ui.R.drawable.ic_action_grid,
+            hint = stringResource(if (state.grid) R.string.drive_list else R.string.drive_grid),
+            onClick = viewModel::toggleGrid,
+            iconSize = 24.dp,
+        )
+        ZekkeIconButton(
+            zekke.android.ui.R.drawable.ic_action_trash,
+            hint = stringResource(R.string.drive_trash),
+            onClick = viewModel::showTrash,
+            iconSize = 24.dp,
+        )
+    }
+}
+
+@Composable
+private fun UploadsPage(state: DriveState, viewModel: DriveViewModel, chooseAgain: (UploadItem) -> Unit) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        ZekkeButton(stringResource(R.string.uploads_back), viewModel::hideUploads, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
+        if (state.uploads.isEmpty()) {
+            Text(stringResource(R.string.uploads_empty), style = MaterialTheme.typography.bodyMedium, color = Zekke.palette.inkMuted)
+        } else {
+            UploadRows(state, viewModel, chooseAgain, state.uploads)
+        }
+    }
+}
+
+@Composable
 private fun Header(state: DriveState, viewModel: DriveViewModel) {
     val palette = Zekke.palette
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         state.failure?.let { Notice(itemFailureText(it), tone = itemFailureTone(it), onDismiss = viewModel::dismissFailure) }
         state.saved?.let { Notice(stringResource(R.string.drive_saved, it), tone = NoticeTone.Warning, onDismiss = viewModel::dismissSaved) }
         state.usage?.let { usage ->
-            StorageMeter(StorageReading(usage.storedBytes, usage.usedBytes, usage.quotaBytes))
-            val held = usage.usedBytes - usage.storedBytes
-            if (held > 0) {
-                Text(stringResource(R.string.drive_held_by_uploads, formatBytes(held)), style = MaterialTheme.typography.bodySmall, color = palette.inkMuted)
+            val reading = StorageReading(usage.storedBytes, usage.usedBytes, usage.quotaBytes)
+            if (reading.isAlmostFull) {
+                StorageWarning(reading)
+                val held = usage.usedBytes - usage.storedBytes
+                if (held > 0) {
+                    Text(stringResource(R.string.drive_held_by_uploads, formatBytes(held)), style = MaterialTheme.typography.bodySmall, color = palette.inkMuted)
+                }
             }
         }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -131,16 +176,6 @@ private fun Header(state: DriveState, viewModel: DriveViewModel) {
                 Text("›", color = palette.inkMuted)
                 ZekkeButton(folder.name ?: stringResource(R.string.drive_unreadable_folder), { viewModel.openFolder(folder.id) }, variant = ButtonVariant.Ghost)
             }
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            ZekkeButton(stringResource(R.string.drive_new_folder), viewModel::startNewFolder, Modifier.weight(1f), ButtonVariant.Secondary, enabled = state.canCreateFolder && !state.busy)
-            ZekkeButton(stringResource(R.string.drive_trash), viewModel::showTrash, Modifier.weight(1f), ButtonVariant.Secondary)
-            ZekkeIconToggleButton(
-                icon = if (state.grid) zekke.android.ui.R.drawable.ic_list else zekke.android.ui.R.drawable.ic_grid,
-                hint = stringResource(if (state.grid) R.string.drive_list else R.string.drive_grid),
-                checked = !state.grid,
-                onCheckedChange = { viewModel.toggleGrid() },
-            )
         }
     }
 }

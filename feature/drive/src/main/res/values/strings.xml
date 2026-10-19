@@ -4,6 +4,9 @@
     <string name="drive_up">Up one folder</string>
     <string name="drive_new_folder">New folder</string>
     <string name="drive_trash">Trash</string>
+    <string name="drive_uploads">Uploads</string>
+    <string name="uploads_back">Back to the Drive</string>
+    <string name="uploads_empty">No uploads in progress.</string>
     <string name="drive_grid">Show as a grid</string>
     <string name="drive_list">Show as a list</string>
     <string name="drive_more">More</string>

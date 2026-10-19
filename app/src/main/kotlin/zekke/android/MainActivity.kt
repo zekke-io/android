@@ -196,8 +196,12 @@ class MainActivity : ComponentActivity() {
                                     val sharedState by sharedModel.state.collectAsStateWithLifecycle()
                                     SharingScreen(sharedState, sharedModel, connectionsState, connectionsModel)
                                 }
+                                val homeStorageModel = viewModel(key = "home-storage") { PlanViewModel(this@MainActivity.get<PlanServices>()) }
+                                val homeStorageState by homeStorageModel.state.collectAsStateWithLifecycle()
+                                LaunchedEffect(syncStatus.lastSyncEpochSeconds) { homeStorageModel.opened() }
                                 Shell(
                                     status = syncStatus,
+                                    storage = homeStorageState.storage,
                                     onLock = guard::lockNow,
                                     notices = versionNotices,
                                     settings = { openNotifications, open ->

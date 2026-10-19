@@ -81,6 +81,8 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | `FloatingAddButton`, `FloatingAddMenu` | The 56 dp gradient disc; the menu variant opens a list of `AddOption`s and turns its `+` 45° while open |
 | `Notice` | Info, success, warning and danger. Given `onDismiss` it draws a close button (*a message*); without, it stays (*part of the page*), the web app's rule |
 | `EmptyState`, `LoadingIndicator` | An icon chip and one sentence; the brand spinner, named *Loading* for TalkBack |
+| `StorageWarning` | The card Home and the Drive show only from 90% of the quota in use (`StorageReading.isAlmostFull`): *used of quota* over a `danger` bar |
+| `ProvideTopBarActions`, `TopBarActionsSlot` | A page adds actions to the shell's top bar, before *Lock* |
 | `StorageMeter`, `StorageReading`, `formatBytes` | The web app's storage bar: stored bytes solid over reservations, *Free* counting unfinished uploads. `formatBytes` is the web app's (binary units, one decimal) |
 | `Block` | A title, a subtitle, header actions and content, **with no panel**: whitespace separates blocks, as on the web |
 | `ItemRow` | A 64 dp row: lead icon on `brandTint`, a one-line title, metadata (in `MonoStyle` for a masked value), trailing actions, a divider. `card`: a 72 dp `surface` row with 20 dp corners and no divider; `avatar`: the first letter in a `brandTint` disc; `inkIcon`: the glyph on an `ink` rounded square, for secrets |

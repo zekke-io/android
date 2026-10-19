@@ -470,4 +470,13 @@ class DriveViewModelTest {
         model.cancelChoosing()
         assertNull(model.now.choosing)
     }
+
+    @Test
+    fun theUploadsPageOpensAndCloses() {
+        val model = DriveViewModel(FakeDriveServices())
+        model.showUploads()
+        assertTrue(model.state.value.showingUploads)
+        model.hideUploads()
+        assertFalse(model.state.value.showingUploads)
+    }
 }

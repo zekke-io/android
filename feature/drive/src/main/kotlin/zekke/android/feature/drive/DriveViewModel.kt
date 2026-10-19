@@ -82,6 +82,7 @@ data class DriveState(
     val moving: DriveItem? = null,
     val deleting: DriveItem? = null,
     val showingTrash: Boolean = false,
+    val showingUploads: Boolean = false,
     val trash: List<TrashEntry>? = null,
     val confirmingPurge: List<TrashEntry>? = null,
     val thumbnails: Map<String, ByteArray> = emptyMap(),
@@ -430,6 +431,10 @@ class DriveViewModel(private val services: DriveServices) : ViewModel() {
     }
 
     fun hideTrash() = mutableState.update { it.copy(showingTrash = false) }
+
+    fun showUploads() = mutableState.update { it.copy(showingUploads = true, acting = null) }
+
+    fun hideUploads() = mutableState.update { it.copy(showingUploads = false) }
 
     private fun loadTrash() {
         viewModelScope.launch {

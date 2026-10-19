@@ -29,6 +29,8 @@ import kotlin.math.roundToLong
 import zekke.android.ui.R
 import zekke.android.ui.theme.Zekke
 
+const val ALMOST_FULL_SHARE = 0.9f
+
 private val BYTE_UNITS = listOf("KiB", "MiB", "GiB", "TiB")
 
 fun formatBytes(bytes: Long): String {
@@ -52,6 +54,12 @@ data class StorageReading(val storedBytes: Long, val usedBytes: Long, val quotaB
 
     val freeBytes: Long
         get() = max(0L, quotaBytes - usedBytes)
+
+    val usedShare: Float
+        get() = share(usedBytes)
+
+    val isAlmostFull: Boolean
+        get() = usedShare >= ALMOST_FULL_SHARE
 
     val unfinishedBytes: Long
         get() = max(0L, usedBytes - storedBytes)
@@ -96,5 +104,28 @@ fun StorageMeter(reading: StorageReading, modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.bodySmall,
             color = palette.inkMuted,
         )
+    }
+}
+
+@Composable
+fun StorageWarning(reading: StorageReading, modifier: Modifier = Modifier) {
+    val palette = Zekke.palette
+    val summary = stringResource(R.string.storage_of, formatBytes(reading.usedBytes), formatBytes(reading.quotaBytes))
+    val fill = palette.danger.text
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.fillMaxWidth().background(palette.surface, RoundedCornerShape(20.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+    ) {
+        Text(summary, style = MaterialTheme.typography.titleSmall, color = palette.ink)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(CircleShape)
+                .background(palette.raised)
+                .clearAndSetSemantics { contentDescription = summary },
+        ) {
+            Box(Modifier.fillMaxHeight().fillMaxWidth(min(1f, reading.usedShare)).clip(CircleShape).background(fill))
+        }
     }
 }

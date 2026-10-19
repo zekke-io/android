@@ -15,10 +15,10 @@ import zekke.android.ui.components.ZekkeButton
 import zekke.android.ui.components.ZekkeIconButton
 
 @Composable
-fun UploadRows(state: DriveState, viewModel: DriveViewModel, onChooseAgain: (UploadItem) -> Unit) {
-    if (state.uploadsHere.isEmpty()) return
+fun UploadRows(state: DriveState, viewModel: DriveViewModel, onChooseAgain: (UploadItem) -> Unit, items: List<UploadItem> = state.uploadsHere) {
+    if (items.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
-        state.uploadsHere.forEach { item ->
+        items.forEach { item ->
             Column {
                 ItemRow(
                     title = item.name,

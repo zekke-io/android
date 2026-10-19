@@ -20,6 +20,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import zekke.android.ui.components.TopBarActionsSlot
+import zekke.android.ui.components.LocalTopBarActions
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,6 +46,8 @@ import zekke.android.ui.components.BottomBar
 import zekke.android.ui.components.BottomBarItem
 import zekke.android.ui.components.IconButtonTone
 import zekke.android.ui.components.TopBar
+import zekke.android.ui.components.StorageWarning
+import zekke.android.ui.components.StorageReading
 import zekke.android.ui.components.ZekkeIconButton
 import zekke.android.ui.theme.Zekke
 import zekke.core.feed.FeedScope
@@ -77,6 +83,7 @@ private val SECTIONS = listOf(
 @Composable
 fun Shell(
     status: SyncStatus,
+    storage: StorageReading? = null,
     onLock: () -> Unit,
     notices: @Composable () -> Unit,
     settings: @Composable (openNotifications: () -> Unit, open: (Destination) -> Unit) -> Unit,
@@ -102,6 +109,7 @@ fun Shell(
         when (destination) {
             Destination.Home -> HomeScreen(
                 status = status,
+                storage = storage,
                 onOpen = { destination = it },
                 onOpenNotifications = openNotifications,
                 onLock = onLock,
@@ -146,6 +154,7 @@ fun Shell(
 @Composable
 private fun HomeScreen(
     status: SyncStatus,
+    storage: StorageReading?,
     onOpen: (Destination) -> Unit,
     onOpenNotifications: () -> Unit,
     onLock: () -> Unit,
@@ -178,6 +187,7 @@ private fun HomeScreen(
                 )
             }
             notices()
+            if (storage != null && storage.isAlmostFull) StorageWarning(storage)
             Text(
                 stringResource(R.string.home_apps),
                 style = MaterialTheme.typography.headlineMedium,
@@ -235,10 +245,12 @@ private fun ShellPage(
     header: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
+    val slot = remember { TopBarActionsSlot() }
     TopBar(
         title = title,
         onBack = onBack,
         actions = {
+            slot.content?.invoke(this)
             ZekkeIconButton(
                 zekke.android.ui.R.drawable.ic_lock_session,
                 hint = stringResource(R.string.shell_lock_hint),
@@ -247,14 +259,16 @@ private fun ShellPage(
             )
         },
     )
-    if (scrollable) {
-        Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) { content() }
-    } else {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) { header() }
-        Box(Modifier.fillMaxSize()) { content() }
+    CompositionLocalProvider(LocalTopBarActions provides slot) {
+        if (scrollable) {
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) { content() }
+        } else {
+            Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) { header() }
+            Box(Modifier.fillMaxSize()) { content() }
+        }
     }
 }
 

@@ -40,6 +40,7 @@ Decisions taken by default and not yet confirmed; each is recorded where it was 
 - **New shared pieces**: `feature:tabs`, and in `ui` `TabStrip`, `TopBar`, `NoteSurface`, `PageTile`,
   `FileTile`, `ItemFailure`. `../design-system` is **not in any git repository**: `TopBar.md`,
   `Tabs.md`, `NoteSurface.md`, `PageTile.md` and `FileTile.md` exist only on disk.
+- **The Drive's actions are in the top bar** (Uploads, Grid or List view, Trash); *New folder* moved into the add menu. The design's Search icon is not built (the Drive has no search). Uploads opens a page of every upload in progress. The storage meter shows on Home and in the Drive only from 90% in use, without the design's *Get more space* link (P1).
 - **The file-kind icons** are the design's (folders, DOCX, DOC, XLSX, CSV, TXT, PDF, ZIP, photo and video stand-ins); XLS shares the XLSX drawing with its own label, and any other extension is the page without a badge. Shared screens still use the plain glyphs.
 - **Coil replaced by `ImageDecoder`** for image previews (no new dependency).
 - **Open with…** leaves one plaintext copy under `noBackupFilesDir/shared` until the next process start,

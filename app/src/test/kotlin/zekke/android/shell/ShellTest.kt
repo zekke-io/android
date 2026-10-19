@@ -18,6 +18,7 @@ import org.robolectric.annotation.Config
 import zekke.android.sync.SectionCounts
 import zekke.android.sync.SyncFailure
 import zekke.android.sync.SyncStatus
+import zekke.android.ui.components.StorageReading
 import zekke.core.feed.FeedScope
 
 @RunWith(RobolectricTestRunner::class)
@@ -29,9 +30,10 @@ class ShellTest {
     private var locks = 0
     private var opened = 0
 
-    private fun show(status: SyncStatus) = compose.setContent {
+    private fun show(status: SyncStatus, storage: StorageReading? = null) = compose.setContent {
         Shell(
             status = status,
+            storage = storage,
             onLock = { locks++ },
             notices = { Text("a notice") },
             settings = { openNotifications, _ ->
@@ -166,5 +168,17 @@ class ShellTest {
         show(SyncStatus(active = true, heldScopes = held, unreadNotifications = 3))
         compose.onNodeWithContentDescription("Notifications, 3 unread").assertExists()
         compose.onNodeWithText("3").assertExists()
+    }
+
+    @Test
+    fun homeShowsNoStorageBarBelowNinetyPercent() {
+        show(SyncStatus(active = true, heldScopes = held), StorageReading(storedBytes = 500, usedBytes = 800, quotaBytes = 1_000))
+        compose.onNodeWithText("800 B of 1000 B").assertDoesNotExist()
+    }
+
+    @Test
+    fun homeShowsTheStorageBarFromNinetyPercent() {
+        show(SyncStatus(active = true, heldScopes = held), StorageReading(storedBytes = 900, usedBytes = 920, quotaBytes = 1_000))
+        compose.onNodeWithText("920 B of 1000 B").assertExists()
     }
 }

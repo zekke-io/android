@@ -40,6 +40,7 @@ import zekke.android.ui.components.SegmentedControl
 import zekke.android.ui.components.StatusBadge
 import zekke.android.ui.components.StorageMeter
 import zekke.android.ui.components.StorageReading
+import zekke.android.ui.components.StorageWarning
 import zekke.android.ui.components.TabItem
 import zekke.android.ui.components.TabStrip
 import zekke.android.ui.components.Tone
@@ -141,6 +142,13 @@ fun ComponentGallery() {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ItemRow("Amazon", meta = "you@example.com", icon = R.drawable.ic_passwords, avatar = "Amazon", card = true, onClick = {})
             ItemRow("Savings wallet", meta = "••••", metaIsValue = true, icon = R.drawable.ic_vault, card = true, inkIcon = true, onClick = {})
+        }
+        StorageWarning(StorageReading(storedBytes = 460, usedBytes = 460, quotaBytes = 500))
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            ZekkeIconButton(R.drawable.ic_action_uploads, hint = "Uploads", onClick = {}, iconSize = 24.dp, dot = true)
+            ZekkeIconButton(R.drawable.ic_action_grid, hint = "Grid", onClick = {}, iconSize = 24.dp)
+            ZekkeIconButton(R.drawable.ic_action_list, hint = "List", onClick = {}, iconSize = 24.dp)
+            ZekkeIconButton(R.drawable.ic_action_trash, hint = "Trash", onClick = {}, iconSize = 24.dp)
         }
         StorageMeter(StorageReading(storedBytes = 3 * GIB + GIB / 5, usedBytes = 3 * GIB + GIB / 3, quotaBytes = 10 * GIB))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

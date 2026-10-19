@@ -17,6 +17,13 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import zekke.android.ui.components.LocalTopBarActions
+import zekke.android.ui.components.TopBarActionsSlot
+import zekke.core.files.StorageUsage
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -59,7 +66,11 @@ class DriveScreensTest {
         compose.setContent {
             ZekkeTheme {
                 val state by model.state.collectAsState()
-                DriveScreen(state, model, onShare)
+                val slot = remember { TopBarActionsSlot() }
+                Column {
+                    Row { slot.content?.invoke(this) }
+                    CompositionLocalProvider(LocalTopBarActions provides slot) { DriveScreen(state, model, onShare) }
+                }
             }
         }
     }
@@ -75,6 +86,40 @@ class DriveScreensTest {
         compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Unreadable file"))
         compose.onNodeWithText("Unreadable file").assertExists()
         compose.onNodeWithText("1.2 KiB", substring = true).assertExists()
+    }
+
+    @Test
+    fun theStorageBarStaysHiddenBelowNinetyPercent() {
+        show()
+        compose.onNodeWithText("2.9 KiB of 9.8 KiB").assertDoesNotExist()
+        compose.onNodeWithText("2.0 KiB used", substring = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun theStorageBarAppearsAtNinetyPercent() {
+        val full = FakeDriveServices().apply {
+            folders = services.folders
+            files = services.files
+            usage = StorageUsage(usedBytes = 9_000, storedBytes = 8_000, quotaBytes = 10_000)
+        }
+        show(full)
+        compose.onNodeWithText("8.8 KiB of 9.8 KiB").assertExists()
+    }
+
+    @Test
+    fun theUploadsIconOpensTheUploadsAndBack() {
+        show()
+        compose.onNodeWithContentDescription("Uploads").performClick()
+        compose.onNodeWithText("No uploads in progress.").assertExists()
+        compose.onNodeWithText("Back to the Drive").performClick()
+        compose.onNodeWithText("report.pdf").assertExists()
+    }
+
+    @Test
+    fun newFolderIsInTheAddMenu() {
+        show()
+        compose.onNodeWithContentDescription("Upload").performClick()
+        compose.onNodeWithText("New folder").assertExists()
     }
 
     @Test
@@ -128,7 +173,7 @@ class DriveScreensTest {
     fun theTrashShowsItsNoticeAndItsEntries() {
         services.trashEntries = listOf(trashed("t1", "old.txt"))
         show()
-        compose.onNodeWithText("Trash").performClick()
+        compose.onNodeWithContentDescription("Trash").performClick()
         compose.onNodeWithText("old.txt").assertExists()
         compose.onNodeWithText("Deleted documents and Drive files stay here for 30 days", substring = true).assertExists()
         compose.onNodeWithText("Back to the Drive").performClick()
