@@ -37,6 +37,7 @@ import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.FloatingAddMenu
 import zekke.android.ui.components.EmptyState
 import zekke.android.ui.components.FileTile
+import zekke.android.ui.components.IconButtonTone
 import zekke.android.ui.components.ItemRow
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.Notice
@@ -115,7 +116,7 @@ private fun Header(state: DriveState, viewModel: DriveViewModel) {
         }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             if (state.folderId != null) {
-                ZekkeIconButton(zekke.android.ui.R.drawable.ic_arrow_left, stringResource(R.string.drive_up), viewModel::up)
+                ZekkeIconButton(zekke.android.ui.R.drawable.ic_chevron_left, stringResource(R.string.drive_up), viewModel::up, tone = IconButtonTone.Soft)
             }
             ZekkeButton(stringResource(R.string.drive_root), { viewModel.openFolder(null) }, variant = ButtonVariant.Ghost)
             state.path.forEach { folder ->

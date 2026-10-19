@@ -163,7 +163,7 @@ private fun HomeScreen(
                 Column(Modifier.weight(1f)) {
                     Text(
                         stringResource(R.string.home_greeting),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.headlineMedium,
                         color = palette.ink,
                         modifier = Modifier.semantics { heading() },
                     )
@@ -180,7 +180,7 @@ private fun HomeScreen(
             notices()
             Text(
                 stringResource(R.string.home_apps),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 color = palette.ink,
                 modifier = Modifier.semantics { heading() },
             )

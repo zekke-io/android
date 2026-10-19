@@ -25,7 +25,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import zekke.android.ui.theme.Zekke
 
-enum class IconButtonTone { Neutral, Danger, Ink }
+enum class IconButtonTone { Neutral, Danger, Ink, Soft }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,10 +53,12 @@ fun ZekkeIconButton(
     val glyph = when (tone) {
         IconButtonTone.Danger -> palette.danger.text
         IconButtonTone.Ink -> if (palette.isDark) Color.White else palette.ground
+        IconButtonTone.Soft -> palette.ink
         IconButtonTone.Neutral -> palette.inkSoft
     }
     val filled = when (tone) {
         IconButtonTone.Ink -> if (palette.isDark) palette.accent else palette.ink
+        IconButtonTone.Soft -> palette.raised
         IconButtonTone.Danger -> palette.surface
         IconButtonTone.Neutral -> if (framed) palette.surface else Color.Transparent
     }
@@ -69,7 +71,7 @@ fun ZekkeIconButton(
         OutlinedIconButton(
             onClick = onClick,
             enabled = enabled,
-            shape = if (tone == IconButtonTone.Ink) CircleShape else MaterialTheme.shapes.small,
+            shape = if (tone == IconButtonTone.Ink || tone == IconButtonTone.Soft) CircleShape else MaterialTheme.shapes.small,
             border = border,
             colors = IconButtonDefaults.outlinedIconButtonColors(
                 containerColor = filled,
@@ -77,7 +79,7 @@ fun ZekkeIconButton(
             ),
             modifier = modifier.size(48.dp).semantics { contentDescription = label },
         ) {
-            Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(20.dp))
+            Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(if (tone == IconButtonTone.Soft) 24.dp else 20.dp))
         }
     }
 }

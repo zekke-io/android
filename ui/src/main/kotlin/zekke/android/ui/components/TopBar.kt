@@ -13,7 +13,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import zekke.android.ui.R
 import zekke.android.ui.theme.Zekke
 
@@ -29,11 +32,11 @@ fun TopBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (onBack != null) {
-            ZekkeIconButton(R.drawable.ic_arrow_left, hint = stringResource(R.string.top_bar_back), onClick = onBack)
+            ZekkeIconButton(R.drawable.ic_chevron_left, hint = stringResource(R.string.top_bar_back), onClick = onBack, tone = IconButtonTone.Soft)
         }
         Text(
             title,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Black, letterSpacing = (-0.02).em),
             color = Zekke.palette.ink,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

@@ -33,6 +33,7 @@ import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.ConfirmDeleteDialog
 import zekke.android.ui.components.EmptyState
 import zekke.android.ui.components.ExtendedAddButton
+import zekke.android.ui.components.IconButtonTone
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.NoteSurface
 import zekke.android.ui.components.Notice
@@ -133,9 +134,10 @@ private fun NoteEditor(state: NotesState, editor: NoteEditorState, viewModel: No
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ZekkeIconButton(
-                zekke.android.ui.R.drawable.ic_arrow_left,
+                zekke.android.ui.R.drawable.ic_chevron_left,
                 hint = stringResource(R.string.notes_back),
                 onClick = viewModel::close,
+                tone = IconButtonTone.Soft,
                 enabled = !editor.busy,
             )
             Text(title, style = MaterialTheme.typography.titleLarge, color = palette.ink, maxLines = 1, modifier = Modifier.weight(1f))
