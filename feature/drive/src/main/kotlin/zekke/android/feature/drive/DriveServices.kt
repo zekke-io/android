@@ -17,6 +17,7 @@ data class DriveEntry(
     val thumbnailId: String?,
     val r2State: String,
     val gcsState: String,
+    val updatedAt: String = "",
 ) {
     val readable: Boolean get() = name != null
 

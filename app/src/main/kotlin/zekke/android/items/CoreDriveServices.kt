@@ -201,5 +201,6 @@ class CoreDriveServices(
         thumbnailId = file.thumbnailId,
         r2State = file.record.r2State,
         gcsState = file.record.gcsState,
+        updatedAt = file.record.updatedAt,
     )
 }

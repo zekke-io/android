@@ -33,6 +33,10 @@ import zekke.android.feature.settings.DeleteAccountSheet
 import zekke.android.feature.settings.DevicesScreen
 import zekke.android.feature.settings.PlanScreen
 import zekke.android.feature.settings.PlanServices
+import zekke.android.feature.settings.RecentViewModel
+import zekke.android.feature.settings.RecentServices
+import zekke.android.feature.settings.RecentKind
+import zekke.android.feature.settings.ActivityScreen
 import zekke.android.feature.settings.PlanViewModel
 import zekke.android.feature.settings.SecurityScreen
 import zekke.android.feature.settings.SecurityServices
@@ -197,6 +201,8 @@ class MainActivity : ComponentActivity() {
                                     val sharedState by sharedModel.state.collectAsStateWithLifecycle()
                                     SharingScreen(sharedState, sharedModel, connectionsState, connectionsModel)
                                 }
+                                val recentModel = viewModel { RecentViewModel(this@MainActivity.get<RecentServices>()) }
+                                val recentState by recentModel.state.collectAsStateWithLifecycle()
                                 val homeStorageModel = viewModel(key = "home-storage") { PlanViewModel(this@MainActivity.get<PlanServices>()) }
                                 val homeStorageState by homeStorageModel.state.collectAsStateWithLifecycle()
                                 LaunchedEffect(syncStatus.lastSyncEpochSeconds) { homeStorageModel.opened() }
@@ -255,7 +261,24 @@ class MainActivity : ComponentActivity() {
                                             AboutScreen(BuildConfig.VERSION_NAME) { VersionNotice(versionStatus, policy::dismissUpdateAvailable) }
                                         },
                                     ),
-                                    notifications = { NotificationsScreen(notificationsState, notifications) },
+                                    activity = { open ->
+                                        ActivityScreen(
+                                            unreadAlerts = syncStatus.unreadNotifications,
+                                            alerts = { NotificationsScreen(notificationsState, notifications) },
+                                            recent = recentState,
+                                            onRecentShown = recentModel::opened,
+                                            onOpenRecent = { kind ->
+                                                open(
+                                                    when (kind) {
+                                                        RecentKind.Note -> Destination.Notes
+                                                        RecentKind.Password -> Destination.Passwords
+                                                        RecentKind.Secret -> Destination.Vault
+                                                        RecentKind.File -> Destination.Drive
+                                                    },
+                                                )
+                                            },
+                                        )
+                                    },
                                     listPages = mapOf(Destination.Passwords to passwordsPage, Destination.Vault to vaultPage, Destination.Notes to notesPage, Destination.Drive to drivePage, Destination.Shared to sharedPage),
                                 )
                                 AccountSecuritySheet(securityState, security)

@@ -65,6 +65,9 @@ import zekke.android.items.CoreAccountSettingsServices
 import zekke.android.feature.settings.PlanServices
 import zekke.android.feature.settings.SecurityServices
 import zekke.android.items.CorePlanServices
+import zekke.android.R
+import zekke.android.items.CoreRecentServices
+import zekke.android.feature.settings.RecentServices
 import zekke.android.items.CoreSecurityServices
 import zekke.android.session.FileIdleTimeoutStore
 import zekke.android.session.IdleTimeoutStore
@@ -144,6 +147,9 @@ val coreModule = module {
     factory<DevicesServices> { CoreDevicesServices(get(), get(), get(), get(), get(), get()) }
     factory<ExtensionLinkServices> { CoreExtensionLinkServices(get(), get(), get()) }
     factory<NotificationsServices> { CoreNotificationsServices(get()) }
+    factory<RecentServices> {
+        CoreRecentServices(get(), get(), get(), get()) { androidContext().getString(R.string.recent_untitled_note) }
+    }
     factory<AccountSecurityServices> {
         val account = get<AccountServices>()
         val api = get<ZekkeApi>()

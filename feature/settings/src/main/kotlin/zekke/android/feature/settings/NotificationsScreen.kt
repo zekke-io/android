@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import zekke.android.ui.components.AlertCard
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.Notice
@@ -23,7 +24,7 @@ import zekke.android.ui.theme.Zekke
 fun NotificationsScreen(state: NotificationsState, viewModel: NotificationsViewModel, clock: NotificationClock = NotificationClock()) {
     LaunchedEffect(Unit) { viewModel.open() }
     val resources = LocalResources.current
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         state.problem?.let { problem ->
             Notice(
                 when (problem) {
@@ -51,10 +52,5 @@ fun NotificationsScreen(state: NotificationsState, viewModel: NotificationsViewM
 
 @Composable
 private fun NotificationItem(view: NotificationView) {
-    val palette = Zekke.palette
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Notice(view.title + if (view.unread) " · " + stringResource(R.string.notif_unread_marker) else "", tone = view.tone)
-        Text(view.body, style = MaterialTheme.typography.bodyMedium, color = palette.inkSoft)
-        if (view.age.isNotEmpty()) Text(view.age, style = MaterialTheme.typography.bodySmall, color = palette.inkMuted)
-    }
+    AlertCard(title = view.title, body = view.body, age = view.age, tone = view.tone, unread = view.unread)
 }

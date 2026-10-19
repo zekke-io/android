@@ -81,6 +81,9 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | `FloatingAddButton`, `FloatingAddMenu` | The 56 dp gradient disc; the menu variant opens a list of `AddOption`s and turns its `+` 45° while open |
 | `Notice` | Info, success, warning and danger. Given `onDismiss` it draws a close button (*a message*); without, it stays (*part of the page*), the web app's rule |
 | `EmptyState`, `LoadingIndicator` | An icon chip and one sentence; the brand spinner, named *Loading* for TalkBack |
+| `PillTabs`, `PillTab` | The Activity page's two tabs: a `raised` pill with the open one filled `ink` (`accent` in dark) and an optional `brand` count |
+| `AlertCard` | A notice as a card: loud (`warning` or `danger` colours, a triangle) or quiet (a `surface` card with a `raised` icon square and a dot while unread) |
+| `ActivityRow` | A recent item: a 42 dp icon square, its title and kind, and its age at the end |
 | `SectionLabel`, `SettingsGroup`, `SettingsRow` | The Settings page's section titles and grouped rows: a 40 dp icon square, the title, an optional value, a chevron; a row can be off (greyed, no chevron) or dangerous |
 | `SettingsProfileCard`, `PlanStorageCard` | The two cards that open Settings: the account (letter, `@username`, plan and mode tags) and the storage (used, plan tag, bar, free, link) |
 | `StorageWarning` | The card Home and the Drive show only from 90% of the quota in use (`StorageReading.isAlmostFull`): *used of quota* over a `danger` bar |

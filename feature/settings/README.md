@@ -7,6 +7,18 @@ under Account. The module reaches the core only through `AccountSecurityServices
 implements (`CoreAccountSecurityServices`), so the screens and the ViewModel are tested with a fake and
 no network.
 
+## Activity
+
+`ActivityScreen` is the page the bottom bar's *Activity* item opens, in the design's two tabs. **Alerts**
+is the notifications list below, drawn as `AlertCard`s (a warning or danger notice as a loud card, the
+others as a card with a dot while unread), with the unread count on its tab. **Recent** lists up to
+twenty of the items the account changed last, newest first: passwords, secrets, notes and Drive files,
+each with its kind and how long ago (*12 min ago*, *Yesterday*, a date after a week); a tap opens the
+item's section. `RecentViewModel` loads them when the tab is first shown (`RecentServices.load()`;
+`CoreRecentServices` in `app` merges the four sections' own loads and skips a section that cannot be read),
+sorts them by their time and leaves out any whose time cannot be read; a late result of an older load is
+ignored. A file's time is its server `updated_at`.
+
 ## Notifications
 
 `NotificationsScreen` is the in-app list of the notices the server writes about the plan and the
@@ -90,6 +102,8 @@ ended (the ViewModel cleared, the flow closed) changes nothing.
 | --- | --- |
 | `AccountSecurityViewModelTest` | The mode loaded once, unreadable and retried; the flows' first steps; the checksum before the PINs; a weak PIN, a mismatch and a missing current PIN refused before anything is sent; both calls with what they send and everything zeroed after; every outcome's next step with the phrase kept or forgotten; refusals counted; closing, not while working; a late result after the ViewModel ends |
 | `AccountSecurityScreensTest` (Robolectric) | The section for each mode; the way through the warning, the phrase and the PINs with each button enabled only when it should be; the finished notice with the number of devices; the wait advice after two refusals; the mismatch on the phrase step; the unfinished notice staying on the home screen |
+| `RecentViewModelTest` | Newest first; an unreadable time left out; the twenty newest kept; a failed load as an empty loaded list; a late result of an older load ignored |
+| `ActivityScreenTest` (Robolectric) | Alerts first with the unread count; the Recent tab asking for its entries and listing each kind with its age; an entry opening its section; the empty text |
 | `NotificationsViewModelTest` | The first page loaded once and its unread notices marked read; the unread count keeping what is not on the page; *Show older* appending with its cursor; each failure kept apart and *Try again*; a throwing service as a failure; a failed mark leaving the notices unread |
 | `NotificationCopyTest` (Robolectric) | The title and body of every kind with the plan name, dates, sizes and counts; a missing or wrongly typed parameter leaving its clause out; an unknown kind as the generic notice; every known kind worded; the relative age, then a date; the byte format and the badge cap |
 

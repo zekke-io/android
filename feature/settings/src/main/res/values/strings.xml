@@ -213,4 +213,12 @@
     <string name="delete_submit">Delete my account</string>
     <string name="delete_deleting">Deleting…</string>
     <string name="delete_limited_device">This phone cannot delete the account. Use a full device, with your recovery phrase.</string>
+    <string name="activity_title">Activity</string>
+    <string name="activity_alerts">Alerts</string>
+    <string name="activity_recent">Recent</string>
+    <string name="recent_empty">Nothing yet. What you add or change shows up here.</string>
+    <string name="recent_kind_note">Note</string>
+    <string name="recent_kind_password">Password</string>
+    <string name="recent_kind_secret">Secret</string>
+    <string name="recent_kind_file">File</string>
 </resources>

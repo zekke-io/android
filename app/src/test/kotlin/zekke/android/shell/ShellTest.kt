@@ -39,7 +39,7 @@ class ShellTest {
             settings = { openNotifications, _ ->
                 Text("settings body", Modifier.clickable { openNotifications() })
             },
-            notifications = { Text("notifications body") },
+            activity = { open -> Text("activity body", Modifier.clickable { open(Destination.Notes) }) },
             listPages = mapOf<Destination, @Composable () -> Unit>(Destination.Passwords to { Text("passwords body") }),
         )
     }
@@ -132,28 +132,28 @@ class ShellTest {
     }
 
     @Test
-    fun theBellOpensNotificationsAndBackReturnsHome() {
+    fun theActivityItemOpensActivityAndHomeReturns() {
         show(SyncStatus(active = true, heldScopes = held))
-        compose.onNodeWithContentDescription("Notifications").performClick()
-        compose.onNodeWithText("notifications body").assertExists()
-        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithContentDescription("Activity").performClick()
+        compose.onNodeWithText("activity body").assertExists()
+        compose.onNodeWithContentDescription("Home").performClick()
         compose.onNodeWithText("Hi! All stored.").assertExists()
     }
 
     @Test
-    fun notificationsOpenedFromSettingsGoBackToSettings() {
+    fun notificationsOpenedFromSettingsShowActivity() {
         show(SyncStatus(active = true, heldScopes = held))
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.onNodeWithText("settings body").performClick()
-        compose.onNodeWithText("notifications body").assertExists()
-        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithText("activity body").assertExists()
+        compose.onNodeWithContentDescription("Settings").performClick()
         compose.onNodeWithText("settings body").assertExists()
     }
 
     @Test
     fun noBadgeWhenNothingIsUnread() {
         show(SyncStatus(active = true, heldScopes = held))
-        compose.onNodeWithContentDescription("Notifications").assertExists()
+        compose.onNodeWithContentDescription("Activity").assertExists()
         compose.onNodeWithText("0").assertDoesNotExist()
     }
 
@@ -164,9 +164,9 @@ class ShellTest {
     }
 
     @Test
-    fun theBellNamesTheUnreadCount() {
+    fun theActivityItemNamesTheUnreadCount() {
         show(SyncStatus(active = true, heldScopes = held, unreadNotifications = 3))
-        compose.onNodeWithContentDescription("Notifications, 3 unread").assertExists()
+        compose.onNodeWithContentDescription("Activity, 3 unread").assertExists()
         compose.onNodeWithText("3").assertExists()
     }
 
@@ -180,5 +180,14 @@ class ShellTest {
     fun homeShowsTheStorageBarFromNinetyPercent() {
         show(SyncStatus(active = true, heldScopes = held), StorageReading(storedBytes = 900, usedBytes = 920, quotaBytes = 1_000))
         compose.onNodeWithText("920 B of 1000 B").assertExists()
+    }
+
+    @Test
+    fun anActivityEntryOpensItsSection() {
+        show(SyncStatus(active = true, heldScopes = held))
+        compose.onNodeWithContentDescription("Activity").performClick()
+        compose.onNodeWithText("activity body").performClick()
+        compose.onNodeWithText("activity body").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Back").assertExists()
     }
 }

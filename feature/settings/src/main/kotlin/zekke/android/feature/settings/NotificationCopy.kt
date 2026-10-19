@@ -163,6 +163,8 @@ private fun parseInstant(at: String): Instant? = runCatching { Instant.parse(at)
 private fun formatDate(at: String, clock: NotificationClock): String? =
     parseInstant(at)?.let { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(clock.locale).withZone(clock.zone).format(it) }
 
+fun activityAge(at: String, resources: Resources, clock: NotificationClock = NotificationClock()): String = age(at, resources, clock)
+
 private fun age(createdAt: String, resources: Resources, clock: NotificationClock): String {
     val moment = parseInstant(createdAt) ?: return ""
     val elapsed = Duration.between(moment, clock.now()).coerceAtLeast(Duration.ZERO)

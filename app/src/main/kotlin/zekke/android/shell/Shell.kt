@@ -53,7 +53,7 @@ import zekke.android.ui.components.ZekkeIconButton
 import zekke.android.ui.theme.Zekke
 import zekke.core.feed.FeedScope
 
-enum class Destination { Home, Passwords, Vault, Notes, Drive, Shared, Settings, SettingsDevices, SettingsAccount, SettingsSecurity, SettingsPlan, SettingsAbout, Notifications }
+enum class Destination { Home, Passwords, Vault, Notes, Drive, Shared, Settings, SettingsDevices, SettingsAccount, SettingsSecurity, SettingsPlan, SettingsAbout, Activity }
 
 private val SETTINGS_PAGES = mapOf(
     Destination.SettingsDevices to R.string.settings_devices,
@@ -89,18 +89,13 @@ fun Shell(
     notices: @Composable () -> Unit,
     settings: @Composable (openNotifications: () -> Unit, open: (Destination) -> Unit) -> Unit,
     settingsPages: Map<Destination, @Composable () -> Unit> = emptyMap(),
-    notifications: @Composable () -> Unit,
+    activity: @Composable (open: (Destination) -> Unit) -> Unit,
     listPages: Map<Destination, @Composable () -> Unit> = emptyMap(),
 ) {
     var destination by rememberSaveable { mutableStateOf(Destination.Home) }
-    var notificationsFrom by rememberSaveable { mutableStateOf(Destination.Home) }
-    val openNotifications = {
-        notificationsFrom = destination
-        destination = Destination.Notifications
-    }
+    val openNotifications = { destination = Destination.Activity }
     BackHandler(enabled = destination != Destination.Home) {
         destination = when {
-            destination == Destination.Notifications -> notificationsFrom
             destination in SETTINGS_PAGES -> Destination.Settings
             else -> Destination.Home
         }
@@ -116,7 +111,9 @@ fun Shell(
                 onLock = onLock,
                 notices = notices,
             )
-            Destination.Settings -> SettingsPage(
+            Destination.Settings -> MainTabPage(
+                title = stringResource(R.string.shell_settings),
+                selected = Destination.Settings,
                 status = status,
                 onOpen = { destination = it },
                 onOpenNotifications = openNotifications,
@@ -126,11 +123,13 @@ fun Shell(
                 onBack = { destination = Destination.Settings },
                 onLock = onLock,
             ) { settingsPages[destination]?.invoke() }
-            Destination.Notifications -> ShellPage(
-                title = stringResource(R.string.shell_notifications),
-                onBack = { destination = notificationsFrom },
-                onLock = onLock,
-            ) { notifications() }
+            Destination.Activity -> MainTabPage(
+                title = stringResource(R.string.shell_activity),
+                selected = Destination.Activity,
+                status = status,
+                onOpen = { destination = it },
+                onOpenNotifications = openNotifications,
+            ) { activity { destination = it } }
             else -> {
                 val section = SECTIONS.first { it.destination == destination }
                 val listPage = listPages[destination]
@@ -231,14 +230,14 @@ private fun MainBottomBar(
                 onClick = { onOpen(Destination.Home) },
             ),
             BottomBarItem(
-                zekke.android.ui.R.drawable.ic_bell,
-                stringResource(R.string.shell_notifications),
-                selected = false,
+                zekke.android.ui.R.drawable.ic_activity,
+                stringResource(R.string.shell_activity),
+                selected = selected == Destination.Activity,
                 onClick = onOpenNotifications,
                 description = if (status.unreadNotifications > 0) {
-                    pluralStringResource(R.plurals.notifications_bell, status.unreadNotifications, status.unreadNotifications)
+                    pluralStringResource(R.plurals.activity_unread, status.unreadNotifications, status.unreadNotifications)
                 } else {
-                    stringResource(R.string.shell_notifications)
+                    stringResource(R.string.shell_activity)
                 },
                 badge = if (status.unreadNotifications > 0) notificationBadge(status.unreadNotifications) else null,
             ),
@@ -253,7 +252,9 @@ private fun MainBottomBar(
 }
 
 @Composable
-private fun SettingsPage(
+private fun MainTabPage(
+    title: String,
+    selected: Destination,
     status: SyncStatus,
     onOpen: (Destination) -> Unit,
     onOpenNotifications: () -> Unit,
@@ -265,14 +266,14 @@ private fun SettingsPage(
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Text(
-                stringResource(R.string.shell_settings),
+                title,
                 style = MaterialTheme.typography.headlineLarge.copy(fontSize = 30.sp, lineHeight = 34.sp),
                 color = Zekke.palette.ink,
                 modifier = Modifier.padding(vertical = 8.dp).semantics { heading() },
             )
             content()
         }
-        MainBottomBar(Destination.Settings, status, onOpen, onOpenNotifications)
+        MainBottomBar(selected, status, onOpen, onOpenNotifications)
     }
 }
 

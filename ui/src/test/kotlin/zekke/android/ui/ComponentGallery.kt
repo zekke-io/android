@@ -45,6 +45,10 @@ import zekke.android.ui.components.SettingsProfileCard
 import zekke.android.ui.components.SettingsGroup
 import zekke.android.ui.components.SectionLabel
 import zekke.android.ui.components.PlanStorageCard
+import zekke.android.ui.components.PillTabs
+import zekke.android.ui.components.PillTab
+import zekke.android.ui.components.AlertCard
+import zekke.android.ui.components.ActivityRow
 import zekke.android.ui.components.StorageWarning
 import zekke.android.ui.components.TabItem
 import zekke.android.ui.components.TabStrip
@@ -77,7 +81,7 @@ fun ComponentGallery() {
         BottomBar(
             listOf(
                 BottomBarItem(R.drawable.ic_home, "Home", selected = true, onClick = {}),
-                BottomBarItem(R.drawable.ic_bell, "Notifications", selected = false, onClick = {}, badge = "3"),
+                BottomBarItem(R.drawable.ic_activity, "Activity", selected = false, onClick = {}, badge = "3"),
                 BottomBarItem(R.drawable.ic_settings, "Settings", selected = false, onClick = {}),
             ),
         )
@@ -148,6 +152,10 @@ fun ComponentGallery() {
             ItemRow("Amazon", meta = "you@example.com", icon = R.drawable.ic_passwords, avatar = "Amazon", card = true, onClick = {})
             ItemRow("Savings wallet", meta = "••••", metaIsValue = true, icon = R.drawable.ic_vault, card = true, inkIcon = true, onClick = {})
         }
+        PillTabs(listOf(PillTab("a", "Alerts", 2), PillTab("r", "Recent")), "a", {}, "Activity")
+        AlertCard("Your plan ended", "You have 14 days to bring your files under 500 MB.", "", NoticeTone.Warning, false)
+        AlertCard("Payment received", "Your plan is active. Thank you.", "Last month", NoticeTone.Success, true)
+        ActivityRow(R.drawable.ic_app_notes, "Trip ideas", "Note", "12 min ago", onClick = {})
         PlanStorageCard(StorageReading(storedBytes = 128, usedBytes = 128, quotaBytes = 500), "Free", "Plan details", onLink = {})
         SettingsProfileCard("a", "@alex", listOf("Free", "Standard"), onClick = {})
         SectionLabel("Security")
