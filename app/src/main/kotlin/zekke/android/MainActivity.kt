@@ -56,6 +56,7 @@ import zekke.android.rekey.KeyRotationEvents
 import zekke.android.session.AppRoot
 import zekke.android.session.ClientGate
 import zekke.android.shell.SettingsContent
+import zekke.android.shell.SettingsProfile
 import zekke.android.shell.Shell
 import zekke.android.sync.SyncService
 import org.koin.core.qualifier.named
@@ -207,9 +208,15 @@ class MainActivity : ComponentActivity() {
                                     settings = { openNotifications, open ->
                                         SettingsContent(
                                             status = syncStatus,
+                                            profile = SettingsProfile(accountState.profile?.username, accountState.profile?.paranoid),
+                                            plan = homeStorageState.plan,
+                                            storage = homeStorageState.storage,
+                                            idleMinutes = this@MainActivity.get<SecurityServices>().idleMinutes,
+                                            onOpened = accountModel::opened,
                                             onOpenNotifications = openNotifications,
                                             onDiscard = sync::discardRefused,
                                             onOpen = open,
+                                            onLock = guard::lockNow,
                                             notices = {},
                                         )
                                     },

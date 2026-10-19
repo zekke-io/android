@@ -40,6 +40,11 @@ import zekke.android.ui.components.SegmentedControl
 import zekke.android.ui.components.StatusBadge
 import zekke.android.ui.components.StorageMeter
 import zekke.android.ui.components.StorageReading
+import zekke.android.ui.components.SettingsRow
+import zekke.android.ui.components.SettingsProfileCard
+import zekke.android.ui.components.SettingsGroup
+import zekke.android.ui.components.SectionLabel
+import zekke.android.ui.components.PlanStorageCard
 import zekke.android.ui.components.StorageWarning
 import zekke.android.ui.components.TabItem
 import zekke.android.ui.components.TabStrip
@@ -142,6 +147,17 @@ fun ComponentGallery() {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ItemRow("Amazon", meta = "you@example.com", icon = R.drawable.ic_passwords, avatar = "Amazon", card = true, onClick = {})
             ItemRow("Savings wallet", meta = "••••", metaIsValue = true, icon = R.drawable.ic_vault, card = true, inkIcon = true, onClick = {})
+        }
+        PlanStorageCard(StorageReading(storedBytes = 128, usedBytes = 128, quotaBytes = 500), "Free", "Plan details", onLink = {})
+        SettingsProfileCard("a", "@alex", listOf("Free", "Standard"), onClick = {})
+        SectionLabel("Security")
+        SettingsGroup {
+            SettingsRow(R.drawable.ic_set_shield, "Protection mode", value = "Standard", onClick = {}, divider = false)
+            SettingsRow(R.drawable.ic_set_key, "Account PIN", value = "Paranoid only", onClick = {}, enabled = false)
+            SettingsRow(R.drawable.ic_set_lock, "Lock when idle", value = "15 minutes", onClick = {})
+        }
+        SettingsGroup {
+            SettingsRow(R.drawable.ic_action_trash, "Delete account", onClick = {}, danger = true, divider = false)
         }
         StorageWarning(StorageReading(storedBytes = 460, usedBytes = 460, quotaBytes = 500))
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {

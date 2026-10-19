@@ -10,6 +10,8 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="storage_used">%1$s used · %2$s%%</string>
     <string name="storage_of">%1$s of %2$s</string>
+    <string name="storage_of_used">%1$s of %2$s used</string>
+    <string name="storage_of_quota">of %1$s used</string>
     <string name="storage_free">%1$s free</string>
     <string name="storage_unfinished">Unfinished uploads hold %1$s.</string>
     <string name="storage_ready">Ready for new files</string>

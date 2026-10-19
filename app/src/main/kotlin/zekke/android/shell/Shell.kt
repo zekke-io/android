@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import zekke.android.R
 import zekke.android.sync.SyncStatus
 import zekke.android.ui.components.AppTile
@@ -115,10 +116,10 @@ fun Shell(
                 onLock = onLock,
                 notices = notices,
             )
-            Destination.Settings -> ShellPage(
-                title = stringResource(R.string.shell_settings),
-                onBack = { destination = Destination.Home },
-                onLock = onLock,
+            Destination.Settings -> SettingsPage(
+                status = status,
+                onOpen = { destination = it },
+                onOpenNotifications = openNotifications,
             ) { settings(openNotifications) { destination = it } }
             Destination.SettingsDevices, Destination.SettingsAccount, Destination.SettingsSecurity, Destination.SettingsPlan, Destination.SettingsAbout -> ShellPage(
                 title = stringResource(SETTINGS_PAGES.getValue(destination)),
@@ -210,29 +211,68 @@ private fun HomeScreen(
                 }
             }
         }
-        BottomBar(
-            listOf(
-                BottomBarItem(zekke.android.ui.R.drawable.ic_home, stringResource(R.string.shell_home), selected = true, onClick = {}),
-                BottomBarItem(
-                    zekke.android.ui.R.drawable.ic_bell,
-                    stringResource(R.string.shell_notifications),
-                    selected = false,
-                    onClick = onOpenNotifications,
-                    description = if (status.unreadNotifications > 0) {
-                        pluralStringResource(R.plurals.notifications_bell, status.unreadNotifications, status.unreadNotifications)
-                    } else {
-                        stringResource(R.string.shell_notifications)
-                    },
-                    badge = if (status.unreadNotifications > 0) notificationBadge(status.unreadNotifications) else null,
-                ),
-                BottomBarItem(
-                    zekke.android.ui.R.drawable.ic_settings,
-                    stringResource(R.string.shell_settings),
-                    selected = false,
-                    onClick = { onOpen(Destination.Settings) },
-                ),
+        MainBottomBar(Destination.Home, status, onOpen, onOpenNotifications)
+    }
+}
+
+@Composable
+private fun MainBottomBar(
+    selected: Destination,
+    status: SyncStatus,
+    onOpen: (Destination) -> Unit,
+    onOpenNotifications: () -> Unit,
+) {
+    BottomBar(
+        listOf(
+            BottomBarItem(
+                zekke.android.ui.R.drawable.ic_home,
+                stringResource(R.string.shell_home),
+                selected = selected == Destination.Home,
+                onClick = { onOpen(Destination.Home) },
             ),
-        )
+            BottomBarItem(
+                zekke.android.ui.R.drawable.ic_bell,
+                stringResource(R.string.shell_notifications),
+                selected = false,
+                onClick = onOpenNotifications,
+                description = if (status.unreadNotifications > 0) {
+                    pluralStringResource(R.plurals.notifications_bell, status.unreadNotifications, status.unreadNotifications)
+                } else {
+                    stringResource(R.string.shell_notifications)
+                },
+                badge = if (status.unreadNotifications > 0) notificationBadge(status.unreadNotifications) else null,
+            ),
+            BottomBarItem(
+                zekke.android.ui.R.drawable.ic_settings,
+                stringResource(R.string.shell_settings),
+                selected = selected == Destination.Settings,
+                onClick = { onOpen(Destination.Settings) },
+            ),
+        ),
+    )
+}
+
+@Composable
+private fun SettingsPage(
+    status: SyncStatus,
+    onOpen: (Destination) -> Unit,
+    onOpenNotifications: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    Column(Modifier.fillMaxSize()) {
+        Column(
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text(
+                stringResource(R.string.shell_settings),
+                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 30.sp, lineHeight = 34.sp),
+                color = Zekke.palette.ink,
+                modifier = Modifier.padding(vertical = 8.dp).semantics { heading() },
+            )
+            content()
+        }
+        MainBottomBar(Destination.Settings, status, onOpen, onOpenNotifications)
     }
 }
 
