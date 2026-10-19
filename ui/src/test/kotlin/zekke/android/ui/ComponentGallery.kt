@@ -21,6 +21,8 @@ import zekke.android.ui.components.Block
 import zekke.android.ui.components.CheckboxRow
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.EmptyState
+import zekke.android.ui.components.FileKind
+import zekke.android.ui.components.FileKindIcon
 import zekke.android.ui.components.FileTile
 import zekke.android.ui.components.ExtendedAddButton
 import zekke.android.ui.components.FloatingAddButton
@@ -82,9 +84,12 @@ fun ComponentGallery() {
             PageTile("Shopping list", "Shopping\n• fruit\n☐ milk\n☑ bread", "Oct 14, 2026", onClick = {}, modifier = Modifier.width(120.dp))
             PageTile("Untitled note", "plain text of a note that is longer than the sheet can show", "Oct 13, 2026", onClick = {}, modifier = Modifier.width(120.dp))
         }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            FileKind.entries.forEach { FileKindIcon(it, height = 64.dp) }
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FileTile("Holidays", "3 files, 1 folder", R.drawable.ic_folder, onClick = {}, modifier = Modifier.width(110.dp))
-            FileTile("report-2026.pdf", "2.4 MiB", R.drawable.ic_drive, onClick = {}, modifier = Modifier.width(110.dp), more = {
+            FileTile("Holidays", "3 files, 1 folder", FileKind.Folder, onClick = {}, modifier = Modifier.width(110.dp))
+            FileTile("report-2026.pdf", "2.4 MiB", FileKind.Pdf, onClick = {}, modifier = Modifier.width(110.dp), more = {
                 ZekkeIconButton(R.drawable.ic_menu, hint = "More", onClick = {})
             })
         }

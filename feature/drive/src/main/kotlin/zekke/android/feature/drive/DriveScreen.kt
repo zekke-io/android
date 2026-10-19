@@ -22,6 +22,14 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.layout.size
+import zekke.android.ui.components.FileKind
+import zekke.android.ui.components.FileKindIcon
+import zekke.android.ui.components.fileKindOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -202,6 +210,9 @@ private fun fileCaption(file: DriveEntry): String = when {
 @Composable
 private fun fileTitle(file: DriveEntry): String = file.name?.let { shortFileName(it) } ?: stringResource(R.string.drive_unreadable_file)
 
+private fun folderKind(state: DriveState, folder: TreeFolder): FileKind =
+    if (state.itemsInside(folder.id) + state.foldersInside(folder.id) == 0) FileKind.FolderEmpty else FileKind.Folder
+
 @Composable
 private fun folderTitle(folder: TreeFolder): String = folder.name ?: stringResource(R.string.drive_unreadable_folder)
 
@@ -219,7 +230,7 @@ private fun FolderTile(folder: TreeFolder, state: DriveState, viewModel: DriveVi
     FileTile(
         title = title,
         caption = folderCaption(state, folder),
-        icon = zekke.android.ui.R.drawable.ic_folder,
+        kind = folderKind(state, folder),
         onClick = { viewModel.openFolder(folder.id) },
         more = { MoreButton(title) { viewModel.act(DriveItem.OfFolder(folder)) } },
     )
@@ -231,7 +242,7 @@ private fun FileTileOf(file: DriveEntry, state: DriveState, viewModel: DriveView
     FileTile(
         title = title,
         caption = fileCaption(file),
-        icon = zekke.android.ui.R.drawable.ic_drive,
+        kind = fileKindOf(file.name),
         image = thumbnailOf(file, state, viewModel),
         onClick = { viewModel.act(DriveItem.OfFile(file)) },
         more = { MoreButton(title) { viewModel.act(DriveItem.OfFile(file)) } },
@@ -244,8 +255,8 @@ private fun FolderRow(folder: TreeFolder, state: DriveState, viewModel: DriveVie
     ItemRow(
         title = title,
         meta = folderCaption(state, folder),
-        icon = zekke.android.ui.R.drawable.ic_folder,
         card = true,
+        leading = { FileKindIcon(folderKind(state, folder), height = 36.dp) },
         onClick = { viewModel.openFolder(folder.id) },
         trailing = { MoreButton(title) { viewModel.act(DriveItem.OfFolder(folder)) } },
     )
@@ -257,8 +268,15 @@ private fun FileRow(file: DriveEntry, state: DriveState, viewModel: DriveViewMod
     ItemRow(
         title = title,
         meta = fileCaption(file),
-        icon = zekke.android.ui.R.drawable.ic_drive,
         card = true,
+        leading = {
+            val thumbnail = thumbnailOf(file, state, viewModel)
+            if (thumbnail != null) {
+                Image(thumbnail, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(44.dp, 33.dp).clip(RoundedCornerShape(6.dp)))
+            } else {
+                FileKindIcon(fileKindOf(file.name), height = 44.dp)
+            }
+        },
         onClick = { viewModel.act(DriveItem.OfFile(file)) },
         trailing = { MoreButton(title) { viewModel.act(DriveItem.OfFile(file)) } },
     )

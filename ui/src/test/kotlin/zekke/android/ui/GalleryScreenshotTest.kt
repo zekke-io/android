@@ -31,14 +31,14 @@ class GalleryScreenshotTest {
     }
 
     @Test
-    @Config(sdk = [34], qualifiers = "w411dp-h2300dp-xxhdpi")
+    @Config(sdk = [34], qualifiers = "w411dp-h2700dp-xxhdpi")
     fun componentsLight() {
         compose.setContent { ZekkeTheme(darkTheme = false) { ComponentGallery() } }
         compose.onRoot().captureRoboImage("src/test/screenshots/components-light.png")
     }
 
     @Test
-    @Config(sdk = [34], qualifiers = "w411dp-h2300dp-xxhdpi")
+    @Config(sdk = [34], qualifiers = "w411dp-h2700dp-xxhdpi")
     fun componentsDark() {
         compose.setContent { ZekkeTheme(darkTheme = true) { ComponentGallery() } }
         compose.onRoot().captureRoboImage("src/test/screenshots/components-dark.png")

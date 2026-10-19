@@ -40,7 +40,7 @@ Decisions taken by default and not yet confirmed; each is recorded where it was 
 - **New shared pieces**: `feature:tabs`, and in `ui` `TabStrip`, `TopBar`, `NoteSurface`, `PageTile`,
   `FileTile`, `ItemFailure`. `../design-system` is **not in any git repository**: `TopBar.md`,
   `Tabs.md`, `NoteSurface.md`, `PageTile.md` and `FileTile.md` exist only on disk.
-- **The file-kind glyphs** are not in the design system's assets, so every file shows the Drive glyph.
+- **The file-kind icons** are the design's (folders, DOCX, DOC, XLSX, CSV, TXT, PDF, ZIP, photo and video stand-ins); XLS shares the XLSX drawing with its own label, and any other extension is the page without a badge. Shared screens still use the plain glyphs.
 - **Coil replaced by `ImageDecoder`** for image previews (no new dependency).
 - **Open with…** leaves one plaintext copy under `noBackupFilesDir/shared` until the next process start,
   because the other app may read it after the lock (R3's tension).

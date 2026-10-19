@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
@@ -76,6 +77,7 @@ fun ItemRow(
     card: Boolean = false,
     avatar: String? = null,
     inkIcon: Boolean = false,
+    leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val palette = Zekke.palette
@@ -91,7 +93,9 @@ fun ItemRow(
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
                 .padding(horizontal = if (card) 16.dp else 0.dp, vertical = 12.dp),
         ) {
-            if (avatar != null) {
+            if (leading != null) {
+                Box(Modifier.width(44.dp), contentAlignment = Alignment.Center) { leading() }
+            } else if (avatar != null) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.size(44.dp).background(palette.brandTint, CircleShape),

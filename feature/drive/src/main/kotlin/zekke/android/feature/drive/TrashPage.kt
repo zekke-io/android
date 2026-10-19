@@ -9,6 +9,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import zekke.android.ui.components.FileKind
+import zekke.android.ui.components.FileKindIcon
+import zekke.android.ui.components.fileKindOf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -98,7 +101,9 @@ private fun TrashRow(entry: TrashEntry, state: DriveState, viewModel: DriveViewM
         ItemRow(
             title = entry.name ?: stringResource(R.string.trash_unnamed),
             meta = listOfNotNull(detail, expiry).joinToString(" · "),
-            icon = if (entry.kind == TrashKind.FOLDER) zekke.android.ui.R.drawable.ic_folder else zekke.android.ui.R.drawable.ic_drive,
+            leading = {
+                FileKindIcon(if (entry.kind == TrashKind.FOLDER) FileKind.Folder else fileKindOf(entry.name), height = 36.dp)
+            },
             divider = false,
         )
         ZekkeButton(stringResource(R.string.trash_restore), { viewModel.restore(listOf(entry)) }, Modifier.fillMaxWidth(), ButtonVariant.Secondary, enabled = !state.busy)
