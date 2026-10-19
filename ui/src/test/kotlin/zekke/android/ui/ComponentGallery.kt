@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import zekke.android.ui.components.AppTile
+import zekke.android.ui.components.AppTileStyle
 import zekke.android.ui.components.BottomBar
 import zekke.android.ui.components.BottomBarItem
 import zekke.android.ui.components.Block
@@ -138,10 +139,10 @@ fun ComponentGallery() {
         }
         StorageMeter(StorageReading(storedBytes = 3 * GIB + GIB / 5, usedBytes = 3 * GIB + GIB / 3, quotaBytes = 10 * GIB))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            AppTile(R.drawable.mark_secrets, "Vault", onClick = {}, modifier = Modifier.width(80.dp))
-            AppTile(R.drawable.mark_password_manager, "Passwords", onClick = {}, modifier = Modifier.width(80.dp))
-            AppTile(R.drawable.mark_notes, "Notes", onClick = {}, modifier = Modifier.width(80.dp))
-            AppTile(R.drawable.mark_drive, "Drive", onClick = {}, modifier = Modifier.width(80.dp))
+            AppTile(R.drawable.ic_app_secrets, "Vault", onClick = {}, style = AppTileStyle.Ink, modifier = Modifier.width(80.dp))
+            AppTile(R.drawable.ic_app_passwords, "Passwords", onClick = {}, modifier = Modifier.width(80.dp))
+            AppTile(R.drawable.ic_app_notes, "Notes", onClick = {}, style = AppTileStyle.Peach, modifier = Modifier.width(80.dp))
+            AppTile(R.drawable.ic_app_drive, "Drive", onClick = {}, modifier = Modifier.width(80.dp))
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             EmptyState("No passwords yet. Tap + to add the first one.", icon = R.drawable.ic_passwords, modifier = Modifier.weight(1f))

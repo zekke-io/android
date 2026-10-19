@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import zekke.android.R
 import zekke.android.sync.SyncStatus
 import zekke.android.ui.components.AppTile
+import zekke.android.ui.components.AppTileStyle
 import zekke.android.ui.components.Mascot
 import zekke.android.ui.components.MascotPose
 import zekke.android.feature.settings.notificationBadge
@@ -58,18 +59,19 @@ private val SETTINGS_PAGES = mapOf(
 private class Section(
     val destination: Destination,
     val scopes: Set<FeedScope>,
-    @DrawableRes val mark: Int,
+    @DrawableRes val icon: Int,
+    val style: AppTileStyle,
     @StringRes val title: Int,
     @StringRes val description: Int,
     @PluralsRes val count: Int?,
 )
 
 private val SECTIONS = listOf(
-    Section(Destination.Passwords, setOf(FeedScope.PASSWORDS), zekke.android.ui.R.drawable.mark_password_manager, R.string.section_passwords, R.string.section_passwords_description, R.plurals.count_passwords),
-    Section(Destination.Vault, setOf(FeedScope.SECRETS), zekke.android.ui.R.drawable.mark_secrets, R.string.section_vault, R.string.section_vault_description, R.plurals.count_vault),
-    Section(Destination.Notes, setOf(FeedScope.NOTES), zekke.android.ui.R.drawable.mark_notes, R.string.section_notes, R.string.section_notes_description, R.plurals.count_notes),
-    Section(Destination.Drive, setOf(FeedScope.FILES), zekke.android.ui.R.drawable.mark_drive, R.string.section_drive, R.string.section_drive_description, null),
-    Section(Destination.Shared, setOf(FeedScope.SECRETS, FeedScope.NOTES, FeedScope.FILES), zekke.android.ui.R.drawable.mark_safe_sharing, R.string.section_shared, R.string.section_shared_description, null),
+    Section(Destination.Passwords, setOf(FeedScope.PASSWORDS), zekke.android.ui.R.drawable.ic_app_passwords, AppTileStyle.Brand, R.string.section_passwords, R.string.section_passwords_description, R.plurals.count_passwords),
+    Section(Destination.Vault, setOf(FeedScope.SECRETS), zekke.android.ui.R.drawable.ic_app_secrets, AppTileStyle.Ink, R.string.section_vault, R.string.section_vault_description, R.plurals.count_vault),
+    Section(Destination.Notes, setOf(FeedScope.NOTES), zekke.android.ui.R.drawable.ic_app_notes, AppTileStyle.Peach, R.string.section_notes, R.string.section_notes_description, R.plurals.count_notes),
+    Section(Destination.Drive, setOf(FeedScope.FILES), zekke.android.ui.R.drawable.ic_app_drive, AppTileStyle.Brand, R.string.section_drive, R.string.section_drive_description, null),
+    Section(Destination.Shared, setOf(FeedScope.SECRETS, FeedScope.NOTES, FeedScope.FILES), zekke.android.ui.R.drawable.ic_sharing, AppTileStyle.Amber, R.string.section_shared, R.string.section_shared_description, null),
 )
 
 @Composable
@@ -186,7 +188,8 @@ private fun HomeScreen(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     rowSections.forEach { section ->
                         AppTile(
-                            mark = section.mark,
+                            icon = section.icon,
+                            style = section.style,
                             label = stringResource(section.title),
                             description = stringResource(section.description),
                             onClick = { onOpen(section.destination) },

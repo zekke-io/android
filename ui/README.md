@@ -90,7 +90,7 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | `TabStrip`, `TabItem` | The section's own tabs: a scrolling row of pills with their counts, the open one filled `ink` (`accent` in dark), a trailing *New tab*, and a long press (with its accessibility label) to rename or delete; the main tab is not manageable. Plain data only: it knows nothing of folders |
 | `TopBar` | The section page's bar: the back arrow (none on Home), the title as a one-line heading, and the trailing actions (*Lock* always among them) |
 | `BottomBar` | Home's bottom navigation: icon-and-label items on a `surface` strip with a 2 dp `line` top rule, the selected one in `brand-mark`, an optional count badge; each item reads its `description` and its selected state |
-| `AppTile` | A Home tile: a feature mark on a `surface` 72 dp square with 22% corners, its label below, pressed to 95%; `description` is the click label TalkBack reads |
+| `AppTile` | A Home tile: an outline icon (`ic_app_<name>`) on a solid 72 dp square with 22 dp corners (`AppTileStyle`: Peach, Brand, Amber, Ink), its label below, pressed to 95%; `description` is the click label TalkBack reads |
 | `ConfirmDeleteDialog` | *Keep it* and a danger button; with `onConfirm = null` it is a refusal with *Keep it* only. Not dismissable while `busy` |
 | `FormSheet` | A full-height bottom sheet: title, scrolling body, a fixed *Cancel* / submit footer above the keyboard. It refuses to close while `busy` |
 
