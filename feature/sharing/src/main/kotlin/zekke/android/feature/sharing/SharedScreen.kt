@@ -15,6 +15,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import zekke.android.ui.components.FileKind
+import zekke.android.ui.components.FileKindIcon
+import zekke.android.ui.components.fileKindOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -196,7 +199,7 @@ private fun Space(friendship: ConnectionItem, space: SpaceState, state: SharedSt
         folders.forEach { folder ->
             ItemRow(
                 title = folder.name,
-                icon = zekke.android.ui.R.drawable.ic_folder,
+                leading = { FileKindIcon(FileKind.Folder, height = 36.dp) },
                 onClick = { viewModel.openFolder(folder.id) },
                 trailing = {
                     ZekkeIconButton(zekke.android.ui.R.drawable.ic_menu, stringResource(R.string.shared_folder_actions), { viewModel.openFolderMenu(folder) })
@@ -208,6 +211,7 @@ private fun Space(friendship: ConnectionItem, space: SpaceState, state: SharedSt
                 title = titleOf(item),
                 meta = if (item.readable) subtitleOf(item, friendship.label) else stringResource(R.string.shared_unreadable_hint),
                 icon = iconOf(item.type),
+                leading = if (item.type == SharedType.File) ({ FileKindIcon(fileKindOf(item.name), height = 44.dp) }) else null,
                 onClick = if (item.readable) ({ viewModel.openItem(item) }) else null,
                 trailing = if (item.inbound) null else ({ StatusBadge(stringResource(R.string.shared_sent_by_you), Tone.Neutral) }),
             )

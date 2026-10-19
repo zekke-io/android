@@ -84,7 +84,7 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | `StorageMeter`, `StorageReading`, `formatBytes` | The web app's storage bar: stored bytes solid over reservations, *Free* counting unfinished uploads. `formatBytes` is the web app's (binary units, one decimal) |
 | `Block` | A title, a subtitle, header actions and content, **with no panel**: whitespace separates blocks, as on the web |
 | `ItemRow` | A 64 dp row: lead icon on `brandTint`, a one-line title, metadata (in `MonoStyle` for a masked value), trailing actions, a divider. `card`: a 72 dp `surface` row with 20 dp corners and no divider; `avatar`: the first letter in a `brandTint` disc; `inkIcon`: the glyph on an `ink` rounded square, for secrets |
-| `FileTile` | A file or folder as a square: its preview cropped to the centre, or its glyph; the name, a caption, and a *more* control in the corner |
+| `FileTile` | A file or folder as an OS-style miniature with no background: its preview cropped to the centre, or its `FileKindIcon`; the name and caption centred, and a *more* control in the corner |
 | `FileKindIcon`, `FileKind`, `fileKindOf` | The folder and file miniatures of the design (`file_<kind>` vectors, label drawn over the badge), chosen from the file name's extension |
 | `PageTile` | A note as a 22 dp card in a two-column grid: the title, up to four lines of its text, and the date at the foot |
 | `NoteSurface`, `SurfaceLine`, `SurfaceSpan` | The note's writing surface: one private text field for the whole note, bold, italic and sizes drawn on their ranges, a title as a heading, a bullet or a checkbox in a gutter beside each topic or task line (the box ticks through `onToggleTask`). Plain data in, so it knows nothing of the note format |
