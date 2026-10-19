@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,7 +28,7 @@ import zekke.android.ui.clipboard.SensitiveClipboard
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.ConfirmDeleteDialog
 import zekke.android.ui.components.EmptyState
-import zekke.android.ui.components.FloatingAddButton
+import zekke.android.ui.components.ExtendedAddButton
 import zekke.android.ui.components.ItemRow
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.Notice
@@ -36,6 +38,7 @@ import zekke.android.ui.components.ZekkeButton
 import zekke.android.ui.components.ZekkeIconButton
 import zekke.android.ui.components.itemFailureText
 import zekke.android.ui.components.itemFailureTone
+import zekke.android.ui.theme.Zekke
 import zekke.core.credentials.PasswordRow
 import zekke.core.credentials.siteLabel
 
@@ -72,6 +75,11 @@ fun PasswordsScreen(state: PasswordsState, viewModel: PasswordsViewModel) {
                                 tone = NoticeTone.Success,
                             )
                         }
+                        Text(
+                            stringResource(R.string.passwords_intro),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Zekke.palette.inkSoft,
+                        )
                         PrivateField(
                             value = state.query,
                             onValueChange = viewModel::queryChanged,
@@ -101,7 +109,7 @@ fun PasswordsScreen(state: PasswordsState, viewModel: PasswordsViewModel) {
                     }
                 }
             }
-            FloatingAddButton(
+            ExtendedAddButton(
                 stringResource(R.string.passwords_add),
                 viewModel::startAdd,
                 Modifier.align(Alignment.BottomEnd).padding(24.dp),
@@ -129,6 +137,8 @@ private fun PasswordItem(row: PasswordRow, onOpen: () -> Unit, onCopy: () -> Uni
         title = title,
         meta = row.username.ifEmpty { null },
         icon = zekke.android.ui.R.drawable.ic_passwords,
+        avatar = if (row.readable) title else null,
+        card = true,
         onClick = if (row.readable) onOpen else null,
         trailing = {
             if (row.readable) {

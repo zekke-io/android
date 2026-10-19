@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -66,7 +68,10 @@ fun StorageMeter(reading: StorageReading, modifier: Modifier = Modifier) {
     val percent = if (reading.percent % 1.0 == 0.0) reading.percent.toLong().toString() else reading.percent.toString()
     val used = stringResource(R.string.storage_used, formatBytes(reading.storedBytes), percent)
     val free = stringResource(R.string.storage_free, formatBytes(reading.freeBytes))
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier.fillMaxWidth()) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.fillMaxWidth().background(palette.surface, RoundedCornerShape(20.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+    ) {
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(used, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = palette.ink)
             Text(free, style = MaterialTheme.typography.bodySmall, color = palette.inkMuted, textAlign = TextAlign.End)

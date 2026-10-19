@@ -3,10 +3,13 @@ package zekke.android.ui.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -51,6 +54,22 @@ fun FloatingAddButton(label: String, onClick: () -> Unit, modifier: Modifier = M
             contentDescription = null,
             modifier = Modifier.size(24.dp).rotate(if (open) 45f else 0f),
         )
+    }
+}
+
+@Composable
+fun ExtendedAddButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+    val palette = Zekke.palette
+    ExtendedFloatingActionButton(
+        onClick = { if (enabled) onClick() },
+        shape = CircleShape,
+        containerColor = palette.brand,
+        contentColor = palette.onBrand,
+        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp, pressedElevation = 3.dp),
+        modifier = modifier.height(56.dp).alpha(if (enabled) 1f else 0.5f).semantics { contentDescription = label },
+    ) {
+        Icon(painterResource(R.drawable.ic_plus), contentDescription = null, modifier = Modifier.size(24.dp))
+        Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 10.dp))
     }
 }
 

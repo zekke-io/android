@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -29,7 +31,7 @@ import zekke.android.ui.clipboard.CLIPBOARD_CLEAR_AFTER_MILLIS
 import zekke.android.ui.clipboard.SensitiveClipboard
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.EmptyState
-import zekke.android.ui.components.FloatingAddButton
+import zekke.android.ui.components.ExtendedAddButton
 import zekke.android.ui.components.ItemRow
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.Notice
@@ -39,6 +41,7 @@ import zekke.android.ui.components.ZekkeIconButton
 import zekke.android.ui.components.ZekkeIconToggleButton
 import zekke.android.ui.components.itemFailureText
 import zekke.android.ui.components.itemFailureTone
+import zekke.android.ui.theme.Zekke
 import zekke.core.secrets.VaultRow
 
 private const val COPIED_NOTICE_MILLIS = 3_000L
@@ -78,6 +81,11 @@ fun VaultScreen(state: VaultState, viewModel: VaultViewModel, onShare: ((String)
                                 tone = NoticeTone.Success,
                             )
                         }
+                        Text(
+                            stringResource(R.string.vault_intro),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Zekke.palette.inkSoft,
+                        )
                         TabsBar(viewModel.tabs, itemIds, nouns, viewModel::deleteTabItems)
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                             ZekkeButton(
@@ -109,7 +117,7 @@ fun VaultScreen(state: VaultState, viewModel: VaultViewModel, onShare: ((String)
                     }
                 }
             }
-            FloatingAddButton(
+            ExtendedAddButton(
                 stringResource(R.string.vault_add),
                 viewModel::startAdd,
                 Modifier.align(Alignment.BottomEnd).padding(24.dp),
@@ -128,6 +136,8 @@ private fun SecretItem(row: VaultRow, revealed: Boolean, onOpen: () -> Unit, onC
         meta = if (!row.readable) null else if (revealed) row.value else stringResource(R.string.vault_masked),
         metaIsValue = true,
         icon = zekke.android.ui.R.drawable.ic_vault,
+        card = true,
+        inkIcon = true,
         onClick = if (row.readable) onOpen else null,
         trailing = {
             if (row.readable) {

@@ -77,16 +77,17 @@ These tokens are the Zekke design system's (`design-system/tokens.json` in the w
 | `SegmentedControl` | Two or three exclusive options in a pill track, the chosen one in `brand`; each segment is a radio button for TalkBack |
 | `ZekkeIconButton` | An icon in a 48 dp target, plain, framed or danger. Its short `hint` shows on long-press; its `label` (default the hint) is what TalkBack reads, so a row passes *Delete Bank PIN*, not *Delete* |
 | `ZekkeIconToggleButton` | The same, with a checked state (`brandTint` fill, `brandText` glyph): *Show values* / *Hide values*. TalkBack hears the state from the toggle's own semantics |
+| `ExtendedAddButton` | The pill form of the add button: the `brand` fill, a `+` and the action's name, for a list's *Add a password* / *Add a note* / *Add a secret* |
 | `FloatingAddButton`, `FloatingAddMenu` | The 56 dp gradient disc; the menu variant opens a list of `AddOption`s and turns its `+` 45° while open |
 | `Notice` | Info, success, warning and danger. Given `onDismiss` it draws a close button (*a message*); without, it stays (*part of the page*), the web app's rule |
 | `EmptyState`, `LoadingIndicator` | An icon chip and one sentence; the brand spinner, named *Loading* for TalkBack |
 | `StorageMeter`, `StorageReading`, `formatBytes` | The web app's storage bar: stored bytes solid over reservations, *Free* counting unfinished uploads. `formatBytes` is the web app's (binary units, one decimal) |
 | `Block` | A title, a subtitle, header actions and content, **with no panel**: whitespace separates blocks, as on the web |
-| `ItemRow` | A 64 dp row: lead icon on `brandTint`, a one-line title, metadata (in `MonoStyle` for a masked value), trailing actions, a divider |
+| `ItemRow` | A 64 dp row: lead icon on `brandTint`, a one-line title, metadata (in `MonoStyle` for a masked value), trailing actions, a divider. `card`: a 72 dp `surface` row with 20 dp corners and no divider; `avatar`: the first letter in a `brandTint` disc; `inkIcon`: the glyph on an `ink` rounded square, for secrets |
 | `FileTile` | A file or folder as a square: its preview cropped to the centre, or its glyph; the name, a caption, and a *more* control in the corner |
-| `PageTile` | A note as a 3:4 sheet in a grid: its first characters at 9 px, its title and its date beneath |
+| `PageTile` | A note as a 22 dp card in a two-column grid: the title, up to four lines of its text, and the date at the foot |
 | `NoteSurface`, `SurfaceLine`, `SurfaceSpan` | The note's writing surface: one private text field for the whole note, bold, italic and sizes drawn on their ranges, a title as a heading, a bullet or a checkbox in a gutter beside each topic or task line (the box ticks through `onToggleTask`). Plain data in, so it knows nothing of the note format |
-| `TabStrip`, `TabItem` | The section's own tabs: a scrolling row of pills with their counts, the open one in `brandTint`, a trailing *New tab*, and a long press (with its accessibility label) to rename or delete; the main tab is not manageable. Plain data only: it knows nothing of folders |
+| `TabStrip`, `TabItem` | The section's own tabs: a scrolling row of pills with their counts, the open one filled `ink` (`accent` in dark), a trailing *New tab*, and a long press (with its accessibility label) to rename or delete; the main tab is not manageable. Plain data only: it knows nothing of folders |
 | `TopBar` | The section page's bar: the back arrow (none on Home), the title as a one-line heading, and the trailing actions (*Lock* always among them) |
 | `BottomBar` | Home's bottom navigation: icon-and-label items on a `surface` strip with a 2 dp `line` top rule, the selected one in `brand-mark`, an optional count badge; each item reads its `description` and its selected state |
 | `AppTile` | A Home tile: a feature mark on a `surface` 72 dp square with 22% corners, its label below, pressed to 95%; `description` is the click label TalkBack reads |

@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
@@ -42,6 +43,8 @@ fun TabStrip(
     enabled: Boolean = true,
 ) {
     val palette = Zekke.palette
+    val selectedFill = if (palette.isDark) palette.accent else palette.ink
+    val selectedText = if (palette.isDark) Color.White else palette.ground
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -54,8 +57,8 @@ fun TabStrip(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier
                     .heightIn(min = 48.dp)
-                    .background(if (isSelected) palette.brandTint else palette.surface, CircleShape)
-                    .border(1.dp, if (isSelected) palette.brandTintLine else palette.line, CircleShape)
+                    .background(if (isSelected) selectedFill else palette.surface, CircleShape)
+                    .border(2.dp, if (isSelected) selectedFill else palette.line, CircleShape)
                     .combinedClickable(
                         enabled = enabled,
                         role = Role.Tab,
@@ -70,12 +73,12 @@ fun TabStrip(
                 Text(
                     tab.label,
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected) palette.brandText else palette.inkSoft,
+                    color = if (isSelected) selectedText else palette.ink,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 if (tab.count != null) {
-                    Text(tab.count.toString(), style = MaterialTheme.typography.labelSmall, color = palette.inkMuted)
+                    Text(tab.count.toString(), style = MaterialTheme.typography.labelSmall, color = if (isSelected) selectedText else palette.inkMuted)
                 }
             }
         }

@@ -21,6 +21,7 @@ import zekke.android.ui.components.CheckboxRow
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.EmptyState
 import zekke.android.ui.components.FileTile
+import zekke.android.ui.components.ExtendedAddButton
 import zekke.android.ui.components.FloatingAddButton
 import zekke.android.ui.components.IconButtonTone
 import zekke.android.ui.components.ItemRow
@@ -131,6 +132,10 @@ fun ComponentGallery() {
                 }
             }
         }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            ItemRow("Amazon", meta = "you@example.com", icon = R.drawable.ic_passwords, avatar = "Amazon", card = true, onClick = {})
+            ItemRow("Savings wallet", meta = "••••", metaIsValue = true, icon = R.drawable.ic_vault, card = true, inkIcon = true, onClick = {})
+        }
         StorageMeter(StorageReading(storedBytes = 3 * GIB + GIB / 5, usedBytes = 3 * GIB + GIB / 3, quotaBytes = 10 * GIB))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             AppTile(R.drawable.mark_secrets, "Vault", onClick = {}, modifier = Modifier.width(80.dp))
@@ -142,5 +147,6 @@ fun ComponentGallery() {
             EmptyState("No passwords yet. Tap + to add the first one.", icon = R.drawable.ic_passwords, modifier = Modifier.weight(1f))
             FloatingAddButton(label = "Add password", onClick = {})
         }
+        ExtendedAddButton(label = "Add a password", onClick = {})
     }
 }

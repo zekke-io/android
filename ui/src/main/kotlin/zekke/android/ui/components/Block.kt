@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -69,25 +73,46 @@ fun ItemRow(
     @DrawableRes icon: Int? = null,
     onClick: (() -> Unit)? = null,
     divider: Boolean = true,
+    card: Boolean = false,
+    avatar: String? = null,
+    inkIcon: Boolean = false,
     trailing: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val palette = Zekke.palette
+    val shape = RoundedCornerShape(20.dp)
     Column(modifier.fillMaxWidth()) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (card) 14.dp else 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 64.dp)
+                .then(if (card) Modifier.clip(shape).background(palette.surface, shape) else Modifier)
+                .heightIn(min = if (card) 72.dp else 64.dp)
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-                .padding(vertical = 12.dp),
+                .padding(horizontal = if (card) 16.dp else 0.dp, vertical = 12.dp),
         ) {
-            if (icon != null) {
+            if (avatar != null) {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(40.dp).background(palette.brandTint, MaterialTheme.shapes.small),
+                    modifier = Modifier.size(44.dp).background(palette.brandTint, CircleShape),
                 ) {
-                    Icon(painterResource(icon), contentDescription = null, tint = palette.brandText, modifier = Modifier.size(20.dp))
+                    Text(avatar.take(1).uppercase(), style = MaterialTheme.typography.titleLarge, color = palette.brandText)
+                }
+            } else if (icon != null) {
+                val inkFill = if (palette.isDark) palette.accent else palette.ink
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(if (card) 44.dp else 40.dp).background(
+                        if (inkIcon) inkFill else palette.brandTint,
+                        if (inkIcon) RoundedCornerShape(14.dp) else if (card) CircleShape else MaterialTheme.shapes.small,
+                    ),
+                ) {
+                    Icon(
+                        painterResource(icon),
+                        contentDescription = null,
+                        tint = if (inkIcon) (if (palette.isDark) Color.White else palette.ground) else palette.brandText,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
             }
             Column(Modifier.weight(1f)) {
@@ -107,6 +132,6 @@ fun ItemRow(
                 Row(verticalAlignment = Alignment.CenterVertically, content = trailing)
             }
         }
-        if (divider) HorizontalDivider(color = palette.line)
+        if (divider && !card) HorizontalDivider(color = palette.line)
     }
 }

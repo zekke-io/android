@@ -5,6 +5,7 @@
     <string name="passwords_no_match">No password matches that search.</string>
     <string name="passwords_unreadable">Unreadable credential</string>
     <string name="passwords_add">Add a password</string>
+    <string name="passwords_intro">Saved here and by the browser extension.</string>
     <string name="passwords_recently_deleted">Recently deleted</string>
     <string name="passwords_masked">••••••••</string>
     <string name="passwords_copy">Copy password</string>

@@ -11,6 +11,7 @@
     <string name="vault_copy">Copy value</string>
     <string name="vault_recently_deleted">Recently deleted</string>
     <string name="vault_add">Add a secret</string>
+    <string name="vault_intro">For what must stay hidden: recovery phrases, wallet keys, backup codes.</string>
     <string name="vault_add_title">Add a secret</string>
     <string name="vault_add_subtitle">The name and the value are encrypted on this phone before they are stored.</string>
     <string name="vault_add_submit">Add secret</string>

@@ -2,6 +2,9 @@ package zekke.android.feature.drive
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -69,6 +72,7 @@ class DriveScreensTest {
         compose.onNodeWithText("report.pdf").assertExists()
         compose.onNodeWithText("2.4 MiB").assertExists()
         compose.onNodeWithText("This upload never finished, so the file is not in your vault.").assertExists()
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Unreadable file"))
         compose.onNodeWithText("Unreadable file").assertExists()
         compose.onNodeWithText("1.2 KiB", substring = true).assertExists()
     }

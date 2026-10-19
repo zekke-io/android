@@ -32,7 +32,7 @@ import zekke.android.feature.tabs.TabsBar
 import zekke.android.ui.components.ButtonVariant
 import zekke.android.ui.components.ConfirmDeleteDialog
 import zekke.android.ui.components.EmptyState
-import zekke.android.ui.components.FloatingAddButton
+import zekke.android.ui.components.ExtendedAddButton
 import zekke.android.ui.components.LoadingIndicator
 import zekke.android.ui.components.NoteSurface
 import zekke.android.ui.components.Notice
@@ -104,7 +104,7 @@ private fun NotesList(state: NotesState, viewModel: NotesViewModel) {
                 else -> items(visible, key = { it.id }) { tile -> Tile(tile) { viewModel.open(tile) } }
             }
         }
-        FloatingAddButton(
+        ExtendedAddButton(
             stringResource(R.string.notes_add),
             viewModel::startNew,
             Modifier.align(Alignment.BottomEnd).padding(24.dp),
@@ -119,7 +119,7 @@ private fun Tile(tile: NoteTile, onOpen: () -> Unit) {
             !tile.readable -> stringResource(R.string.notes_unreadable)
             else -> tile.title ?: stringResource(R.string.notes_untitled)
         },
-        thumbnail = tile.thumbnail,
+        thumbnail = tile.title?.let { title -> tile.thumbnail.trimStart().removePrefix(title).trim() } ?: tile.thumbnail,
         caption = formatNoteDate(tile.updatedAt),
         onClick = { if (tile.readable) onOpen() },
     )

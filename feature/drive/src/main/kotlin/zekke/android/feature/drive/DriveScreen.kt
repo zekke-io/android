@@ -244,6 +244,7 @@ private fun FolderRow(folder: TreeFolder, state: DriveState, viewModel: DriveVie
         title = title,
         meta = folderCaption(state, folder),
         icon = zekke.android.ui.R.drawable.ic_folder,
+        card = true,
         onClick = { viewModel.openFolder(folder.id) },
         trailing = { MoreButton(title) { viewModel.act(DriveItem.OfFolder(folder)) } },
     )
@@ -256,6 +257,7 @@ private fun FileRow(file: DriveEntry, state: DriveState, viewModel: DriveViewMod
         title = title,
         meta = fileCaption(file),
         icon = zekke.android.ui.R.drawable.ic_drive,
+        card = true,
         onClick = { viewModel.act(DriveItem.OfFile(file)) },
         trailing = { MoreButton(title) { viewModel.act(DriveItem.OfFile(file)) } },
     )
