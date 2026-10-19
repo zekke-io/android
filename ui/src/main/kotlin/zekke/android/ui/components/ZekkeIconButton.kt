@@ -3,6 +3,7 @@ package zekke.android.ui.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -24,7 +25,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import zekke.android.ui.theme.Zekke
 
-enum class IconButtonTone { Neutral, Danger }
+enum class IconButtonTone { Neutral, Danger, Ink }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +50,16 @@ fun ZekkeIconButton(
     enabled: Boolean = true,
 ) {
     val palette = Zekke.palette
-    val glyph = if (tone == IconButtonTone.Danger) palette.danger.text else palette.inkSoft
+    val glyph = when (tone) {
+        IconButtonTone.Danger -> palette.danger.text
+        IconButtonTone.Ink -> if (palette.isDark) Color.White else palette.ground
+        IconButtonTone.Neutral -> palette.inkSoft
+    }
+    val filled = when (tone) {
+        IconButtonTone.Ink -> if (palette.isDark) palette.accent else palette.ink
+        IconButtonTone.Danger -> palette.surface
+        IconButtonTone.Neutral -> if (framed) palette.surface else Color.Transparent
+    }
     val border = when {
         tone == IconButtonTone.Danger -> BorderStroke(1.dp, palette.danger.line)
         framed -> BorderStroke(1.dp, palette.line)
@@ -59,10 +69,10 @@ fun ZekkeIconButton(
         OutlinedIconButton(
             onClick = onClick,
             enabled = enabled,
-            shape = MaterialTheme.shapes.small,
+            shape = if (tone == IconButtonTone.Ink) CircleShape else MaterialTheme.shapes.small,
             border = border,
             colors = IconButtonDefaults.outlinedIconButtonColors(
-                containerColor = if (framed || tone == IconButtonTone.Danger) palette.surface else Color.Transparent,
+                containerColor = filled,
                 contentColor = glyph,
             ),
             modifier = modifier.size(48.dp).semantics { contentDescription = label },

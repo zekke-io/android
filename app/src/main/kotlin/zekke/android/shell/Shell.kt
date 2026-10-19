@@ -8,15 +8,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -39,11 +37,10 @@ import zekke.android.ui.components.AppTile
 import zekke.android.ui.components.Mascot
 import zekke.android.ui.components.MascotPose
 import zekke.android.feature.settings.notificationBadge
-import zekke.android.ui.components.ButtonVariant
-import zekke.android.ui.components.StatusBadge
+import zekke.android.ui.components.BottomBar
+import zekke.android.ui.components.BottomBarItem
+import zekke.android.ui.components.IconButtonTone
 import zekke.android.ui.components.TopBar
-import zekke.android.ui.components.Tone
-import zekke.android.ui.components.ZekkeButton
 import zekke.android.ui.components.ZekkeIconButton
 import zekke.android.ui.theme.Zekke
 import zekke.core.feed.FeedScope
@@ -144,7 +141,6 @@ fun Shell(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun HomeScreen(
     status: SyncStatus,
@@ -154,51 +150,76 @@ private fun HomeScreen(
     notices: @Composable () -> Unit,
 ) {
     val palette = Zekke.palette
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Mascot(MascotPose.OpenAppIcon, Modifier.size(44.dp))
-            Text(
-                stringResource(R.string.home_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = palette.ink,
-                modifier = Modifier.weight(1f).semantics { heading() },
-            )
-            ZekkeIconButton(
-                zekke.android.ui.R.drawable.ic_bell,
-                hint = stringResource(R.string.shell_notifications),
-                label = if (status.unreadNotifications > 0) {
-                    pluralStringResource(R.plurals.notifications_bell, status.unreadNotifications, status.unreadNotifications)
-                } else {
-                    stringResource(R.string.shell_notifications)
-                },
-                onClick = onOpenNotifications,
-            )
-            if (status.unreadNotifications > 0) {
-                StatusBadge(notificationBadge(status.unreadNotifications), Tone.Brand)
-            }
-            ZekkeIconButton(
-                zekke.android.ui.R.drawable.ic_settings,
-                hint = stringResource(R.string.shell_settings),
-                onClick = { onOpen(Destination.Settings) },
-            )
-        }
-        Text(stringResource(R.string.home_body), style = MaterialTheme.typography.bodyLarge, color = palette.inkSoft)
-        notices()
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
-            SECTIONS.filter { section -> section.scopes.any { it in status.heldScopes } }.forEach { section ->
-                AppTile(
-                    mark = section.mark,
-                    label = stringResource(section.title),
-                    description = stringResource(section.description),
-                    onClick = { onOpen(section.destination) },
-                    modifier = Modifier.width(88.dp),
+    val sections = SECTIONS.filter { section -> section.scopes.any { it in status.heldScopes } }
+    Column(Modifier.fillMaxSize()) {
+        Column(
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+        ) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Mascot(MascotPose.OpenAppIcon, Modifier.size(48.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.home_greeting),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = palette.ink,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Text(stringResource(R.string.home_subtitle), style = MaterialTheme.typography.bodyMedium, color = palette.inkMuted)
+                }
+                ZekkeIconButton(
+                    zekke.android.ui.R.drawable.ic_lock_session,
+                    hint = stringResource(R.string.shell_lock_hint),
+                    label = stringResource(R.string.home_lock),
+                    tone = IconButtonTone.Ink,
+                    onClick = onLock,
                 )
             }
+            notices()
+            Text(
+                stringResource(R.string.home_apps),
+                style = MaterialTheme.typography.titleLarge,
+                color = palette.ink,
+                modifier = Modifier.semantics { heading() },
+            )
+            sections.chunked(3).forEach { rowSections ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    rowSections.forEach { section ->
+                        AppTile(
+                            mark = section.mark,
+                            label = stringResource(section.title),
+                            description = stringResource(section.description),
+                            onClick = { onOpen(section.destination) },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    repeat(3 - rowSections.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
         }
-        ZekkeButton(stringResource(R.string.home_lock), onLock, Modifier.fillMaxWidth(), ButtonVariant.Secondary)
+        BottomBar(
+            listOf(
+                BottomBarItem(zekke.android.ui.R.drawable.ic_home, stringResource(R.string.shell_home), selected = true, onClick = {}),
+                BottomBarItem(
+                    zekke.android.ui.R.drawable.ic_bell,
+                    stringResource(R.string.shell_notifications),
+                    selected = false,
+                    onClick = onOpenNotifications,
+                    description = if (status.unreadNotifications > 0) {
+                        pluralStringResource(R.plurals.notifications_bell, status.unreadNotifications, status.unreadNotifications)
+                    } else {
+                        stringResource(R.string.shell_notifications)
+                    },
+                    badge = if (status.unreadNotifications > 0) notificationBadge(status.unreadNotifications) else null,
+                ),
+                BottomBarItem(
+                    zekke.android.ui.R.drawable.ic_settings,
+                    stringResource(R.string.shell_settings),
+                    selected = false,
+                    onClick = { onOpen(Destination.Settings) },
+                ),
+            ),
+        )
     }
 }
 

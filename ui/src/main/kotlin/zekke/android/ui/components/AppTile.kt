@@ -41,7 +41,7 @@ fun AppTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     description: String? = null,
-    size: Dp = 64.dp,
+    size: Dp = 72.dp,
 ) {
     val palette = Zekke.palette
     val interaction = remember { MutableInteractionSource() }
@@ -67,7 +67,7 @@ fun AppTile(
         }
         Text(
             label,
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
             color = palette.ink,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),

@@ -12,8 +12,8 @@ States: `[ ]` open, `[~]` under way, `[x]` done.
 Decisions taken by default and not yet confirmed; each is recorded where it was taken.
 
 - **The new Zekke design (orange, Nunito, mascot) is applied to the theme, the shared components, the
-  sign-up steps, the lock screen and the Home header.** Not yet redrawn: the enrolment PIN step, the
-  recovery step, Home's body (storage card, recent activity, bottom navigation) and the list screens.
+  sign-up steps, the lock screen and the Home header.** Home is redrawn too (greeting header, *Your apps* grid, a bottom bar of Home, Notifications and Settings; no *What shall we do now?* row, no recent activity). Not yet redrawn: the enrolment PIN step, the
+  recovery step and the list screens.
   Deviations from the design, taken by default: no *Paste* button on sign-in (the phrase never passes a
   clipboard; the word fields and the QR scan stay); no *Search*, *Activity* or *Soon* tiles (they do not
   exist in the app); *Continue* on the recovery step still waits for the kit to be saved, not for a

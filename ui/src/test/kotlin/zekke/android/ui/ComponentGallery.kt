@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import zekke.android.ui.components.AppTile
+import zekke.android.ui.components.BottomBar
+import zekke.android.ui.components.BottomBarItem
 import zekke.android.ui.components.Block
 import zekke.android.ui.components.CheckboxRow
 import zekke.android.ui.components.ButtonVariant
@@ -59,8 +61,16 @@ fun ComponentGallery() {
             ZekkeIconToggleButton(R.drawable.ic_eye_off, hint = "Hide values", checked = true, onCheckedChange = {})
             ZekkeIconButton(R.drawable.ic_lock_session, hint = "Lock", onClick = {}, framed = true)
             ZekkeIconButton(R.drawable.ic_trash, hint = "Delete", label = "Delete Bank PIN", onClick = {}, tone = IconButtonTone.Danger)
+            ZekkeIconButton(R.drawable.ic_lock_session, hint = "Lock", onClick = {}, tone = IconButtonTone.Ink)
             StatusBadge("Draft", Tone.Neutral)
         }
+        BottomBar(
+            listOf(
+                BottomBarItem(R.drawable.ic_home, "Home", selected = true, onClick = {}),
+                BottomBarItem(R.drawable.ic_bell, "Notifications", selected = false, onClick = {}, badge = "3"),
+                BottomBarItem(R.drawable.ic_settings, "Settings", selected = false, onClick = {}),
+            ),
+        )
         TopBar(
             title = "Passwords",
             onBack = {},

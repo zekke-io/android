@@ -47,9 +47,9 @@ class ShellTest {
     @Test
     fun homeKeepsTheMarkerTheNoticesAndLock() {
         show(SyncStatus(active = true, heldScopes = held))
-        compose.onNodeWithText("Your account is open on this phone.").assertExists()
+        compose.onNodeWithText("Hi! All stored.").assertExists()
         compose.onNodeWithText("a notice").assertExists()
-        compose.onNodeWithText("Lock").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Lock").performClick()
         assertEquals(1, locks)
     }
 
@@ -82,7 +82,7 @@ class ShellTest {
         compose.onNodeWithText("Up to date").assertExists()
         compose.onNodeWithText("Your account is open on this phone.").assertDoesNotExist()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithText("Your account is open on this phone.").assertExists()
+        compose.onNodeWithText("Hi! All stored.").assertExists()
     }
 
     @Test
@@ -91,7 +91,7 @@ class ShellTest {
         compose.onNodeWithText("Passwords").performClick()
         compose.onNodeWithText("passwords body").assertExists()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithText("Your account is open on this phone.").assertExists()
+        compose.onNodeWithText("Hi! All stored.").assertExists()
     }
 
     @Test
@@ -135,7 +135,7 @@ class ShellTest {
         compose.onNodeWithContentDescription("Notifications").performClick()
         compose.onNodeWithText("notifications body").assertExists()
         compose.onNodeWithContentDescription("Back").performClick()
-        compose.onNodeWithText("Your account is open on this phone.").assertExists()
+        compose.onNodeWithText("Hi! All stored.").assertExists()
     }
 
     @Test
